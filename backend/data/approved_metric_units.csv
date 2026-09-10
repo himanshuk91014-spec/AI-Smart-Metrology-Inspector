@@ -1,0 +1,60 @@
+unit_symbol,unit_name,category,is_approved,rule_ref
+g,Gram,Mass,TRUE,Rule 11/12 PCR 2011
+gm,Gram,Mass,TRUE,Rule 11/12 PCR 2011
+gms,Grams,Mass,TRUE,Rule 11/12 PCR 2011
+gram,Gram,Mass,TRUE,Rule 11/12 PCR 2011
+grams,Grams,Mass,TRUE,Rule 11/12 PCR 2011
+kg,Kilogram,Mass,TRUE,Rule 11/12 PCR 2011
+kgs,Kilograms,Mass,TRUE,Rule 11/12 PCR 2011
+kilogram,Kilogram,Mass,TRUE,Rule 11/12 PCR 2011
+mg,Milligram,Mass,TRUE,Rule 11/12 PCR 2011
+milligram,Milligram,Mass,TRUE,Rule 11/12 PCR 2011
+ml,Millilitre,Volume,TRUE,Rule 11/12 PCR 2011
+mls,Millilitres,Volume,TRUE,Rule 11/12 PCR 2011
+millilitre,Millilitre,Volume,TRUE,Rule 11/12 PCR 2011
+milliliter,Milliliter,Volume,TRUE,Rule 11/12 PCR 2011
+l,Litre,Volume,TRUE,Rule 11/12 PCR 2011
+ltr,Litre,Volume,TRUE,Rule 11/12 PCR 2011
+ltrs,Litres,Volume,TRUE,Rule 11/12 PCR 2011
+litre,Litre,Volume,TRUE,Rule 11/12 PCR 2011
+liter,Liter,Volume,TRUE,Rule 11/12 PCR 2011
+cl,Centilitre,Volume,TRUE,Rule 11/12 PCR 2011
+dl,Decilitre,Volume,TRUE,Rule 11/12 PCR 2011
+m,Metre,Length,TRUE,Rule 11/12 PCR 2011
+meter,Meter,Length,TRUE,Rule 11/12 PCR 2011
+metre,Metre,Length,TRUE,Rule 11/12 PCR 2011
+cm,Centimetre,Length,TRUE,Rule 11/12 PCR 2011
+centimeter,Centimeter,Length,TRUE,Rule 11/12 PCR 2011
+mm,Millimetre,Length,TRUE,Rule 11/12 PCR 2011
+millimeter,Millimeter,Length,TRUE,Rule 11/12 PCR 2011
+sq.m,Square Metre,Area,TRUE,Rule 11/12 PCR 2011
+sq.cm,Square Centimetre,Area,TRUE,Rule 11/12 PCR 2011
+sq.mm,Square Millimetre,Area,TRUE,Rule 11/12 PCR 2011
+units,Units,Number,TRUE,Rule 11/12 PCR 2011
+unit,Unit,Number,TRUE,Rule 11/12 PCR 2011
+u,Unit,Number,TRUE,Rule 11/12 PCR 2011
+pcs,Pieces,Number,TRUE,Rule 11/12 PCR 2011
+piece,Piece,Number,TRUE,Rule 11/12 PCR 2011
+pieces,Pieces,Number,TRUE,Rule 11/12 PCR 2011
+pc,Piece,Number,TRUE,Rule 11/12 PCR 2011
+n,Number,Number,TRUE,Rule 11/12 PCR 2011
+count,Count,Number,TRUE,Rule 11/12 PCR 2011
+nos,Numbers,Number,TRUE,Rule 11/12 PCR 2011
+set,Set,Number,TRUE,Rule 11/12 PCR 2011
+pair,Pair,Number,TRUE,Rule 11/12 PCR 2011
+pens,Pens,Stationery,TRUE,Rule 11/12 PCR 2011
+pen,Pen,Stationery,TRUE,Rule 11/12 PCR 2011
+tablets,Tablets,Pharma,TRUE,Rule 11/12 PCR 2011
+capsules,Capsules,Pharma,TRUE,Rule 11/12 PCR 2011
+ग्राम,Gram,Devanagari Mass,TRUE,Rule 11/12 PCR 2011
+किग्रा,Kilogram,Devanagari Mass,TRUE,Rule 11/12 PCR 2011
+मिली,Millilitre,Devanagari Volume,TRUE,Rule 11/12 PCR 2011
+लीटर,Litre,Devanagari Volume,TRUE,Rule 11/12 PCR 2011
+గ్రాములు,Grams,Telugu Mass,TRUE,Rule 11/12 PCR 2011
+మి.లీ,Millilitre,Telugu Volume,TRUE,Rule 11/12 PCR 2011
+లీటర్,Litre,Telugu Volume,TRUE,Rule 11/12 PCR 2011
+కిలో,Kilo,Telugu Mass,TRUE,Rule 11/12 PCR 2011
+গ্রাম,Gram,Bengali Mass,TRUE,Rule 11/12 PCR 2011
+কেজি,Kg,Bengali Mass,TRUE,Rule 11/12 PCR 2011
+মিলি,Milli,Bengali Volume,TRUE,Rule 11/12 PCR 2011
+লিটার,Litre,Bengali Volume,TRUE,Rule 11/12 PCR 2011

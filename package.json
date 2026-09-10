@@ -1,0 +1,21 @@
+{
+  "name": "ai-smart-metrology-inspector",
+  "version": "2.5.0",
+  "private": true,
+  "description": "AI Smart Legal Metrology Inspector & Compliance Auditing System (PCR 2011)",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
+  },
+  "keywords": [
+    "legal-metrology",
+    "pcr-2011",
+    "ocr",
+    "fastapi",
+    "react",
+    "tesseract"
+  ],
+  "author": "Smart India Hackathon 2026",
+  "license": "MIT"
+}

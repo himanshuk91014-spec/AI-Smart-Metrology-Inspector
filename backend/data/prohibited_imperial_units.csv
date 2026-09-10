@@ -1,0 +1,29 @@
+unit_symbol,unit_name,prohibition_reason,severity,rule_ref
+fl oz,Fluid Ounce,Imperial liquid measure strictly prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+floz,Fluid Ounce,Imperial liquid measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+fl. oz,Fluid Ounce,Imperial liquid measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+fl. oz.,Fluid Ounce,Imperial liquid measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+fluid ounce,Fluid Ounce,Imperial liquid measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+fluid ounces,Fluid Ounces,Imperial liquid measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+oz,Ounce,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+ounce,Ounce,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+ounces,Ounces,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+lbs,Pounds,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+pound,Pound,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+pounds,Pounds,Imperial weight measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+gallon,Gallon,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+gallons,Gallons,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+gal,Gallon,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+quart,Quart,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+quarts,Quarts,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+qt,Quart,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+pint,Pint,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+pints,Pints,Imperial volume measure prohibited under Indian SI standards,HIGH,Rule 11/12 PCR 2011
+yard,Yard,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+yards,Yards,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+yds,Yards,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+inch,Inch,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+inches,Inches,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+feet,Feet,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+foot,Foot,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011
+ft,Foot,Imperial length measure non-standard under PCR 2011,MEDIUM,Rule 11/12 PCR 2011

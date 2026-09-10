@@ -1,0 +1,31 @@
+phrase,language_code,is_valid_suffix
+inclusive of all taxes,en,TRUE
+incl. of all taxes,en,TRUE
+incl of all taxes,en,TRUE
+inclusive all taxes,en,TRUE
+all taxes included,en,TRUE
+all taxes incl,en,TRUE
+taxes included,en,TRUE
+taxes incl,en,TRUE
+incl tax,en,TRUE
+incl taxes,en,TRUE
+inclusive of all tax,en,TRUE
+incl. of all tax,en,TRUE
+सभी करों सहित,hi,TRUE
+करों सहित,hi,TRUE
+सब टैक्स सहित,hi,TRUE
+सर्व करांसह,mr,TRUE
+सर्व कर समाविष्ट,mr,TRUE
+అన్ని పన్నులతో కలిపి,te,TRUE
+అన్ని పన్నులు కలుపుకొని,te,TRUE
+పన్నులు సహా,te,TRUE
+সমস্ত কর সহ,bn,TRUE
+সব ট্যাক্স সহ,bn,TRUE
+ਸਾਰੇ ਟੈਕਸਾਂ ਸਮੇਤ,pa,TRUE
+ਸਾਰੇ ਟੈਕਸ ਸ਼ਾਮਲ,pa,TRUE
+تمام ٹیکسز سمیت,ur,TRUE
+تمام ٹیکس شامل,ur,TRUE
+அனைத்து வரிகளும் உட்பட,ta,TRUE
+તમામ કર સહિત,gu,TRUE
+ಎಲ್ಲಾ ತೆರಿಗೆಗಳು ಸೇರಿವೆ,kn,TRUE
+എല്ലാ നികുതികളും ഉൾപ്പെടെ,ml,TRUE

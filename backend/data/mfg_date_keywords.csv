@@ -1,0 +1,49 @@
+keyword,language_code,category
+mfg,en,Timeline
+manufactured,en,Timeline
+manufacturing,en,Timeline
+mfg date,en,Timeline
+date of mfg,en,Timeline
+pkd,en,Timeline
+packed,en,Timeline
+packaging,en,Timeline
+date of packaging,en,Timeline
+pkg,en,Timeline
+packed date,en,Timeline
+import,en,Timeline
+imported,en,Timeline
+import date,en,Timeline
+batch,en,Timeline
+lot,en,Timeline
+b.no,en,Timeline
+b.n,en,Timeline
+mfd,en,Timeline
+mfd.,en,Timeline
+mfd. on,en,Timeline
+mfd on,en,Timeline
+date of import,en,Timeline
+exp,en,Timeline
+exp.,en,Timeline
+expiry,en,Timeline
+exp date,en,Timeline
+best before,en,Timeline
+use before,en,Timeline
+use by,en,Timeline
+निर्माण तिथि,hi,Timeline
+पैकिंग तिथि,hi,Timeline
+उत्पादन,hi,Timeline
+बैच नं,hi,Timeline
+उत्पादन दिनांक,mr,Timeline
+पॅकिंग दिनांक,mr,Timeline
+తయారీ తేదీ,te,Timeline
+ప్యాకింగ్ తేదీ,te,Timeline
+బ్యాచ్ నెం,te,Timeline
+উত্পাদন তারিখ,bn,Timeline
+প্যাকিং তারিখ,bn,Timeline
+ਤਿਆਰੀ ਮਿਤੀ,pa,Timeline
+ਪੈਕਿੰਗ ਮਿਤੀ,pa,Timeline
+تاریخ تیاری,ur,Timeline
+پیکنگ تاریخ,ur,Timeline
+தயாரிப்பு தேதி,ta,Timeline
+ઉત્પાદન તારીખ,gu,Timeline
+ಉತ್ಪಾದನಾ ದಿನಾಂಕ,kn,Timeline
