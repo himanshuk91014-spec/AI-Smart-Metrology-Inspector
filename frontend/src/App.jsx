@@ -60,13 +60,8 @@ import {
   Clock,
   ExternalLink,
   Smartphone,
-  Tablet,
-  Monitor,
-  RotateCw,
   Menu,
   SlidersHorizontal,
-  Laptop,
-  Radio,
   Share2,
   Wifi,
   Battery
@@ -92,57 +87,261 @@ const getApiBaseUrl = () => {
   return 'http://localhost:8000';
 };
 
-const SIMULATOR_DEVICES = {
-  iphone15: {
-    id: 'iphone15',
-    name: 'iPhone 15 Pro',
-    icon: '📱',
-    width: 393,
-    height: 852,
-    notch: 'island',
-    platform: 'iOS',
-    time: '11:38'
+const DEFAULT_HISTORICAL_AUDITS = [
+  {
+    audit_id: 'AUD-2026-FMCG-881',
+    product_name: 'Britannia Good Day Butter Cookies',
+    mrp: '45.00',
+    net_quantity: '200 g',
+    status: 'COMPLIANT',
+    overall_score: 100,
+    timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+    is_manually_verified: false,
+    extracted_metadata: {
+      brand_name: 'Britannia Good Day Butter Cookies',
+      mrp: '45.00',
+      taxes_included: true,
+      net_quantity: '200',
+      unit_of_measure: 'g',
+      manufacturing_date: '02/2026',
+      consumer_care_email: 'feedback@britannia.co.in',
+      consumer_care_phone: '1800-425-4449',
+      country_of_origin: 'India',
+      manufacturer_name: 'Britannia Industries Ltd.'
+    },
+    violations: [],
+    passed_checks: [
+      { rule_id: 'RULE_6_1_DA', rule_name: 'Rule 6(1)(da) - MRP & Tax Clause', evidence: '₹ 45.00 (Inclusive of all taxes)' },
+      { rule_id: 'RULE_11_12', rule_name: 'Rule 11 & 12 - Net Quantity', evidence: '200 g (SI Metric)' },
+      { rule_id: 'RULE_6_1_G', rule_name: 'Rule 6(1)(g) - Consumer Care', evidence: '1800-425-4449 | feedback@britannia.co.in' },
+      { rule_id: 'RULE_6_1_C', rule_name: 'Rule 6(1)(c) - Packaging Date', evidence: '02/2026' },
+      { rule_id: 'RULE_6_10', rule_name: 'Rule 6(10) - Country of Origin', evidence: 'Made in India' }
+    ]
   },
-  s24: {
-    id: 's24',
-    name: 'Samsung Galaxy S24',
-    icon: '📱',
-    width: 412,
-    height: 915,
-    notch: 'punchhole',
-    platform: 'Android',
-    time: '11:38'
+  {
+    audit_id: 'AUD-2026-IMPERIAL-702',
+    product_name: 'Imported Salon Conditioning Shampoo',
+    mrp: '499.00',
+    net_quantity: '8.4 fl oz',
+    status: 'NON_COMPLIANT',
+    overall_score: 40,
+    timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
+    is_manually_verified: false,
+    extracted_metadata: {
+      brand_name: 'Imported Salon Conditioning Shampoo',
+      mrp: '499.00',
+      taxes_included: true,
+      net_quantity: '8.4',
+      unit_of_measure: 'fl oz',
+      manufacturing_date: '01/2026',
+      consumer_care_email: 'support@salonhair.com',
+      consumer_care_phone: '1800-111-2233',
+      country_of_origin: 'USA',
+      manufacturer_name: 'Beauty Care Corp'
+    },
+    violations: [
+      {
+        rule_id: 'RULE_11_12',
+        rule_name: 'Rule 11 & 12 - Prohibited Imperial Units',
+        severity: 'HIGH',
+        description: "Package declares volume in prohibited imperial units 'fl oz'. Legal Metrology Section 11/36 violation.",
+        found_text: '8.4 fl oz',
+        remediation: 'Must declare volume in standard SI Metric Units (ml / L).'
+      }
+    ],
+    passed_checks: [
+      { rule_id: 'RULE_6_1_DA', rule_name: 'Rule 6(1)(da) - MRP with Tax Suffix', evidence: '₹ 499.00 (Incl. of all taxes)' },
+      { rule_id: 'RULE_6_1_G', rule_name: 'Rule 6(1)(g) - Consumer Grievance', evidence: '1800-111-2233' }
+    ]
   },
-  pixel8: {
-    id: 'pixel8',
-    name: 'Google Pixel 8',
-    icon: '📱',
-    width: 412,
-    height: 892,
-    notch: 'punchhole',
-    platform: 'Android',
-    time: '11:38'
+  {
+    audit_id: 'AUD-2026-TAX-619',
+    product_name: 'Herbal Green Tea Tin Pack',
+    mrp: '250.00',
+    net_quantity: '100 g',
+    status: 'NON_COMPLIANT',
+    overall_score: 70,
+    timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+    is_manually_verified: false,
+    extracted_metadata: {
+      brand_name: 'Herbal Green Tea Tin Pack',
+      mrp: '250.00',
+      taxes_included: false,
+      net_quantity: '100',
+      unit_of_measure: 'g',
+      manufacturing_date: '02/2026',
+      consumer_care_email: 'care@herbaltea.in',
+      consumer_care_phone: '1800-333-7788',
+      country_of_origin: 'India',
+      manufacturer_name: 'Assam Tea Estates Pvt Ltd'
+    },
+    violations: [
+      {
+        rule_id: 'RULE_6_1_DA',
+        rule_name: 'Rule 6(1)(da) - Missing Tax Suffix on MRP',
+        severity: 'HIGH',
+        description: "Statutory clause 'Inclusive of all taxes' is missing on declared MRP ₹ 250.00.",
+        found_text: 'MRP Rs. 250.00',
+        remediation: "Add 'Inclusive of all taxes' immediately adjacent to declared MRP."
+      }
+    ],
+    passed_checks: [
+      { rule_id: 'RULE_11_12', rule_name: 'Rule 11 & 12 - Net Quantity Standards', evidence: '100 g' },
+      { rule_id: 'RULE_6_1_G', rule_name: 'Rule 6(1)(g) - Customer Redressal', evidence: 'care@herbaltea.in' },
+      { rule_id: 'RULE_6_1_C', rule_name: 'Rule 6(1)(c) - Packaging Date', evidence: '02/2026' }
+    ]
   },
-  compact: {
-    id: 'compact',
-    name: 'Compact Smartphone (360px)',
-    icon: '📱',
-    width: 360,
-    height: 780,
-    notch: 'speaker',
-    platform: 'Android',
-    time: '11:38'
+  {
+    audit_id: 'AUD-2026-TELUGU-504',
+    product_name: 'హెర్బల్ హెయిర్ ఆయిల్ (Telugu FMCG Oil)',
+    mrp: '180.00',
+    net_quantity: '200 ml',
+    status: 'COMPLIANT',
+    overall_score: 100,
+    timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
+    is_manually_verified: false,
+    extracted_metadata: {
+      brand_name: 'హెర్బల్ హెయిర్ ఆయిల్ (Herbal Hair Oil)',
+      mrp: '180.00',
+      taxes_included: true,
+      net_quantity: '200',
+      unit_of_measure: 'ml',
+      manufacturing_date: '02/2026',
+      consumer_care_email: 'care@teluguoil.in',
+      consumer_care_phone: '1800-425-0011',
+      country_of_origin: 'India',
+      manufacturer_name: 'శ్రీ బాలాజీ ఇండస్ట్రీస్, హైదరాబాద్'
+    },
+    violations: [],
+    passed_checks: [
+      { rule_id: 'RULE_6_1_DA', rule_name: 'Rule 6(1)(da) - MRP & Tax Suffix (Telugu)', evidence: 'గరిష్ట ధర ₹ 180 (అన్ని పన్నులతో కలిపి)' },
+      { rule_id: 'RULE_11_12', rule_name: 'Rule 11 & 12 - Net Quantity', evidence: 'పరిమాణం: 200 ml' },
+      { rule_id: 'RULE_6_1_G', rule_name: 'Rule 6(1)(g) - Helpline', evidence: '1800-425-0011 | care@teluguoil.in' }
+    ]
   },
-  ipad: {
-    id: 'ipad',
-    name: 'iPad Mini / Tablet',
-    icon: '📲',
-    width: 768,
-    height: 1024,
-    notch: 'speaker',
-    platform: 'iPadOS',
-    time: '11:38'
+  {
+    audit_id: 'AUD-2026-SOAP-411',
+    product_name: 'Patanjali Ayurvedic Herbal Soap',
+    mrp: '65.00',
+    net_quantity: '125 g',
+    status: 'COMPLIANT',
+    overall_score: 100,
+    timestamp: new Date(Date.now() - 3600000 * 30).toISOString(),
+    is_manually_verified: true,
+    inspector_metadata: {
+      inspector_id: 'INSP-2026-DELHI-883',
+      inspector_name: 'Authorized Legal Metrology Officer',
+      inspection_location: 'Retail Market Audit (New Delhi)',
+      inspection_remarks: 'Specimen physically verified under PCR 2011.'
+    },
+    extracted_metadata: {
+      brand_name: 'Patanjali Ayurvedic Herbal Soap',
+      mrp: '65.00',
+      taxes_included: true,
+      net_quantity: '125',
+      unit_of_measure: 'g',
+      manufacturing_date: '01/2026',
+      consumer_care_email: 'care@ayurved.in',
+      consumer_care_phone: '1800-222-1111',
+      country_of_origin: 'India',
+      manufacturer_name: 'Patanjali Gramodhyog Pvt Ltd'
+    },
+    violations: [],
+    passed_checks: [
+      { rule_id: 'RULE_6_1_DA', rule_name: 'Rule 6(1)(da) - MRP with Tax Clause', evidence: '₹ 65.00 (सभी करों सहित)' },
+      { rule_id: 'RULE_11_12', rule_name: 'Rule 11 & 12 - Net Weight', evidence: 'शुद्ध मात्रा: 125 ग्राम' }
+    ]
   }
+];
+
+const DEFAULT_RULES_FALLBACK = [
+  {
+    rule_id: 'RULE_6_1_A',
+    rule_name: 'Generic Commodity Name / Identity',
+    legal_reference: 'Rule 6(1)(a) PCR 2011',
+    category: 'Identity',
+    description: 'Generic or common name of the packaged commodity must be prominently declared on PDP.',
+    penalty_clause: 'Section 36(1) fine up to Rs 25,000 / compounding under Rule 32'
+  },
+  {
+    rule_id: 'RULE_6_1_B',
+    rule_name: 'Net Quantity & Standard SI Metric Units',
+    legal_reference: 'Rule 6(1)(b) & Rule 11/12 PCR 2011',
+    category: 'Quantity',
+    description: 'Net quantity must be declared in standard SI metric units (g, kg, ml, l, pcs). Prohibited non-standard imperial units (lbs, oz, fl oz) are strictly banned.',
+    penalty_clause: 'Section 36(1) of Legal Metrology Act 2009'
+  },
+  {
+    rule_id: 'RULE_6_1_C',
+    rule_name: 'Name & Address of Manufacturer / Packer / Importer',
+    legal_reference: 'Rule 6(1)(c) PCR 2011',
+    category: 'Manufacturer',
+    description: 'Name and complete address of the manufacturer, packer, or importer must be clearly declared on the packaging.',
+    penalty_clause: 'Rule 32 compounding or prosecution under Section 36'
+  },
+  {
+    rule_id: 'RULE_6_1_D',
+    rule_name: 'Month & Year of Manufacture / Packing / Import',
+    legal_reference: 'Rule 6(1)(d) PCR 2011',
+    category: 'Timeline',
+    description: 'Month and year in which the commodity is manufactured, packed, or imported must be declared in standard format (MM/YYYY or Month YYYY).',
+    penalty_clause: 'Section 36(1) of Legal Metrology Act'
+  },
+  {
+    rule_id: 'RULE_6_1_DA',
+    rule_name: 'Maximum Retail Price (MRP) & Mandatory Tax Clause',
+    legal_reference: 'Rule 6(1)(da) PCR 2011',
+    category: 'Pricing',
+    description: "MRP must be declared in Indian Rupees along with mandatory statutory suffix 'Inclusive of all taxes' or 'Incl. of all taxes'.",
+    penalty_clause: 'Section 36(1) of Legal Metrology Act 2009'
+  },
+  {
+    rule_id: 'RULE_6_1_G',
+    rule_name: 'Consumer Care & Grievance Redressal Cell',
+    legal_reference: 'Rule 6(1)(g) PCR 2011',
+    category: 'Consumer Protection',
+    description: 'Name, address, telephone helpline number, and email address of consumer redressal cell to contact in case of consumer complaints.',
+    penalty_clause: 'Section 36(1) of Legal Metrology Act'
+  },
+  {
+    rule_id: 'RULE_6_10',
+    rule_name: 'Country of Origin Declaration',
+    legal_reference: 'Rule 6(10) PCR 2011',
+    category: 'Origin',
+    description: 'For imported or domestic goods, the country of origin must be clearly stated on the package (e.g. Made in India).',
+    penalty_clause: 'Advisory and notice under Rule 6(10)'
+  },
+  {
+    rule_id: 'RULE_7_8_9',
+    rule_name: 'Principal Display Panel & Minimum Font Height',
+    legal_reference: 'Rule 7, 8, 9 & Schedule II PCR 2011',
+    category: 'Typography',
+    description: 'Mandatory declarations on the PDP must comply with minimum numeral and letter font heights (1.0mm to 6.0mm) according to net quantity and area.',
+    penalty_clause: 'Schedule II compounding provisions'
+  }
+];
+
+const DEFAULT_UNITS_FALLBACK = {
+  approved_metric_units: [
+    { symbol: 'g', name: 'Gram', type: 'Mass', standard: 'SI Metric' },
+    { symbol: 'kg', name: 'Kilogram', type: 'Mass', standard: 'SI Metric' },
+    { symbol: 'mg', name: 'Milligram', type: 'Mass', standard: 'SI Metric' },
+    { symbol: 'ml', name: 'Millilitre', type: 'Volume', standard: 'SI Metric' },
+    { symbol: 'l', name: 'Litre', type: 'Volume', standard: 'SI Metric' },
+    { symbol: 'm', name: 'Metre', type: 'Length', standard: 'SI Metric' },
+    { symbol: 'cm', name: 'Centimetre', type: 'Length', standard: 'SI Metric' },
+    { symbol: 'mm', name: 'Millimetre', type: 'Length', standard: 'SI Metric' },
+    { symbol: 'Units / pcs / N', name: 'Piece / Item Count', type: 'Count', standard: 'Approved' },
+    { symbol: 'pens / tablets', name: 'Stationery / Pharma Count', type: 'Count', standard: 'Approved' }
+  ],
+  prohibited_imperial_units: [
+    { symbol: 'fl oz / floz', name: 'Fluid Ounce', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
+    { symbol: 'oz / ounce', name: 'Ounce', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
+    { symbol: 'lbs / pound', name: 'Pound', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
+    { symbol: 'gallon / gal', name: 'Gallon', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
+    { symbol: 'yard / yds', name: 'Yard', type: 'Length', restriction: 'Prohibited under Rule 11/12' },
+    { symbol: 'inch / inches', name: 'Inch', type: 'Length', restriction: 'Prohibited under Rule 11/12' }
+  ]
 };
 
 const ANGLE_DEFINITIONS = [
@@ -299,14 +498,7 @@ export default function App() {
   const [selectedSampleId, setSelectedSampleId] = useState('');
   const [manualTextMode, setManualTextMode] = useState(false);
   const [manualText, setManualText] = useState('');
-
-  // Device Simulator State for Desktop/Laptop Testing
-  const [simulatorMode, setSimulatorMode] = useState(false);
-  const [simulatorDeviceId, setSimulatorDeviceId] = useState('iphone15');
-  const [simulatorOrientation, setSimulatorOrientation] = useState('portrait'); // 'portrait' | 'landscape'
-  const [simulatorScale, setSimulatorScale] = useState(1);
   const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
-
 
   // Live Mobile Rear Camera State
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -320,9 +512,23 @@ export default function App() {
   const [isAuditsModalOpen, setIsAuditsModalOpen] = useState(false);
   const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [isNoticeModalOpen, setIsNoticeModalOpen] = useState(false);
-  const [recentAuditsList, setRecentAuditsList] = useState([]);
-  const [rulesList, setRulesList] = useState([]);
-  const [unitsData, setUnitsData] = useState({ approved_metric_units: [], prohibited_imperial_units: [] });
+  
+  // Recent Audits with Instant Local Storage & Statutory Defaults
+  const [recentAuditsList, setRecentAuditsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pcr_audit_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn('Failed reading localStorage audits:', e);
+    }
+    return DEFAULT_HISTORICAL_AUDITS;
+  });
+
+  const [rulesList, setRulesList] = useState(DEFAULT_RULES_FALLBACK);
+  const [unitsData, setUnitsData] = useState(DEFAULT_UNITS_FALLBACK);
   const [dbStatusInfo, setDbStatusInfo] = useState(null);
 
   // History Drawer Search, Filter & Action State
@@ -492,6 +698,44 @@ export default function App() {
     }
   };
 
+  const saveAuditToHistory = (auditObj) => {
+    if (!auditObj) return;
+    const historyItem = {
+      audit_id: auditObj.audit_id || `AUD-${Date.now()}`,
+      product_name:
+        auditObj.extracted_metadata?.brand_name ||
+        auditObj.product_name ||
+        auditObj.filename ||
+        'Packaged Commodity Specimen',
+      mrp: auditObj.extracted_metadata?.mrp ? `₹ ${auditObj.extracted_metadata.mrp}` : (auditObj.mrp || 'Not Declared'),
+      net_quantity: auditObj.extracted_metadata?.net_quantity
+        ? `${auditObj.extracted_metadata.net_quantity} ${auditObj.extracted_metadata.unit_of_measure || ''}`.trim()
+        : (auditObj.net_quantity || 'Not Declared'),
+      status: auditObj.status || (auditObj.violations && auditObj.violations.length > 0 ? 'NON_COMPLIANT' : 'COMPLIANT'),
+      overall_score: auditObj.overall_score ?? (auditObj.violations && auditObj.violations.length > 0 ? 60 : 100),
+      timestamp: auditObj.timestamp || new Date().toISOString(),
+      is_manually_verified: Boolean(auditObj.is_manually_verified),
+      source: auditObj.source || (auditObj.ai_engine_used === 'tesseract_client_edge' ? 'Edge OCR (Mobile)' : 'Hybrid AI RapidOCR'),
+      thumbnail_base64: auditObj.thumbnail_base64 || uploadedImages[0]?.previewUrl || null,
+      extracted_metadata: auditObj.extracted_metadata || {},
+      violations: auditObj.violations || [],
+      violations_count: auditObj.violations_count ?? (auditObj.violations?.length || 0),
+      violations_summary: (auditObj.violations || []).map((v) => v.rule_name || v.description),
+      passed_checks: auditObj.passed_checks || []
+    };
+
+    setRecentAuditsList((prev) => {
+      const filtered = prev.filter((a) => a.audit_id !== historyItem.audit_id);
+      const updated = [historyItem, ...filtered];
+      try {
+        localStorage.setItem('pcr_audit_history', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('Could not save audit to localStorage:', err);
+      }
+      return updated;
+    });
+  };
+
   const fetchDbStatusAndHistory = async () => {
     const baseUrl = getApiBaseUrl();
     try {
@@ -503,15 +747,24 @@ export default function App() {
       ]);
       if (resAudits && resAudits.ok) {
         const data = await resAudits.json();
-        setRecentAuditsList(data.audits || []);
+        if (data.audits && Array.isArray(data.audits) && data.audits.length > 0) {
+          setRecentAuditsList(data.audits);
+          try {
+            localStorage.setItem('pcr_audit_history', JSON.stringify(data.audits));
+          } catch (e) {}
+        }
       }
       if (resRules && resRules.ok) {
         const data = await resRules.json();
-        setRulesList(data.rules || []);
+        if (data.rules && Array.isArray(data.rules) && data.rules.length > 0) {
+          setRulesList(data.rules);
+        }
       }
       if (resUnits && resUnits.ok) {
         const data = await resUnits.json();
-        setUnitsData(data);
+        if (data.approved_metric_units && data.approved_metric_units.length > 0) {
+          setUnitsData(data);
+        }
       }
       if (resDb && resDb.ok) {
         const data = await resDb.json();
@@ -811,6 +1064,7 @@ export default function App() {
           (pct, msg) => setClientOcrProgress({ percent: pct, message: msg })
         );
         setAuditResult(clientReport);
+        saveAuditToHistory(clientReport);
         setActiveTab(clientReport.violations.length > 0 ? 'violations' : 'passed');
         setLoading(false);
         fetchDbStatusAndHistory();
@@ -839,6 +1093,7 @@ export default function App() {
           if (res.ok) {
             const data = await res.json();
             setAuditResult(data);
+            saveAuditToHistory(data);
             setActiveTab(data.violations && data.violations.length > 0 ? 'violations' : 'passed');
             setLoading(false);
             fetchDbStatusAndHistory();
@@ -849,14 +1104,16 @@ export default function App() {
         }
       }
       const localEval = evaluateClientSideCompliance(manualText);
-      setAuditResult({
+      const textAuditRecord = {
         ...localEval,
         audit_id: `AUD-LOCAL-${Date.now()}`,
         is_client_side_fallback: true,
         ai_engine_used: 'client_rules_evaluator',
         raw_text_dump: manualText.split('\n'),
         raw_segments: []
-      });
+      };
+      setAuditResult(textAuditRecord);
+      saveAuditToHistory(textAuditRecord);
       setActiveTab(localEval.violations.length > 0 ? 'violations' : 'passed');
       setLoading(false);
       return;
@@ -892,6 +1149,7 @@ export default function App() {
 
       const result = await response.json();
       setAuditResult(result);
+      saveAuditToHistory(result);
       setActiveTab(result.violations && result.violations.length > 0 ? 'violations' : 'passed');
       fetchDbStatusAndHistory();
     } catch (err) {
@@ -903,6 +1161,7 @@ export default function App() {
         );
         clientReport.is_fallback_after_backend_error = true;
         setAuditResult(clientReport);
+        saveAuditToHistory(clientReport);
         setActiveTab(clientReport.violations.length > 0 ? 'violations' : 'passed');
       } catch (fallbackErr) {
         setErrorMessage(`Audit execution error: ${err.message}. Edge OCR fallback also failed: ${fallbackErr.message}`);
@@ -959,9 +1218,9 @@ export default function App() {
       }
 
       const reAuditData = await response.json();
-      setAuditResult((prev) => ({
-        ...prev,
-        audit_id: reAuditData.audit_id || prev?.audit_id || `AUD-VERIFIED-${Date.now()}`,
+      const updatedVerifiedResult = {
+        ...auditResult,
+        audit_id: reAuditData.audit_id || auditResult?.audit_id || `AUD-VERIFIED-${Date.now()}`,
         status: reAuditData.status,
         overall_score: reAuditData.overall_score,
         is_manually_verified: true,
@@ -978,7 +1237,9 @@ export default function App() {
         warnings: reAuditData.warnings,
         extracted_metadata: reAuditData.extracted_metadata,
         rules_breakdown: reAuditData.rules_breakdown
-      }));
+      };
+      setAuditResult(updatedVerifiedResult);
+      saveAuditToHistory(updatedVerifiedResult);
 
       setInspectorSuccessToast('✓ Specimen Data Successfully Overwritten & Verified by Inspector! Real-time Statutory Report & Inspection Certificate Generated.');
       setActiveTab('report');
@@ -987,9 +1248,9 @@ export default function App() {
       console.error('Re-audit fallback notice:', err);
       const simulatedText = Object.values(sourceForm).filter(Boolean).join('\n');
       const clientEval = evaluateClientSideCompliance(simulatedText, auditResult.raw_segments || [], manualOverridesPayload);
-      setAuditResult((prev) => ({
-        ...prev,
-        audit_id: prev?.audit_id || `AUD-VERIFIED-${Date.now()}`,
+      const updatedLocalResult = {
+        ...auditResult,
+        audit_id: auditResult?.audit_id || `AUD-VERIFIED-${Date.now()}`,
         status: clientEval.status,
         overall_score: clientEval.overall_score,
         is_manually_verified: true,
@@ -1004,9 +1265,11 @@ export default function App() {
         violations: clientEval.violations,
         passed_checks: clientEval.passed_checks,
         warnings: clientEval.warnings,
-        extracted_metadata: { ...prev?.extracted_metadata, ...sourceForm },
+        extracted_metadata: { ...auditResult?.extracted_metadata, ...sourceForm },
         rules_breakdown: clientEval.rules_breakdown
-      }));
+      };
+      setAuditResult(updatedLocalResult);
+      saveAuditToHistory(updatedLocalResult);
       setInspectorSuccessToast('✓ Inspector verification applied locally! Statutory report and inspection certificate updated.');
       setActiveTab('report');
     } finally {
@@ -1127,11 +1390,16 @@ export default function App() {
       await fetch(`${baseUrl}/api/recent-audits/${encodeURIComponent(auditId)}`, {
         method: 'DELETE'
       });
-      setRecentAuditsList((prev) => prev.filter((a) => a.audit_id !== auditId));
     } catch (err) {
       console.warn('Error deleting audit from backend:', err);
-      setRecentAuditsList((prev) => prev.filter((a) => a.audit_id !== auditId));
     } finally {
+      setRecentAuditsList((prev) => {
+        const updated = prev.filter((a) => a.audit_id !== auditId);
+        try {
+          localStorage.setItem('pcr_audit_history', JSON.stringify(updated));
+        } catch (e) {}
+        return updated;
+      });
       setDeletingAuditId(null);
     }
   };
@@ -1141,10 +1409,13 @@ export default function App() {
     try {
       const baseUrl = getApiBaseUrl();
       await fetch(`${baseUrl}/api/recent-audits`, { method: 'DELETE' });
-      setRecentAuditsList([]);
     } catch (err) {
       console.warn('Error clearing audit history:', err);
+    } finally {
       setRecentAuditsList([]);
+      try {
+        localStorage.removeItem('pcr_audit_history');
+      } catch (e) {}
     }
   };
 
@@ -1213,7 +1484,7 @@ export default function App() {
   const pdpCalc = calculatePdpAreaAndFont();
   const isDark = theme === 'dark';
 
-  const renderAppContent = (inSimulator = false) => (
+  const renderAppContent = () => (
     <div
       onDragOver={handleDragOver}
       onDrop={handleGlobalDrop}
@@ -1258,23 +1529,6 @@ export default function App() {
 
           {/* Desktop/Laptop Header Actions (>= 768px) */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-2.5 flex-shrink-0">
-            {/* Simulator Toggle Button (Only when not inside simulator) */}
-            {!inSimulator && (
-              <button
-                onClick={() => setSimulatorMode(!simulatorMode)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all shadow-sm ${
-                  simulatorMode
-                    ? 'bg-purple-600 text-white border-purple-500 shadow-purple-500/30 ring-2 ring-purple-400'
-                    : isDark
-                    ? 'bg-slate-800 hover:bg-slate-700 text-purple-300 border-purple-900/50 hover:border-purple-600'
-                    : 'bg-purple-50 hover:bg-purple-100 text-purple-800 border-purple-300'
-                }`}
-                title="Toggle Mobile / Tablet Device Simulator Preview for Laptop Testing"
-              >
-                <Smartphone className="h-3.5 w-3.5 text-purple-400 animate-pulse" />
-                <span>📱 Simulator View</span>
-              </button>
-            )}
 
             {/* Live Camera Quick Scan */}
             <button
@@ -3866,16 +4120,17 @@ export default function App() {
               <button
                 onClick={() => {
                   setIsMobileToolsOpen(false);
-                  setSimulatorMode(true);
+                  setActiveTab('pdp_calc');
+                  window.scrollTo({ top: 400, behavior: 'smooth' });
                 }}
                 className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-2 active:scale-95 transition ${
-                  isDark ? 'bg-purple-950/60 border-purple-800 text-purple-300' : 'bg-purple-50 border-purple-200 text-purple-900'
+                  isDark ? 'bg-indigo-950/60 border-indigo-800 text-indigo-300' : 'bg-indigo-50 border-indigo-200 text-indigo-900'
                 }`}
               >
-                <Smartphone className="h-5 w-5 text-purple-400" />
+                <Calculator className="h-5 w-5 text-indigo-400" />
                 <div>
-                  <div className="font-extrabold">Simulator Mode</div>
-                  <div className="text-[10px] opacity-70">Laptop device tester</div>
+                  <div className="font-extrabold">PDP Calculator</div>
+                  <div className="text-[10px] opacity-70">Schedule II font test</div>
                 </div>
               </button>
             </div>
@@ -3902,156 +4157,8 @@ export default function App() {
     </div>
   );
 
-  // If Device Simulator Mode is activated on Desktop/Laptop
-  if (simulatorMode) {
-    const currentSim = SIMULATOR_DEVICES[simulatorDeviceId] || SIMULATOR_DEVICES.iphone15;
-    const isLand = simulatorOrientation === 'landscape';
-    const frameW = isLand ? currentSim.height : currentSim.width;
-    const frameH = isLand ? currentSim.width : currentSim.height;
-
-    return (
-      <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col items-center select-none overflow-x-hidden">
-        {/* Top Simulator Control Bar */}
-        <div className="w-full bg-[#0d1527] border-b border-slate-800 px-3 py-2.5 sm:px-6 flex items-center justify-between flex-wrap gap-2.5 z-50 shadow-xl">
-          <div className="flex items-center space-x-2.5 flex-wrap gap-1.5">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-950/90 border border-purple-700 text-purple-300 text-xs font-bold shadow-sm">
-              <Smartphone className="h-4 w-4 text-purple-400" />
-              <span>Device Simulator</span>
-            </div>
-
-            {/* Device Selector Buttons */}
-            <div className="flex items-center space-x-1 overflow-x-auto py-0.5">
-              {Object.values(SIMULATOR_DEVICES).map((dev) => (
-                <button
-                  key={dev.id}
-                  onClick={() => setSimulatorDeviceId(dev.id)}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                    simulatorDeviceId === dev.id
-                      ? 'bg-blue-600 text-white shadow-md ring-1 ring-blue-400'
-                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
-                  }`}
-                >
-                  <span>{dev.icon}</span>
-                  <span className="hidden sm:inline">{dev.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Simulator Toolbar Options */}
-          <div className="flex items-center space-x-2 flex-wrap">
-            {/* Orientation Switch */}
-            <button
-              onClick={() => setSimulatorOrientation(isLand ? 'portrait' : 'landscape')}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition"
-              title="Rotate Screen (Portrait / Landscape)"
-            >
-              <RotateCw className="h-3.5 w-3.5 text-blue-400" />
-              <span>{isLand ? 'Landscape' : 'Portrait'}</span>
-            </button>
-
-            {/* Scale Control */}
-            <div className="flex items-center space-x-1 bg-slate-800/80 rounded-xl px-2 py-1 border border-slate-700 text-xs">
-              <button
-                onClick={() => setSimulatorScale(Math.max(0.6, Number((simulatorScale - 0.1).toFixed(1))))}
-                className="px-1.5 py-0.5 rounded hover:bg-slate-700 font-bold"
-                title="Zoom Out"
-              >
-                -
-              </button>
-              <span className="font-mono text-[11px] px-1">{Math.round(simulatorScale * 100)}%</span>
-              <button
-                onClick={() => setSimulatorScale(Math.min(1.2, Number((simulatorScale + 0.1).toFixed(1))))}
-                className="px-1.5 py-0.5 rounded hover:bg-slate-700 font-bold"
-                title="Zoom In"
-              >
-                +
-              </button>
-            </div>
-
-            {/* Resolution Badge */}
-            <span className="hidden lg:inline px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400">
-              {frameW} × {frameH} px
-            </span>
-
-            {/* Exit Simulator Button */}
-            <button
-              onClick={() => setSimulatorMode(false)}
-              className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition"
-            >
-              <X className="h-3.5 w-3.5" />
-              <span>Exit Simulator</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Center Canvas Area with Realistic Phone Device Mockup */}
-        <div className="flex-1 w-full flex items-center justify-center p-4 sm:p-8 overflow-auto simulator-backdrop">
-          <div
-            style={{
-              transform: `scale(${simulatorScale})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.2s ease, width 0.3s ease, height 0.3s ease'
-            }}
-            className="flex flex-col items-center my-4"
-          >
-            {/* Phone Chassis Frame */}
-            <div
-              style={{ width: `${frameW + 26}px`, height: `${frameH + 42}px` }}
-              className="relative rounded-[50px] p-3 bg-gradient-to-b from-[#3a3d46] via-[#1a1c22] to-[#2a2d36] device-frame-shadow flex flex-col items-center justify-between border-4 border-[#525666]"
-            >
-              {/* Outer Edge Glare */}
-              <div className="absolute inset-0 rounded-[46px] pointer-events-none border border-white/10" />
-
-              {/* Top Speaker / Sensor Slit */}
-              <div className="w-16 h-1 bg-[#111] rounded-full mt-1 mb-1 shadow-inner z-30" />
-
-              {/* Screen Area */}
-              <div
-                style={{ width: `${frameW}px`, height: `${frameH}px` }}
-                className="relative rounded-[38px] overflow-hidden bg-black flex flex-col flex-1 shadow-inner border border-black"
-              >
-                {/* Simulated Phone Status Bar */}
-                <div className="w-full bg-[#0f172a] text-white px-6 py-2 flex items-center justify-between text-[11px] font-bold z-30 select-none flex-shrink-0 border-b border-slate-800/40">
-                  <span>{currentSim.time}</span>
-
-                  {/* Dynamic Island / Punch Hole */}
-                  {currentSim.notch === 'island' ? (
-                    <div className="h-6 w-24 bg-black rounded-full border border-slate-800 flex items-center justify-end px-2 gap-1.5 shadow-md">
-                      <div className="h-2 w-2 rounded-full bg-slate-900 ring-1 ring-slate-800" />
-                      <div className="h-2.5 w-2.5 rounded-full bg-[#0c1220] ring-1 ring-blue-900" />
-                    </div>
-                  ) : currentSim.notch === 'punchhole' ? (
-                    <div className="h-3 w-3 bg-black rounded-full ring-2 ring-slate-800 shadow" />
-                  ) : (
-                    <div className="w-12 h-1 bg-slate-700 rounded-full" />
-                  )}
-
-                  <div className="flex items-center space-x-1.5 font-mono text-[10px]">
-                    <span className="text-[9px] font-bold text-slate-400">5G</span>
-                    <Wifi className="h-3 w-3" />
-                    <Battery className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400" />
-                  </div>
-                </div>
-
-                {/* Simulated App Viewport Scroll Container */}
-                <div className="flex-1 w-full overflow-y-auto device-screen-scroll bg-slate-900">
-                  {renderAppContent(true)}
-                </div>
-
-                {/* Bottom Gesture Bar / Home Indicator */}
-                <div className="w-full py-1.5 bg-[#0f172a] flex items-center justify-center flex-shrink-0 border-t border-slate-800/40">
-                  <div className="w-28 h-1 bg-white/40 rounded-full" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Normal Fullscreen Render
-  return renderAppContent(false);
+  // Normal Responsive Fullscreen Render
+  return renderAppContent();
 }
+
 
