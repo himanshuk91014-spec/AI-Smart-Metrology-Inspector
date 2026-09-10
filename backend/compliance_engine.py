@@ -553,6 +553,20 @@ class LegalMetrologyComplianceEngine:
             "model no", "barcode", "lic no", "fssai", "cin:", "gstin:", "pin code"
         ]
 
+        def _clean_and_validate_brand(text_cand: str) -> Optional[str]:
+            if not text_cand or len(text_cand) < 2:
+                return None
+            cleaned = re.sub(r"[®©™|~_•*°#<>{}[\]\\^`~;!?,+=/]+", " ", text_cand).strip()
+            cleaned = re.sub(r"\s+", " ", cleaned)
+            cleaned = re.sub(r"^[^\w\u0900-\u0D7F]+|[^\w\u0900-\u0D7F]+$", "", cleaned).strip()
+            # Must have at least 3 alphabetic letters (not numbers, not Kannada/Telugu digits, not punctuation)
+            letters = re.findall(r"[a-zA-Z\u0904-\u0939\u0985-\u09B9\u0A05-\u0A39\u0A85-\u0AB9\u0B05-\u0B39\u0B85-\u0BB9\u0C05-\u0C39\u0C85-\u0CB9\u0D05-\u0D39]", cleaned)
+            if len(letters) < 3 or len(cleaned) < 3:
+                return None
+            if re.match(r"^[\d\s.,\-/:;₹$#@*&()+=]+$", cleaned):
+                return None
+            return cleaned
+
         # 1. Check segments by vertical position and size (top prominent text)
         candidates = []
         for seg in segments:
@@ -561,8 +575,6 @@ class LegalMetrologyComplianceEngine:
                 continue
             text_lower = text.lower()
             if any(kw in text_lower for kw in statutory_blocklist):
-                continue
-            if re.match(r"^[\d\s.,\-/:;₹$#@*&()+=]+$", text):
                 continue
 
             # Calculate box area / position if available
@@ -585,11 +597,10 @@ class LegalMetrologyComplianceEngine:
         if candidates:
             # Sort by top-most position and font height
             candidates.sort(key=lambda c: (c["y_min"] * 0.7 - c["height"] * 1.5))
-            top_text = candidates[0]["text"]
-            # Clean up trailing punctuation
-            clean_name = re.sub(r"^[^\w\u0900-\u0D7F]+|[^\w\u0900-\u0D7F]+$", "", top_text).strip()
-            if len(clean_name) >= 3:
-                return clean_name
+            for cand in candidates:
+                validated = _clean_and_validate_brand(cand["text"])
+                if validated:
+                    return validated
 
         # 2. Check full text lines
         lines = [line.strip() for line in full_text.split("\n") if line.strip()]
@@ -597,10 +608,11 @@ class LegalMetrologyComplianceEngine:
             line_lower = line.lower()
             if any(kw in line_lower for kw in statutory_blocklist):
                 continue
-            if len(line) >= 3 and len(line) <= 70 and not re.match(r"^[\d\s.,\-/:;₹$#@*&()+=]+$", line):
-                return line.strip()
+            validated = _clean_and_validate_brand(line)
+            if validated:
+                return validated
 
-        return None
+        return "Packaged Commodity Specimen"
 
     def evaluate_compliance(
         self,

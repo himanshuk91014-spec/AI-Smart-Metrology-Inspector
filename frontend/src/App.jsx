@@ -70,7 +70,7 @@ import {
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SUPPORTED_LANGUAGES, EXTENDED_LANGUAGES, getTranslation } from './i18n';
-import { runClientSideOcrAndAudit, evaluateClientSideCompliance } from './clientOcrEngine';
+import { runClientSideOcrAndAudit, evaluateClientSideCompliance, sanitizeBrandOrProductName } from './clientOcrEngine';
 
 // Dynamically determine Backend API Base URL
 const getApiBaseUrl = () => {
@@ -1311,24 +1311,52 @@ export default function App() {
     setInspectorSuccessToast(null);
   };
 
-  // PDF Export
+  // High-Resolution Official Certificate PDF Export
   const handleDownloadPdf = async () => {
     if (!reportRef.current) return;
     setDownloadingPdf(true);
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2,
+      const element = reportRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2.5,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        windowWidth: 1024
       });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`PCR2011_Audit_${auditResult?.audit_id || Date.now()}.pdf`);
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 8;
+      const contentWidth = pdfWidth - (margin * 2);
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+      if (contentHeight <= pdfHeight - (margin * 2)) {
+        pdf.addImage(imgData, 'JPEG', margin, margin, contentWidth, contentHeight);
+      } else {
+        let heightLeft = contentHeight;
+        let position = margin;
+        pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, contentHeight);
+        heightLeft -= (pdfHeight - (margin * 2));
+
+        while (heightLeft > 0) {
+          position = heightLeft - contentHeight + margin;
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', margin, position, contentWidth, contentHeight);
+          heightLeft -= (pdfHeight - (margin * 2));
+        }
+      }
+
+      const auditId = auditResult?.audit_id || `AUD-${Date.now()}`;
+      pdf.save(`PCR2011_Certificate_${auditId}.pdf`);
     } catch (err) {
       console.error('PDF export error:', err);
       window.print();
@@ -1499,7 +1527,7 @@ export default function App() {
     >
       {/* Top Executive Header */}
       <header
-        className={`sticky top-0 z-40 px-3 py-2.5 sm:px-6 sm:py-3 border-b transition-colors w-full max-w-full ${
+        className={`sticky top-0 z-40 px-3 py-2.5 sm:px-6 sm:py-3 border-b transition-colors w-full max-w-full no-print ${
           isDark
             ? 'bg-[#0f172a]/95 border-slate-800 backdrop-blur-md'
             : 'bg-white/95 border-slate-200 shadow-sm backdrop-blur-md'
@@ -1721,7 +1749,7 @@ export default function App() {
         {/* Offline Banner notice */}
         {!apiHealth.online && (
           <div
-            className={`p-3.5 rounded-xl border flex items-center justify-between flex-wrap gap-2 text-xs ${
+            className={`p-3.5 rounded-xl border flex items-center justify-between flex-wrap gap-2 text-xs no-print ${
               isDark
                 ? 'bg-amber-950/60 border-amber-800/80 text-amber-200'
                 : 'bg-amber-50 border-amber-200 text-amber-900'
@@ -1745,7 +1773,7 @@ export default function App() {
 
         {/* 1-Click Fast-Demo Scenarios Carousel */}
         <section
-          className={`p-4 rounded-2xl border shadow-sm ${
+          className={`p-4 rounded-2xl border shadow-sm no-print ${
             isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
           }`}
         >
@@ -1792,7 +1820,7 @@ export default function App() {
 
         {/* Ingestion & Multi-Angle Capture Section */}
         <section
-          className={`p-4 sm:p-6 rounded-2xl border shadow-md space-y-4 ${
+          className={`p-4 sm:p-6 rounded-2xl border shadow-md space-y-4 no-print ${
             isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
           }`}
         >
@@ -1987,8 +2015,7 @@ export default function App() {
             {/* Execute Compliance Audit Button */}
             <button
               onClick={handleExecuteAudit}
-              disabled={loading || (uploadedImages.length === 0 && !manualText.trim())}
-              className={`px-7 py-3.5 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-lg active:scale-95 transition-all ${
+          className={`px-7 py-3.5 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-lg active:scale-95 transition-all ${
                 loading
                   ? 'bg-blue-800 text-blue-200 cursor-wait'
                   : uploadedImages.length > 0 || manualText.trim()
@@ -2061,7 +2088,7 @@ export default function App() {
           >
             {/* Verdict Banner Header */}
             <div
-              className={`p-5 border-b ${
+              className={`p-5 border-b no-print ${
                 auditResult.status === 'COMPLIANT'
                   ? isDark
                     ? 'bg-gradient-to-r from-emerald-950/90 to-slate-900 border-emerald-800/80'
@@ -2121,7 +2148,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Score & Notice Trigger */}
+                {/* Score & Action Buttons */}
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <div className={`text-[11px] uppercase tracking-wider font-extrabold ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -2140,6 +2167,15 @@ export default function App() {
                     </div>
                   </div>
 
+                  <button
+                    onClick={() => setActiveTab('report')}
+                    className="px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow active:scale-95 transition-all"
+                    title="View Official Certificate"
+                  >
+                    <FileCheck className="h-4 w-4" />
+                    <span>View Certificate</span>
+                  </button>
+
                   {auditResult.status !== 'COMPLIANT' && (
                     <button
                       onClick={() => setIsNoticeModalOpen(true)}
@@ -2155,7 +2191,7 @@ export default function App() {
 
             {/* Extracted Metadata Summary Cards */}
             <div
-              className={`p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 border-b ${
+              className={`p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 border-b no-print ${
                 isDark ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'
               }`}
             >
@@ -2254,7 +2290,7 @@ export default function App() {
 
             {/* Navigation Tabs */}
             <div
-              className={`flex border-b overflow-x-auto scrollbar-thin ${
+              className={`flex border-b overflow-x-auto scrollbar-thin no-print ${
                 isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-100/80 border-slate-200'
               }`}
             >
@@ -2333,7 +2369,7 @@ export default function App() {
 
             {/* Tab 1: Violations Matrix */}
             {activeTab === 'violations' && (
-              <div className="p-4 sm:p-6 space-y-3">
+              <div className="p-4 sm:p-6 space-y-3 no-print">
                 {auditResult.violations && auditResult.violations.length > 0 ? (
                   auditResult.violations.map((v, i) => (
                     <div
@@ -2386,7 +2422,7 @@ export default function App() {
 
             {/* Tab 2: Principal Display Panel (PDP) & Font Calculator (Rule 9 & Schedule II) */}
             {activeTab === 'pdp_calc' && (
-              <div className="p-4 sm:p-6 space-y-5">
+              <div className="p-4 sm:p-6 space-y-5 no-print">
                 <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-200 dark:border-slate-800">
                   <div>
                     <h4 className="text-sm font-bold flex items-center gap-2">
@@ -2410,113 +2446,135 @@ export default function App() {
                     }`}
                   >
                     <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Package Geometry & Measurements
+                      Package Geometric Dimensions
                     </h5>
 
                     <div>
-                      <label className="block text-xs font-bold mb-1">Package Geometry / Shape</label>
+                      <label className="text-xs font-bold block mb-1">Packaging Shape:</label>
                       <select
-                        value={pdpForm.packageType}
-                        onChange={(e) => setPdpForm((prev) => ({ ...prev, packageType: e.target.value }))}
-                        className={`w-full rounded-lg px-3 py-2 text-xs border focus:outline-none focus:ring-2 focus:ring-amber-500 ${
-                          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-300'
+                        value={pdpForm.shape}
+                        onChange={(e) => setPdpForm({ ...pdpForm, shape: e.target.value })}
+                        className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                          isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
                       >
                         <option value="rectangular">Rectangular Box / Pouch (Height × Width)</option>
-                        <option value="cylindrical">Cylindrical Bottle / Can (40% of Height × Circumference)</option>
-                        <option value="other">Irregular / Spherical (40% Total Surface Area)</option>
+                        <option value="cylindrical">Cylindrical Bottle / Can (Height × Diameter)</option>
+                        <option value="spherical">Spherical / Special Pack (Area Estimate)</option>
                       </select>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold mb-1">Height (mm)</label>
+                        <label className="text-xs font-bold block mb-1">Height (cm):</label>
                         <input
                           type="number"
-                          value={pdpForm.heightMm}
-                          onChange={(e) => setPdpForm((prev) => ({ ...prev, heightMm: Number(e.target.value) || 0 }))}
-                          className={`w-full rounded-lg px-3 py-2 text-xs border ${
-                            isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-300'
+                          step="0.1"
+                          value={pdpForm.heightCm}
+                          onChange={(e) => setPdpForm({ ...pdpForm, heightCm: parseFloat(e.target.value) || 0 })}
+                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                            isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                           }`}
                         />
                       </div>
-
-                      {pdpForm.packageType === 'cylindrical' ? (
+                      {pdpForm.shape === 'rectangular' ? (
                         <div>
-                          <label className="block text-xs font-bold mb-1">Diameter (mm)</label>
+                          <label className="text-xs font-bold block mb-1">Width (cm):</label>
                           <input
                             type="number"
-                            value={pdpForm.diameterMm}
-                            onChange={(e) => setPdpForm((prev) => ({ ...prev, diameterMm: Number(e.target.value) || 0 }))}
-                            className={`w-full rounded-lg px-3 py-2 text-xs border ${
-                              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-300'
+                            step="0.1"
+                            value={pdpForm.widthCm}
+                            onChange={(e) => setPdpForm({ ...pdpForm, widthCm: parseFloat(e.target.value) || 0 })}
+                            className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                              isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                             }`}
                           />
                         </div>
-                      ) : (
+                      ) : pdpForm.shape === 'cylindrical' ? (
                         <div>
-                          <label className="block text-xs font-bold mb-1">Width (mm)</label>
+                          <label className="text-xs font-bold block mb-1">Diameter (cm):</label>
                           <input
                             type="number"
-                            value={pdpForm.widthMm}
-                            onChange={(e) => setPdpForm((prev) => ({ ...prev, widthMm: Number(e.target.value) || 0 }))}
-                            className={`w-full rounded-lg px-3 py-2 text-xs border ${
-                              isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-300'
+                            step="0.1"
+                            value={pdpForm.diameterCm}
+                            onChange={(e) => setPdpForm({ ...pdpForm, diameterCm: parseFloat(e.target.value) || 0 })}
+                            className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                              isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                             }`}
                           />
                         </div>
-                      )}
+                      ) : null}
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold mb-1">Net Weight / Volume (Grams or mL)</label>
-                      <input
-                        type="number"
-                        value={pdpForm.netWeightGrams}
-                        onChange={(e) => setPdpForm((prev) => ({ ...prev, netWeightGrams: Number(e.target.value) || 0 }))}
-                        className={`w-full rounded-lg px-3 py-2 text-xs border ${
-                          isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-300'
-                        }`}
-                      />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-xs font-bold block mb-1">Net Weight (Grams):</label>
+                        <input
+                          type="number"
+                          value={pdpForm.netWeightGrams}
+                          onChange={(e) => setPdpForm({ ...pdpForm, netWeightGrams: parseFloat(e.target.value) || 0 })}
+                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                            isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold block mb-1">Measured Numeral Font (mm):</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={pdpForm.measuredFontHeightMm}
+                          onChange={(e) => setPdpForm({ ...pdpForm, measuredFontHeightMm: parseFloat(e.target.value) || 0 })}
+                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                            isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                          }`}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Right: Statutory Compliance Results */}
+                  {/* Right: Calculation Results */}
                   <div
                     className={`p-4 rounded-xl border space-y-4 flex flex-col justify-between ${
-                      isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                      isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'
                     }`}
                   >
                     <div>
-                      <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                        Calculated Statutory Thresholds
+                      <h5 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                        Statutory Verification Results
                       </h5>
-
-                      <div className="grid grid-cols-2 gap-3 mb-3">
-                        <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                          <span className="text-[10px] text-slate-500 font-bold uppercase">Estimated PDP Area</span>
-                          <p className="text-lg font-black text-blue-600 mt-1">{pdpCalc.areaSqCm} cm²</p>
-                          <span className="text-[10px] text-slate-400">Rule 7(1) Dimension</span>
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className={`p-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Calculated PDP Area</span>
+                          <span className="text-lg font-black font-mono text-blue-600 dark:text-blue-400">
+                            {pdpCalc.areaSqCm} cm²
+                          </span>
                         </div>
-
-                        <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                          <span className="text-[10px] text-slate-500 font-bold uppercase">Min Mandatory Font Height</span>
-                          <p className="text-lg font-black text-amber-600 mt-1">{pdpCalc.minFontMm} mm</p>
-                          <span className="text-[10px] text-slate-400">Schedule II Table</span>
+                        <div className={`p-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                          <span className="text-[10px] uppercase font-bold text-slate-500 block">Mandatory Min Font</span>
+                          <span className="text-lg font-black font-mono text-amber-600 dark:text-amber-400">
+                            {pdpCalc.minFontMm} mm
+                          </span>
                         </div>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 text-xs text-blue-900 dark:text-blue-300 space-y-1">
-                        <p className="font-bold">✓ Statutory Requirement:</p>
-                        <p>
-                          Under Rule 9, for a package with Principal Display Panel area of <strong>{pdpCalc.areaSqCm} cm²</strong>, all numerals and statutory declarations must have a minimum height of at least <strong>{pdpCalc.minFontMm} mm</strong>.
-                        </p>
+                      <div className="p-3 rounded-xl border bg-black/5 dark:bg-black/30 border-slate-300 dark:border-slate-700 space-y-1">
+                        <div className="text-xs font-bold flex items-center justify-between">
+                          <span>Applicable Standard:</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-mono text-[11px]">{pdpCalc.scheduleTable}</span>
+                        </div>
+                        <div className="text-xs font-bold flex items-center justify-between">
+                          <span>Physical Legibility Test:</span>
+                          <span className={`font-mono text-[11px] ${pdpForm.measuredFontHeightMm >= pdpCalc.minFontMm ? 'text-emerald-600 font-black' : 'text-rose-600 font-black'}`}>
+                            {pdpForm.measuredFontHeightMm >= pdpCalc.minFontMm ? '✓ COMPLIANT FONT' : '✗ NON-COMPLIANT (TOO SMALL)'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="text-[11px] text-slate-500 pt-2 border-t border-slate-200 dark:border-slate-800">
-                      Standard Reference: Legal Metrology (Packaged Commodities) Rules, 2011 - Schedule II Table (Minimum Height of Numeral)
-                    </div>
+                    <p className="text-[11px] text-slate-500 italic">
+                      Schedule II mandates that all numerals & letters declaring net quantity must adhere to minimum heights calculated from 40% of the total display area for rectangular packs, and 20% for cylindrical packs.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -2524,7 +2582,7 @@ export default function App() {
 
             {/* Tab 3: Interactive Verification & Correction Form */}
             {activeTab === 'verify' && (
-              <div className="p-4 sm:p-6 space-y-5">
+              <div className="p-4 sm:p-6 space-y-5 no-print">
                 {/* Header Action Bar */}
                 <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-200 dark:border-slate-800">
                   <div>
@@ -2541,364 +2599,203 @@ export default function App() {
                       Override OCR readings to reconcile physical specimen details, clear false positives, and issue an official Inspector-Verified Inspection Report.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button
-                      onClick={handleQuickAttestAllCompliant}
-                      disabled={reAuditing}
-                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-md active:scale-95 transition"
-                      title="1-Click Attest all statutory declarations as physically verified & compliant"
-                    >
-                      <Zap className="h-3.5 w-3.5 fill-current" />
-                      ⚡ Quick Attest (Mark All Compliant)
-                    </button>
-                    <button
-                      onClick={handleResetForm}
-                      disabled={reAuditing}
-                      className={`px-3 py-2 rounded-xl text-xs font-medium border flex items-center gap-1 transition ${
-                        isDark
-                          ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                          : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300 shadow-sm'
+                </div>
+
+                {/* Form Inputs Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Brand / Product Title:</label>
+                    <input
+                      type="text"
+                      value={verificationForm.brand_name}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, brand_name: e.target.value })}
+                      placeholder="e.g. Parle-G, Amul Butter, Surf Excel"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Maximum Retail Price (₹):</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={verificationForm.mrp}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, mrp: e.target.value })}
+                      placeholder="e.g. 50.00"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">'Inclusive of all taxes' Present?</label>
+                    <select
+                      value={verificationForm.taxes_included ? 'yes' : 'no'}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, taxes_included: e.target.value === 'yes' })}
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
                       }`}
                     >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      Reset to AI
-                    </button>
-                    <button
-                      onClick={() => handleSaveAndReAudit()}
-                      disabled={reAuditing}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition"
+                      <option value="yes">Yes - Suffix Declared on Pack</option>
+                      <option value="no">No - Tax Clause Missing (Violation)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Net Quantity:</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={verificationForm.net_quantity}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, net_quantity: e.target.value })}
+                      placeholder="e.g. 500"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Unit of Measure (SI Metric):</label>
+                    <select
+                      value={verificationForm.unit_of_measure}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, unit_of_measure: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
                     >
-                      {reAuditing ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <FileCheck className="h-3.5 w-3.5" />}
-                      💾 Save & Generate Inspector-Verified Report
-                    </button>
+                      <option value="g">g (Grams)</option>
+                      <option value="kg">kg (Kilograms)</option>
+                      <option value="ml">ml (Millilitres)</option>
+                      <option value="L">L (Litres)</option>
+                      <option value="m">m (Metres)</option>
+                      <option value="cm">cm (Centimetres)</option>
+                      <option value="units">units (Count)</option>
+                      <option value="N">N (Number)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Mfg / Pkg Date:</label>
+                    <input
+                      type="text"
+                      value={verificationForm.manufacturing_date}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, manufacturing_date: e.target.value })}
+                      placeholder="e.g. 05/2026 or MAY 2026"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Customer Care Email / Phone:</label>
+                    <input
+                      type="text"
+                      value={verificationForm.consumer_care_email}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, consumer_care_email: e.target.value })}
+                      placeholder="e.g. care@brand.com or 1800-XXX-XXXX"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Manufacturer / Packer Name:</label>
+                    <input
+                      type="text"
+                      value={verificationForm.manufacturer_name}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, manufacturer_name: e.target.value })}
+                      placeholder="e.g. ABC Foods Ltd., Industrial Area"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Country of Origin:</label>
+                    <input
+                      type="text"
+                      value={verificationForm.country_of_origin}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, country_of_origin: e.target.value })}
+                      placeholder="e.g. India"
+                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
+                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
                   </div>
                 </div>
 
-                {/* Inspector Officer Credentials & Attestation Box */}
-                <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                  <h5 className="text-xs font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                    Inspector Credentials & Statutory Attestation Notes
+                {/* Inspector Signature Credentials Section */}
+                <div
+                  className={`p-4 rounded-2xl border space-y-3 ${
+                    isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-blue-50/50 border-blue-200'
+                  }`}
+                >
+                  <h5 className="text-xs font-extrabold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                    <Award className="h-4 w-4" />
+                    Regulatory Inspector Attestation & Credentials
                   </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className={`block font-bold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        Inspector Officer ID
-                      </label>
+                      <label className="text-xs font-bold block mb-1">Officer Name:</label>
                       <input
                         type="text"
-                        value={verificationForm.inspector_id}
-                        onChange={(e) => handleFormFieldChange('inspector_id', e.target.value)}
-                        placeholder="e.g. INSP-2026-DELHI-883"
-                        className={`w-full rounded-lg px-3 py-2 border font-mono font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+                        value={inspectorForm.inspectorName}
+                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectorName: e.target.value })}
+                        className={`w-full p-2 rounded-xl border text-xs font-bold ${
+                          isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block font-bold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        Officer Designation / Name
-                      </label>
+                      <label className="text-xs font-bold block mb-1">Inspector ID Badge:</label>
                       <input
                         type="text"
-                        value={verificationForm.inspector_name}
-                        onChange={(e) => handleFormFieldChange('inspector_name', e.target.value)}
-                        placeholder="Authorized Legal Metrology Officer"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+                        value={inspectorForm.inspectorId}
+                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectorId: e.target.value })}
+                        className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                          isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
                       />
                     </div>
                     <div>
-                      <label className={`block font-bold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        Inspection Jurisdiction / Zone
-                      </label>
+                      <label className="text-xs font-bold block mb-1">Inspection Location / Zone:</label>
                       <input
                         type="text"
-                        value={verificationForm.inspection_location}
-                        onChange={(e) => handleFormFieldChange('inspection_location', e.target.value)}
-                        placeholder="Zonal Retail Market Inspection (New Delhi)"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
+                        value={inspectorForm.inspectionLocation}
+                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectionLocation: e.target.value })}
+                        className={`w-full p-2 rounded-xl border text-xs font-bold ${
+                          isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
                       />
                     </div>
-                    <div className="sm:col-span-3">
-                      <label className={`block font-bold mb-1 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        Statutory Inspection Remarks / Physical Verification Findings
-                      </label>
-                      <input
-                        type="text"
-                        value={verificationForm.inspection_remarks}
-                        onChange={(e) => handleFormFieldChange('inspection_remarks', e.target.value)}
-                        placeholder="Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified."
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold block mb-1">Inspector Attestation Remarks:</label>
+                    <textarea
+                      rows={2}
+                      value={inspectorForm.inspectionRemarks}
+                      onChange={(e) => setInspectorForm({ ...inspectorForm, inspectionRemarks: e.target.value })}
+                      placeholder="e.g. Physical specimen inspected at retail store. All statutory declarations verified against original package."
+                      className={`w-full p-2.5 rounded-xl border text-xs font-medium ${
+                        isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                      }`}
+                    />
                   </div>
                 </div>
 
-                {/* Form Fields Grid */}
-                <div>
-                  <h5 className="text-xs font-extrabold uppercase tracking-wide text-slate-700 dark:text-slate-300 mb-3 flex items-center justify-between">
-                    <span>Mandatory Declarations Override (PCR 2011 Specifications)</span>
-                    <span className="text-[11px] font-normal text-slate-500">
-                      {manualEditedFields.size} field(s) currently modified
-                    </span>
-                  </h5>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Brand / Commodity Name
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('brand_name')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('brand_name') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.brand_name}
-                        onChange={(e) => handleFormFieldChange('brand_name', e.target.value)}
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Declared MRP (₹) (Rule 6(1)(da))
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('mrp')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('mrp') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.mrp}
-                        onChange={(e) => handleFormFieldChange('mrp', e.target.value)}
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Net Quantity Value (Rule 11/12)
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('net_quantity')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('net_quantity') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.net_quantity}
-                        onChange={(e) => handleFormFieldChange('net_quantity', e.target.value)}
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Unit of Measure (SI Metric)
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('unit_of_measure')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('unit_of_measure') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <select
-                        value={verificationForm.unit_of_measure}
-                        onChange={(e) => handleFormFieldChange('unit_of_measure', e.target.value)}
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      >
-                        {STANDARD_METRIC_UNITS.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Mfg / Packaging Date (MM/YYYY)
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('manufacturing_date')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('manufacturing_date') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.manufacturing_date}
-                        onChange={(e) => handleFormFieldChange('manufacturing_date', e.target.value)}
-                        placeholder="MM/YYYY or DD/MM/YYYY"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Consumer Care Email (Rule 6(1)(g))
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('consumer_care_email')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('consumer_care_email') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="email"
-                        value={verificationForm.consumer_care_email}
-                        onChange={(e) => handleFormFieldChange('consumer_care_email', e.target.value)}
-                        placeholder="care@brand.in"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Consumer Helpline Phone
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('consumer_care_phone')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('consumer_care_phone') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.consumer_care_phone}
-                        onChange={(e) => handleFormFieldChange('consumer_care_phone', e.target.value)}
-                        placeholder="1800-XXX-XXXX"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Country of Origin (Rule 6(10))
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('country_of_origin')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('country_of_origin') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.country_of_origin}
-                        onChange={(e) => handleFormFieldChange('country_of_origin', e.target.value)}
-                        placeholder="India"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={`font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                          Manufacturer / Packer Name (Rule 6(1)(a))
-                        </label>
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
-                          manualEditedFields.has('manufacturer_name')
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 font-bold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-                        }`}>
-                          {manualEditedFields.has('manufacturer_name') ? 'Overwritten' : 'AI'}
-                        </span>
-                      </div>
-                      <input
-                        type="text"
-                        value={verificationForm.manufacturer_name}
-                        onChange={(e) => handleFormFieldChange('manufacturer_name', e.target.value)}
-                        placeholder="Packaged Goods Mfg Pvt Ltd"
-                        className={`w-full rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                          isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
-                        }`}
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 pt-3 sm:col-span-2 lg:col-span-3">
-                      <input
-                        type="checkbox"
-                        id="taxes_inc_check"
-                        checked={verificationForm.taxes_included}
-                        onChange={(e) => handleFormFieldChange('taxes_included', e.target.checked)}
-                        className="h-4 w-4 rounded text-blue-600 focus:ring-0 cursor-pointer"
-                      />
-                      <label htmlFor="taxes_inc_check" className="font-bold cursor-pointer text-xs flex items-center gap-2">
-                        <span>Mandatory 'Inclusive of all taxes' statutory tax suffix declared on label</span>
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">(Rule 6(1)(da))</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Confirmation & Execution Strip */}
-                <div className={`p-4 rounded-xl border flex items-center justify-between flex-wrap gap-3 ${
-                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-blue-50/60 border-blue-200'
-                }`}>
-                  <div className="flex items-center gap-2 text-xs">
-                    <CheckSquare className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>
-                      Saving will immediately re-score compliance to <strong>100/100</strong>, log the inspector overwrite in MongoDB Atlas / CSV, and generate the signed Certificate.
-                    </span>
-                  </div>
+                <div className="flex items-center justify-end gap-3 pt-2">
                   <button
-                    onClick={() => handleSaveAndReAudit()}
-                    disabled={reAuditing}
-                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-extrabold flex items-center gap-1.5 shadow-md active:scale-95 transition"
+                    onClick={handleApplyVerificationOverwrite}
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg active:scale-95 transition-all flex items-center gap-2"
                   >
-                    {reAuditing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+                    <CheckCircle2 className="h-4 w-4" />
                     Save & Generate Verified Certificate
                   </button>
                 </div>
@@ -2907,7 +2804,7 @@ export default function App() {
 
             {/* Tab 4: Verified Clearances */}
             {activeTab === 'passed' && (
-              <div className="p-4 sm:p-6 space-y-3">
+              <div className="p-4 sm:p-6 space-y-3 no-print">
                 {auditResult.passed_checks && auditResult.passed_checks.length > 0 ? (
                   auditResult.passed_checks.map((chk, idx) => (
                     <div
@@ -2949,7 +2846,7 @@ export default function App() {
 
             {/* Tab 5: OCR Telemetry & Raw Text Segments */}
             {activeTab === 'telemetry' && (
-              <div className="p-4 sm:p-6 space-y-4">
+              <div className="p-4 sm:p-6 space-y-4 no-print">
                 <div className={`flex items-center justify-between text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                   <span>Total Transcribed Segments: {auditResult.raw_segments?.length || 0}</span>
                   <span>AI Engine: {auditResult.ai_engine_used}</span>
@@ -2985,7 +2882,7 @@ export default function App() {
             {/* Tab 6: Inspection Certificate & A4 PDF Report */}
             {activeTab === 'report' && (
               <div className="p-4 sm:p-6 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 flex-wrap gap-2 no-print">
                   <div>
                     <h4 className="text-sm font-bold flex items-center gap-2">
                       <FileText className="h-4 w-4 text-blue-600" />
@@ -3007,7 +2904,7 @@ export default function App() {
                       }`}
                     >
                       <Printer className="h-3.5 w-3.5" />
-                      Print
+                      Print Certificate
                     </button>
                     <button
                       onClick={handleDownloadPdf}
@@ -3023,110 +2920,126 @@ export default function App() {
                 {/* Printable A4 Container */}
                 <div
                   ref={reportRef}
-                  className="a4-statutory-report bg-white text-slate-900 p-8 rounded-xl shadow-xl border border-slate-300 text-xs font-sans space-y-4 max-w-3xl mx-auto"
+                  className="a4-statutory-report bg-white text-slate-900 p-6 sm:p-8 rounded-xl shadow-xl border-2 border-slate-900 text-xs font-sans space-y-3 max-w-3xl mx-auto"
                 >
-                  {/* Government Header */}
-                  <div className="text-center border-b pb-4 border-slate-300 space-y-1">
-                    <div className="text-[11px] font-black uppercase tracking-widest text-slate-600">
+                  {/* Official Government Header with Ashoka Emblem */}
+                  <div className="text-center border-b-2 pb-3 border-slate-900 space-y-1">
+                    {/* Ashoka Lion Capital / Satyameva Jayate Emblem SVG */}
+                    <div className="flex justify-center mb-1">
+                      <svg className="h-10 w-10 text-slate-900" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="46" stroke="#0f172a" strokeWidth="2.5" />
+                        <circle cx="50" cy="50" r="16" stroke="#0f172a" strokeWidth="1.5" />
+                        <circle cx="50" cy="50" r="4" fill="#0f172a" />
+                        {[0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345].map((deg) => (
+                          <line key={deg} x1="50" y1="50" x2={50 + 16 * Math.cos((deg * Math.PI) / 180)} y2={50 + 16 * Math.sin((deg * Math.PI) / 180)} stroke="#0f172a" strokeWidth="1.2" />
+                        ))}
+                        <path d="M30 24C30 18 40 14 50 14C60 14 70 18 70 24C65 28 62 34 50 34C38 34 35 28 30 24Z" fill="#0f172a" />
+                        <rect x="25" y="74" width="50" height="5" rx="1.5" fill="#0f172a" />
+                        <text x="50" y="91" textAnchor="middle" fontSize="6.5" fontWeight="900" fill="#0f172a" fontFamily="serif" letterSpacing="1">सत्यमेव जयते</text>
+                      </svg>
+                    </div>
+                    <div className="text-[11px] font-black uppercase tracking-widest text-slate-800">
                       Government of India
                     </div>
-                    <div className="text-xs font-extrabold uppercase tracking-wide text-slate-700">
+                    <div className="text-[11px] font-extrabold uppercase tracking-wide text-slate-700">
                       Ministry of Consumer Affairs, Food & Public Distribution
                     </div>
-                    <div className="text-base font-black text-slate-900 uppercase tracking-tight">
-                      Directorate of Legal Metrology
+                    <div className="text-sm font-black text-slate-900 uppercase tracking-tight">
+                      Directorate of Legal Metrology (Packaged Commodities Division)
                     </div>
-                    <div className="inline-block px-3 py-1 bg-slate-900 text-white rounded text-[11px] font-bold tracking-wider uppercase mt-1">
+                    <div className="inline-block px-3 py-1 bg-slate-900 text-white rounded text-[10px] font-bold tracking-wider uppercase mt-1">
                       Statutory Compliance Inspection Certificate
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono">
+                    <div className="text-[9.5px] text-slate-600 font-mono">
                       Issued under Section 18/36 of the Legal Metrology Act, 2009 & Packaged Commodities Rules, 2011
                     </div>
                   </div>
 
                   {/* Inspector Attestation Stamp (When Manually Overwritten) */}
                   {auditResult.is_manually_verified && (
-                    <div className="p-3.5 rounded-lg bg-emerald-50 border-2 border-emerald-600/80 text-emerald-950 flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-2.5">
-                        <Award className="h-6 w-6 text-emerald-700 flex-shrink-0 mt-0.5" />
+                    <div className="p-2.5 rounded-lg bg-emerald-50 border-2 border-emerald-700 text-emerald-950 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2">
+                        <Award className="h-5 w-5 text-emerald-700 flex-shrink-0 mt-0.5" />
                         <div>
-                          <div className="text-xs font-black uppercase tracking-wide text-emerald-900 flex items-center gap-1.5">
+                          <div className="text-[11px] font-black uppercase tracking-wide text-emerald-900 flex items-center gap-1.5">
                             <span>★ OFFICIALLY VERIFIED & MANUALLY OVERWRITTEN BY REGULATORY INSPECTOR</span>
                           </div>
-                          <p className="text-[11px] text-emerald-800 mt-0.5">
+                          <p className="text-[10px] text-emerald-800 mt-0.5 leading-tight">
                             <strong>Inspector ID:</strong> {auditResult.inspector_metadata?.inspector_id || 'INSP-2026-DELHI-883'} |{' '}
                             <strong>Officer:</strong> {auditResult.inspector_metadata?.inspector_name || 'Authorized Legal Metrology Officer'} |{' '}
-                            <strong>Jurisdiction:</strong> {auditResult.inspector_metadata?.inspection_location || 'Zonal Retail Audit'}
+                            <strong>Jurisdiction:</strong> {auditResult.inspector_metadata?.inspection_location || 'Zonal Enforcement Directorate'}
                           </p>
-                          <p className="text-[11px] text-emerald-700 font-mono mt-0.5">
+                          <p className="text-[10px] text-emerald-700 font-mono mt-0.5">
                             <strong>Timestamp:</strong> {auditResult.inspector_metadata?.verified_at ? new Date(auditResult.inspector_metadata.verified_at).toLocaleString() : new Date().toLocaleString()}
                           </p>
                           {auditResult.inspector_metadata?.inspection_remarks && (
-                            <p className="text-[11px] text-emerald-900 mt-1 italic">
+                            <p className="text-[10px] text-emerald-900 mt-0.5 italic">
                               "{auditResult.inspector_metadata.inspection_remarks}"
                             </p>
                           )}
                         </div>
                       </div>
-                      <div className="border border-emerald-600 rounded px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-emerald-800 bg-white shadow-sm flex-shrink-0 text-center">
+                      <div className="border border-emerald-700 rounded px-2 py-0.5 text-[8.5px] font-bold uppercase tracking-widest text-emerald-900 bg-white shadow-sm flex-shrink-0 text-center">
                         <div>STAMPED</div>
-                        <div className="text-[8px] font-mono">PCR 2011</div>
+                        <div className="text-[7.5px] font-mono">PCR 2011</div>
                       </div>
                     </div>
                   )}
 
                   {/* Specimen & Audit Metadata Table */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px] border p-3 rounded-lg bg-slate-50 border-slate-300">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10.5px] border-2 p-2.5 rounded-lg bg-slate-50 border-slate-300">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Certificate ID</span>
-                      <span className="font-mono font-bold text-slate-900">{auditResult.audit_id || 'AUD-2026-CERT'}</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Certificate ID</span>
+                      <span className="font-mono font-bold text-slate-900 truncate block">{auditResult.audit_id || 'AUD-2026-CERT'}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Inspection Date</span>
-                      <span className="font-bold text-slate-900">{new Date().toLocaleDateString()}</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Inspection Date</span>
+                      <span className="font-bold text-slate-900">{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Product Specimen</span>
-                      <span className="font-bold text-slate-900 truncate block">{auditResult.extracted_metadata?.brand_name || 'Specimen'}</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Product Specimen</span>
+                      <span className="font-bold text-slate-900 truncate block">
+                        {sanitizeBrandOrProductName(auditResult.extracted_metadata?.brand_name || auditResult.product_name || verificationForm.brand_name)}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Statutory Verdict</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Statutory Verdict</span>
                       <span className={`font-black uppercase ${auditResult.status === 'COMPLIANT' ? 'text-emerald-700' : 'text-rose-700'}`}>
                         {auditResult.status} ({auditResult.overall_score}/100)
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Declared MRP</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Declared MRP</span>
                       <span className="font-bold text-slate-900">
-                        {auditResult.extracted_metadata?.mrp ? `₹ ${auditResult.extracted_metadata.mrp}` : 'N/A'}{' '}
+                        {auditResult.extracted_metadata?.mrp ? `₹ ${auditResult.extracted_metadata.mrp}` : 'Not Declared'}{' '}
                         {auditResult.extracted_metadata?.taxes_included ? '(Incl. taxes)' : ''}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Net Quantity</span>
-                      <span className="font-bold text-slate-900">
-                        {auditResult.extracted_metadata?.net_quantity} {auditResult.extracted_metadata?.unit_of_measure || ''}
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Net Quantity</span>
+                      <span className="font-bold text-slate-900 truncate block">
+                        {auditResult.extracted_metadata?.net_quantity ? `${auditResult.extracted_metadata.net_quantity} ${auditResult.extracted_metadata?.unit_of_measure || ''}` : 'Not Declared'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Country of Origin</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Country of Origin</span>
                       <span className="font-bold text-slate-900">{auditResult.extracted_metadata?.country_of_origin || 'India'}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-slate-500 block">Manufacturer / Packer</span>
-                      <span className="font-bold text-slate-900 truncate block">{auditResult.extracted_metadata?.manufacturer_name || 'Verified Packaging Co.'}</span>
+                      <span className="text-[9.5px] uppercase font-bold text-slate-500 block">Manufacturer / Packer</span>
+                      <span className="font-bold text-slate-900 truncate block">{auditResult.extracted_metadata?.manufacturer_name || 'Verified Packaging Entity'}</span>
                     </div>
                   </div>
 
                   {/* Complete 8-Point Statutory Verification Matrix */}
                   <div>
-                    <h5 className="font-bold text-xs uppercase text-slate-800 mb-2 flex items-center justify-between">
+                    <h5 className="font-bold text-[11px] uppercase text-slate-800 mb-1.5 flex items-center justify-between">
                       <span>Statutory Compliance Matrix (PCR 2011 Clauses):</span>
-                      <span className="text-[10px] font-mono text-slate-500 font-normal">Standard 8-Point Audit</span>
+                      <span className="text-[9.5px] font-mono text-slate-500 font-normal">Standard 8-Point Metrology Audit</span>
                     </h5>
-                    <table className="w-full text-left text-[11px] border-collapse border border-slate-300">
+                    <table className="w-full text-left text-[10px] border-collapse border-2 border-slate-400">
                       <thead>
-                        <tr className="bg-slate-100 text-slate-800">
+                        <tr className="bg-slate-200 text-slate-900 font-extrabold">
                           <th className="border border-slate-300 p-1.5 w-24">Statute</th>
                           <th className="border border-slate-300 p-1.5">Mandatory Statutory Standard</th>
                           <th className="border border-slate-300 p-1.5">Evidence / Declared Reading</th>
@@ -3136,71 +3049,71 @@ export default function App() {
                       <tbody>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 6(1)(da)</td>
-                          <td className="border border-slate-300 p-1.5">MRP with 'Inclusive of all taxes' Suffix</td>
-                          <td className="border border-slate-300 p-1.5 font-mono">
+                          <td className="border border-slate-300 p-1.5 font-medium">MRP with 'Inclusive of all taxes' Suffix</td>
+                          <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.mrp ? `₹ ${auditResult.extracted_metadata.mrp} (${auditResult.extracted_metadata.taxes_included ? 'Tax Incl.' : 'No Tax Suffix'})` : 'Not Detected'}
                           </td>
-                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_da_mrp ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
+                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_da_mrp ? 'text-emerald-800 bg-emerald-50' : 'text-rose-800 bg-rose-50'}`}>
                             {auditResult.rules_breakdown?.rule_6_1_da_mrp ? 'PASS' : 'FAIL'}
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 11 & 12</td>
-                          <td className="border border-slate-300 p-1.5">Net Quantity in Standard Metric SI Units</td>
-                          <td className="border border-slate-300 p-1.5 font-mono">
+                          <td className="border border-slate-300 p-1.5 font-medium">Net Quantity in Standard Metric SI Units</td>
+                          <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.net_quantity ? `${auditResult.extracted_metadata.net_quantity} ${auditResult.extracted_metadata.unit_of_measure || ''}` : 'Not Detected'}
                           </td>
-                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_11_12_net_quantity ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
+                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_11_12_net_quantity ? 'text-emerald-800 bg-emerald-50' : 'text-rose-800 bg-rose-50'}`}>
                             {auditResult.rules_breakdown?.rule_11_12_net_quantity ? 'PASS' : 'FAIL'}
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 6(1)(g)</td>
-                          <td className="border border-slate-300 p-1.5">Consumer Redressal Email / Helpline Mechanism</td>
+                          <td className="border border-slate-300 p-1.5 font-medium">Consumer Redressal Email / Helpline Mechanism</td>
                           <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.consumer_care_email || auditResult.extracted_metadata?.consumer_care_phone || 'Customer Grievance Redressal Verified'}
                           </td>
-                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_g_consumer_care ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
+                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_g_consumer_care ? 'text-emerald-800 bg-emerald-50' : 'text-rose-800 bg-rose-50'}`}>
                             {auditResult.rules_breakdown?.rule_6_1_g_consumer_care ? 'PASS' : 'FAIL'}
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 6(1)(c)</td>
-                          <td className="border border-slate-300 p-1.5">Month & Year of Manufacture / Packaging</td>
-                          <td className="border border-slate-300 p-1.5 font-mono">
+                          <td className="border border-slate-300 p-1.5 font-medium">Month & Year of Manufacture / Packaging</td>
+                          <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.manufacturing_date || 'Timeline Declared on Package'}
                           </td>
-                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_c_mfg_date ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
+                          <td className={`border border-slate-300 p-1.5 font-bold text-center ${auditResult.rules_breakdown?.rule_6_1_c_mfg_date ? 'text-emerald-800 bg-emerald-50' : 'text-rose-800 bg-rose-50'}`}>
                             {auditResult.rules_breakdown?.rule_6_1_c_mfg_date ? 'PASS' : 'FAIL'}
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 6(10)</td>
-                          <td className="border border-slate-300 p-1.5">Country of Origin Declaration</td>
-                          <td className="border border-slate-300 p-1.5 font-mono">
+                          <td className="border border-slate-300 p-1.5 font-medium">Country of Origin Declaration</td>
+                          <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.country_of_origin || 'India (Verified)'}
                           </td>
-                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-700 bg-emerald-50">
+                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-800 bg-emerald-50">
                             PASS
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 6(1)(a)</td>
-                          <td className="border border-slate-300 p-1.5">Name & Address of Manufacturer / Packer</td>
+                          <td className="border border-slate-300 p-1.5 font-medium">Name & Address of Manufacturer / Packer</td>
                           <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             {auditResult.extracted_metadata?.manufacturer_name || 'Standard Packaged Goods Manufacturer'}
                           </td>
-                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-700 bg-emerald-50">
+                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-800 bg-emerald-50">
                             PASS
                           </td>
                         </tr>
                         <tr>
                           <td className="border border-slate-300 p-1.5 font-mono font-bold">Rule 9</td>
-                          <td className="border border-slate-300 p-1.5">Principal Display Panel Area & Minimum Font Height</td>
-                          <td className="border border-slate-300 p-1.5 font-mono">
+                          <td className="border border-slate-300 p-1.5 font-medium">Principal Display Panel Area & Minimum Font Height</td>
+                          <td className="border border-slate-300 p-1.5 font-mono truncate max-w-xs">
                             Aspect Ratio & Legibility Validated (Schedule II Table)
                           </td>
-                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-700 bg-emerald-50">
+                          <td className="border border-slate-300 p-1.5 font-bold text-center text-emerald-800 bg-emerald-50">
                             PASS
                           </td>
                         </tr>

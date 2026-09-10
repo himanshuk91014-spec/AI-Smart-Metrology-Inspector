@@ -122,52 +122,91 @@
   z-index: 20;
 }
 
-/* Strict A4 Page Styles for PDF / Print Output */
+/* Strict A4 Page Styles for Official Government Certificate PDF / Print Output */
 @page {
   size: A4 portrait;
-  margin: 10mm 12mm 10mm 12mm;
+  margin: 6mm 8mm 6mm 8mm;
 }
 
 @media print {
+  /* 1. Reset root & body for pristine single-page white output */
+  *, *::before, *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
   html, body {
     background: #ffffff !important;
     color: #0f172a !important;
     margin: 0 !important;
     padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    overflow: visible !important;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  .no-print,
+  body > #root, main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  /* 2. Hide all non-certificate UI elements across the whole app */
   header,
   footer,
   nav,
+  aside,
   button,
-  .no-print * {
+  input,
+  select,
+  textarea,
+  .no-print,
+  .no-print *,
+  .scanner-laser,
+  .toast-container,
+  .app-header-container,
+  .app-hero-container,
+  .app-dropzones-container,
+  .app-tabs-nav-container,
+  .app-sidebar-container,
+  .app-recent-audits-container {
     display: none !important;
     visibility: hidden !important;
     height: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: hidden !important;
   }
 
+  /* 3. Force .a4-statutory-report to occupy full A4 portrait bounds cleanly on single page */
   .a4-statutory-report {
     display: block !important;
     visibility: visible !important;
     position: static !important;
     width: 100% !important;
-    max-width: 190mm !important;
+    max-width: 100% !important;
     margin: 0 auto !important;
-    padding: 0 !important;
+    padding: 5mm 7mm !important;
     background: #ffffff !important;
     color: #0f172a !important;
-    border: none !important;
+    border: 2px solid #0f172a !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
     page-break-after: avoid !important;
+    page-break-before: avoid !important;
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .a4-statutory-report * {
     visibility: visible !important;
-    color: #0f172a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

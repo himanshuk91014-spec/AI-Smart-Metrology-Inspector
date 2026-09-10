@@ -53,6 +53,30 @@ export const INDIAN_STATES = [
 ];
 
 /**
+ * Sanitizes and validates product/brand title to prevent raw OCR symbols/garbage from displaying on official certificates.
+ */
+export function sanitizeBrandOrProductName(rawName) {
+  if (!rawName || typeof rawName !== 'string') return 'Packaged Commodity Specimen';
+  // Strip trademark/copyright symbols, special noise chars, brackets
+  let cleaned = rawName.replace(/[®©™|~_•*°#<>{}[\]\\^`~;!?,+=/]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // Strip leading/trailing non-word characters
+  cleaned = cleaned.replace(/^[^a-zA-Z0-9\u0900-\u0D7F]+|[^a-zA-Z0-9\u0900-\u0D7F]+$/g, '').trim();
+  
+  // Must contain at least 3 alphabetic characters (Latin A-Z or Indic letters: Devanagari, Bengali, Gurmukhi, Gujarati, Odia, Tamil, Telugu, Kannada, Malayalam)
+  const alphabeticChars = cleaned.match(/[a-zA-Z\u0904-\u0939\u0985-\u09B9\u0A05-\u0A39\u0A85-\u0AB9\u0B05-\u0B39\u0B85-\u0BB9\u0C05-\u0C39\u0C85-\u0CB9\u0D05-\u0D39]/g);
+  if (!alphabeticChars || alphabeticChars.length < 3 || cleaned.length < 3) {
+    return 'Packaged Commodity Specimen';
+  }
+
+  // Reject if it is only numbers, currency symbols, or punctuation
+  if (/^[\d\s.,\-/:;₹$#@*&()+=]+$/.test(cleaned)) {
+    return 'Packaged Commodity Specimen';
+  }
+
+  return cleaned;
+}
+
+/**
  * Universal safe helper to extract an image URL / Data URL / Blob URL from any input type.
  */
 export function extractImageSource(imgItem) {
@@ -493,12 +517,18 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
         'fssai'
       ])
     ) {
-      extractedMetadata.brand_name = line;
-      break;
+      const sanitized = sanitizeBrandOrProductName(line);
+      if (sanitized !== 'Packaged Commodity Specimen') {
+        extractedMetadata.brand_name = sanitized;
+        break;
+      }
     }
   }
   if (!extractedMetadata.brand_name && lines.length > 0) {
-    extractedMetadata.brand_name = lines[0];
+    extractedMetadata.brand_name = sanitizeBrandOrProductName(lines[0]);
+  }
+  if (!extractedMetadata.brand_name) {
+    extractedMetadata.brand_name = 'Packaged Commodity Specimen';
   }
 
   // --- 1. Maximum Retail Price (MRP) & Tax Suffix (Rule 6(1)(da)) ---
