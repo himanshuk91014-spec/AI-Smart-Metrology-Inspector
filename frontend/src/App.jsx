@@ -58,8 +58,20 @@ import {
   Search,
   Filter,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Smartphone,
+  Tablet,
+  Monitor,
+  RotateCw,
+  Menu,
+  SlidersHorizontal,
+  Laptop,
+  Radio,
+  Share2,
+  Wifi,
+  Battery
 } from 'lucide-react';
+
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { SUPPORTED_LANGUAGES, EXTENDED_LANGUAGES, getTranslation } from './i18n';
@@ -80,7 +92,61 @@ const getApiBaseUrl = () => {
   return 'http://localhost:8000';
 };
 
+const SIMULATOR_DEVICES = {
+  iphone15: {
+    id: 'iphone15',
+    name: 'iPhone 15 Pro',
+    icon: '📱',
+    width: 393,
+    height: 852,
+    notch: 'island',
+    platform: 'iOS',
+    time: '11:38'
+  },
+  s24: {
+    id: 's24',
+    name: 'Samsung Galaxy S24',
+    icon: '📱',
+    width: 412,
+    height: 915,
+    notch: 'punchhole',
+    platform: 'Android',
+    time: '11:38'
+  },
+  pixel8: {
+    id: 'pixel8',
+    name: 'Google Pixel 8',
+    icon: '📱',
+    width: 412,
+    height: 892,
+    notch: 'punchhole',
+    platform: 'Android',
+    time: '11:38'
+  },
+  compact: {
+    id: 'compact',
+    name: 'Compact Smartphone (360px)',
+    icon: '📱',
+    width: 360,
+    height: 780,
+    notch: 'speaker',
+    platform: 'Android',
+    time: '11:38'
+  },
+  ipad: {
+    id: 'ipad',
+    name: 'iPad Mini / Tablet',
+    icon: '📲',
+    width: 768,
+    height: 1024,
+    notch: 'speaker',
+    platform: 'iPadOS',
+    time: '11:38'
+  }
+};
+
 const ANGLE_DEFINITIONS = [
+
   { index: 1, key: 'primaryAngle', defaultLabel: 'Angle 1 (Front / PDP)', subtitle: 'Brand, Net Qty & Principal Display' },
   { index: 2, key: 'angle2', defaultLabel: 'Angle 2 (Back Panel)', subtitle: 'Statutory Declarations & Mfg Info' },
   { index: 3, key: 'angle3', defaultLabel: 'Angle 3 (Side / MRP / Care)', subtitle: 'MRP, Tax Clause & Consumer Redressal' },
@@ -233,6 +299,14 @@ export default function App() {
   const [selectedSampleId, setSelectedSampleId] = useState('');
   const [manualTextMode, setManualTextMode] = useState(false);
   const [manualText, setManualText] = useState('');
+
+  // Device Simulator State for Desktop/Laptop Testing
+  const [simulatorMode, setSimulatorMode] = useState(false);
+  const [simulatorDeviceId, setSimulatorDeviceId] = useState('iphone15');
+  const [simulatorOrientation, setSimulatorOrientation] = useState('portrait'); // 'portrait' | 'landscape'
+  const [simulatorScale, setSimulatorScale] = useState(1);
+  const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
+
 
   // Live Mobile Rear Camera State
   const [isCameraOpen, setIsCameraOpen] = useState(false);
@@ -1139,34 +1213,34 @@ export default function App() {
   const pdpCalc = calculatePdpAreaAndFont();
   const isDark = theme === 'dark';
 
-  return (
+  const renderAppContent = (inSimulator = false) => (
     <div
       onDragOver={handleDragOver}
       onDrop={handleGlobalDrop}
-      className={`min-h-screen flex flex-col transition-colors duration-200 ${
+      className={`min-h-screen w-full max-w-full flex flex-col transition-colors duration-200 overflow-x-hidden ${
         isDark ? 'bg-[#0b1120] text-slate-100' : 'bg-slate-50 text-slate-900'
       }`}
     >
       {/* Top Executive Header */}
       <header
-        className={`sticky top-0 z-40 px-4 py-3 sm:px-6 border-b transition-colors ${
+        className={`sticky top-0 z-40 px-3 py-2.5 sm:px-6 sm:py-3 border-b transition-colors w-full max-w-full ${
           isDark
             ? 'bg-[#0f172a]/95 border-slate-800 backdrop-blur-md'
             : 'bg-white/95 border-slate-200 shadow-sm backdrop-blur-md'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 w-full">
           {/* Logo & Identity */}
-          <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white">
-              <Scale className="h-6 w-6" />
+          <div className="flex items-center space-x-2.5 min-w-0 flex-shrink">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white flex-shrink-0">
+              <Scale className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="font-extrabold text-base sm:text-lg tracking-tight flex items-center gap-2">
-                  Legal Metrology Compliance Auditor
+            <div className="min-w-0 truncate">
+              <div className="flex items-center space-x-1.5 flex-wrap">
+                <h1 className="font-extrabold text-xs sm:text-base md:text-lg tracking-tight truncate flex items-center gap-1.5">
+                  <span className="truncate">Legal Metrology Auditor</span>
                   <span
-                    className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
+                    className={`text-[9px] sm:text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded border flex-shrink-0 ${
                       isDark
                         ? 'bg-blue-950 text-blue-400 border-blue-800'
                         : 'bg-blue-50 text-blue-700 border-blue-200'
@@ -1176,39 +1250,56 @@ export default function App() {
                   </span>
                 </h1>
               </div>
-              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} hidden sm:block`}>
+              <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} hidden md:block truncate`}>
                 Department of Consumer Affairs · Packaged Commodities Regulatory Directorate (SIH 2026)
               </p>
             </div>
           </div>
 
-          {/* Action Tools & Theme Switcher */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Desktop/Laptop Header Actions (>= 768px) */}
+          <div className="hidden md:flex items-center space-x-2 lg:space-x-2.5 flex-shrink-0">
+            {/* Simulator Toggle Button (Only when not inside simulator) */}
+            {!inSimulator && (
+              <button
+                onClick={() => setSimulatorMode(!simulatorMode)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all shadow-sm ${
+                  simulatorMode
+                    ? 'bg-purple-600 text-white border-purple-500 shadow-purple-500/30 ring-2 ring-purple-400'
+                    : isDark
+                    ? 'bg-slate-800 hover:bg-slate-700 text-purple-300 border-purple-900/50 hover:border-purple-600'
+                    : 'bg-purple-50 hover:bg-purple-100 text-purple-800 border-purple-300'
+                }`}
+                title="Toggle Mobile / Tablet Device Simulator Preview for Laptop Testing"
+              >
+                <Smartphone className="h-3.5 w-3.5 text-purple-400 animate-pulse" />
+                <span>📱 Simulator View</span>
+              </button>
+            )}
+
             {/* Live Camera Quick Scan */}
             <button
               onClick={() => startCamera('environment', 1)}
-              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
               title="Open Mobile Rear Camera Viewfinder"
             >
-              <Camera className="h-4 w-4" />
-              <span className="hidden md:inline">Live Rear Camera</span>
-              <span className="md:hidden">Scan</span>
+              <Camera className="h-3.5 w-3.5" />
+              <span>Live Rear Camera</span>
             </button>
 
             {/* Recent Audits Modal Button */}
             <button
               onClick={() => setIsAuditsModalOpen(true)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all relative ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all relative ${
                 isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
               }`}
               title="View Live Audits & Database Sync"
             >
-              <History className="h-4 w-4 text-blue-500" />
-              <span className="hidden sm:inline">Recent Audits</span>
+              <History className="h-3.5 w-3.5 text-blue-500" />
+              <span>Recent Audits</span>
               {recentAuditsList && recentAuditsList.length > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono font-extrabold bg-blue-600 text-white shadow-sm flex items-center gap-1">
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold bg-blue-600 text-white shadow-sm flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   {recentAuditsList.length}
                 </span>
@@ -1218,21 +1309,21 @@ export default function App() {
             {/* Rules Reference Button */}
             <button
               onClick={() => setIsRulesModalOpen(true)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all ${
                 isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
               }`}
               title="View PCR 2011 Rules & Approved SI Units Reference"
             >
-              <BookOpen className="h-4 w-4 text-amber-500" />
-              <span className="hidden lg:inline">Rules & Units</span>
+              <BookOpen className="h-3.5 w-3.5 text-amber-500" />
+              <span>Rules & Units</span>
             </button>
 
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-xl border text-xs font-bold flex items-center active:scale-95 transition-all ${
+              className={`p-2 rounded-xl border text-xs font-bold flex items-center active:scale-95 transition-all ${
                 isDark
                   ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 shadow-sm'
@@ -1244,7 +1335,7 @@ export default function App() {
 
             {/* Engine Health Status Indicator */}
             <div
-              className={`flex items-center space-x-1.5 text-xs px-3 py-1.5 rounded-full border font-bold ${
+              className={`flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-full border font-bold ${
                 apiHealth.online
                   ? isDark
                     ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
@@ -1259,7 +1350,7 @@ export default function App() {
                   apiHealth.online ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
                 }`}
               />
-              <span className="font-mono text-[11px]">
+              <span className="font-mono text-[10px]">
                 {apiHealth.online ? 'HYBRID AI ONLINE' : 'EDGE OCR'}
               </span>
             </div>
@@ -1268,7 +1359,7 @@ export default function App() {
             <div className="relative" ref={langDropdownRef}>
               <button
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
+                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
                   isDark
                     ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
                     : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800 shadow-sm'
@@ -1318,8 +1409,53 @@ export default function App() {
               )}
             </div>
           </div>
+
+          {/* Mobile Header Actions (< 768px): Ultra compact, no horizontal overflow */}
+          <div className="flex md:hidden items-center space-x-1.5 flex-shrink-0">
+            {/* Quick Camera Scan */}
+            <button
+              onClick={() => startCamera('environment', 1)}
+              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
+              title="Camera Scan"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+
+            {/* Quick Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-xl border text-xs active:scale-95 ${
+                isDark
+                  ? 'bg-slate-800 text-amber-300 border-slate-700'
+                  : 'bg-slate-100 text-slate-800 border-slate-300'
+              }`}
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            {/* Mobile Language Button */}
+            <button
+              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+              className={`px-2 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1 active:scale-95 ${
+                isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-300'
+              }`}
+            >
+              <Globe className="h-3 w-3 text-blue-500" />
+              <span>{selectedLanguage.toUpperCase()}</span>
+            </button>
+
+            {/* Mobile Menu Drawer Button */}
+            <button
+              onClick={() => setIsMobileToolsOpen(true)}
+              className="p-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 active:scale-95 shadow-sm"
+              title="Regulatory Tools Menu"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </header>
+
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-6">
@@ -3651,6 +3787,271 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Mobile Quick Tools Drawer */}
+      {isMobileToolsOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div
+            className={`w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 border shadow-2xl space-y-4 animate-in slide-in-from-bottom duration-200 ${
+              isDark ? 'bg-[#0f172a] text-slate-100 border-slate-800' : 'bg-white text-slate-900 border-slate-200'
+            }`}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-5 w-5 text-blue-500" />
+                <h3 className="font-extrabold text-sm">Regulatory Officer Quick Tools</h3>
+              </div>
+              <button
+                onClick={() => setIsMobileToolsOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 text-xs">
+              <button
+                onClick={() => {
+                  setIsMobileToolsOpen(false);
+                  setIsAuditsModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-2 active:scale-95 transition ${
+                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <History className="h-5 w-5 text-blue-500" />
+                  {recentAuditsList.length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-blue-600 text-white font-mono text-[10px] font-bold">
+                      {recentAuditsList.length}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="font-extrabold">Recent Audits</div>
+                  <div className="text-[10px] text-slate-400">View database records</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsMobileToolsOpen(false);
+                  setIsRulesModalOpen(true);
+                }}
+                className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-2 active:scale-95 transition ${
+                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}
+              >
+                <BookOpen className="h-5 w-5 text-amber-500" />
+                <div>
+                  <div className="font-extrabold">Rules & SI Units</div>
+                  <div className="text-[10px] text-slate-400">PCR 2011 handbook</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsMobileToolsOpen(false);
+                  startCamera('environment', 1);
+                }}
+                className="p-3 rounded-2xl bg-blue-600 text-white text-left flex flex-col justify-between gap-2 active:scale-95 transition shadow-sm"
+              >
+                <Camera className="h-5 w-5" />
+                <div>
+                  <div className="font-extrabold">Live Camera</div>
+                  <div className="text-[10px] text-blue-200">Rear multi-angle scan</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsMobileToolsOpen(false);
+                  setSimulatorMode(true);
+                }}
+                className={`p-3 rounded-2xl border text-left flex flex-col justify-between gap-2 active:scale-95 transition ${
+                  isDark ? 'bg-purple-950/60 border-purple-800 text-purple-300' : 'bg-purple-50 border-purple-200 text-purple-900'
+                }`}
+              >
+                <Smartphone className="h-5 w-5 text-purple-400" />
+                <div>
+                  <div className="font-extrabold">Simulator Mode</div>
+                  <div className="text-[10px] opacity-70">Laptop device tester</div>
+                </div>
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <div className="flex items-center gap-1.5">
+                <span className={`h-2 w-2 rounded-full ${apiHealth.online ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+                <span className="font-mono text-[10px]">{apiHealth.online ? 'HYBRID AI ONLINE' : 'EDGE OCR'}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setIsMobileToolsOpen(false);
+                  toggleTheme();
+                }}
+                className="flex items-center gap-1 text-blue-500 font-bold"
+              >
+                {isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+                <span>{isDark ? 'Light' : 'Dark'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+
+  // If Device Simulator Mode is activated on Desktop/Laptop
+  if (simulatorMode) {
+    const currentSim = SIMULATOR_DEVICES[simulatorDeviceId] || SIMULATOR_DEVICES.iphone15;
+    const isLand = simulatorOrientation === 'landscape';
+    const frameW = isLand ? currentSim.height : currentSim.width;
+    const frameH = isLand ? currentSim.width : currentSim.height;
+
+    return (
+      <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col items-center select-none overflow-x-hidden">
+        {/* Top Simulator Control Bar */}
+        <div className="w-full bg-[#0d1527] border-b border-slate-800 px-3 py-2.5 sm:px-6 flex items-center justify-between flex-wrap gap-2.5 z-50 shadow-xl">
+          <div className="flex items-center space-x-2.5 flex-wrap gap-1.5">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-950/90 border border-purple-700 text-purple-300 text-xs font-bold shadow-sm">
+              <Smartphone className="h-4 w-4 text-purple-400" />
+              <span>Device Simulator</span>
+            </div>
+
+            {/* Device Selector Buttons */}
+            <div className="flex items-center space-x-1 overflow-x-auto py-0.5">
+              {Object.values(SIMULATOR_DEVICES).map((dev) => (
+                <button
+                  key={dev.id}
+                  onClick={() => setSimulatorDeviceId(dev.id)}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                    simulatorDeviceId === dev.id
+                      ? 'bg-blue-600 text-white shadow-md ring-1 ring-blue-400'
+                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
+                  }`}
+                >
+                  <span>{dev.icon}</span>
+                  <span className="hidden sm:inline">{dev.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Simulator Toolbar Options */}
+          <div className="flex items-center space-x-2 flex-wrap">
+            {/* Orientation Switch */}
+            <button
+              onClick={() => setSimulatorOrientation(isLand ? 'portrait' : 'landscape')}
+              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold flex items-center gap-1.5 border border-slate-700 transition"
+              title="Rotate Screen (Portrait / Landscape)"
+            >
+              <RotateCw className="h-3.5 w-3.5 text-blue-400" />
+              <span>{isLand ? 'Landscape' : 'Portrait'}</span>
+            </button>
+
+            {/* Scale Control */}
+            <div className="flex items-center space-x-1 bg-slate-800/80 rounded-xl px-2 py-1 border border-slate-700 text-xs">
+              <button
+                onClick={() => setSimulatorScale(Math.max(0.6, Number((simulatorScale - 0.1).toFixed(1))))}
+                className="px-1.5 py-0.5 rounded hover:bg-slate-700 font-bold"
+                title="Zoom Out"
+              >
+                -
+              </button>
+              <span className="font-mono text-[11px] px-1">{Math.round(simulatorScale * 100)}%</span>
+              <button
+                onClick={() => setSimulatorScale(Math.min(1.2, Number((simulatorScale + 0.1).toFixed(1))))}
+                className="px-1.5 py-0.5 rounded hover:bg-slate-700 font-bold"
+                title="Zoom In"
+              >
+                +
+              </button>
+            </div>
+
+            {/* Resolution Badge */}
+            <span className="hidden lg:inline px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-400">
+              {frameW} × {frameH} px
+            </span>
+
+            {/* Exit Simulator Button */}
+            <button
+              onClick={() => setSimulatorMode(false)}
+              className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition"
+            >
+              <X className="h-3.5 w-3.5" />
+              <span>Exit Simulator</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Center Canvas Area with Realistic Phone Device Mockup */}
+        <div className="flex-1 w-full flex items-center justify-center p-4 sm:p-8 overflow-auto simulator-backdrop">
+          <div
+            style={{
+              transform: `scale(${simulatorScale})`,
+              transformOrigin: 'top center',
+              transition: 'transform 0.2s ease, width 0.3s ease, height 0.3s ease'
+            }}
+            className="flex flex-col items-center my-4"
+          >
+            {/* Phone Chassis Frame */}
+            <div
+              style={{ width: `${frameW + 26}px`, height: `${frameH + 42}px` }}
+              className="relative rounded-[50px] p-3 bg-gradient-to-b from-[#3a3d46] via-[#1a1c22] to-[#2a2d36] device-frame-shadow flex flex-col items-center justify-between border-4 border-[#525666]"
+            >
+              {/* Outer Edge Glare */}
+              <div className="absolute inset-0 rounded-[46px] pointer-events-none border border-white/10" />
+
+              {/* Top Speaker / Sensor Slit */}
+              <div className="w-16 h-1 bg-[#111] rounded-full mt-1 mb-1 shadow-inner z-30" />
+
+              {/* Screen Area */}
+              <div
+                style={{ width: `${frameW}px`, height: `${frameH}px` }}
+                className="relative rounded-[38px] overflow-hidden bg-black flex flex-col flex-1 shadow-inner border border-black"
+              >
+                {/* Simulated Phone Status Bar */}
+                <div className="w-full bg-[#0f172a] text-white px-6 py-2 flex items-center justify-between text-[11px] font-bold z-30 select-none flex-shrink-0 border-b border-slate-800/40">
+                  <span>{currentSim.time}</span>
+
+                  {/* Dynamic Island / Punch Hole */}
+                  {currentSim.notch === 'island' ? (
+                    <div className="h-6 w-24 bg-black rounded-full border border-slate-800 flex items-center justify-end px-2 gap-1.5 shadow-md">
+                      <div className="h-2 w-2 rounded-full bg-slate-900 ring-1 ring-slate-800" />
+                      <div className="h-2.5 w-2.5 rounded-full bg-[#0c1220] ring-1 ring-blue-900" />
+                    </div>
+                  ) : currentSim.notch === 'punchhole' ? (
+                    <div className="h-3 w-3 bg-black rounded-full ring-2 ring-slate-800 shadow" />
+                  ) : (
+                    <div className="w-12 h-1 bg-slate-700 rounded-full" />
+                  )}
+
+                  <div className="flex items-center space-x-1.5 font-mono text-[10px]">
+                    <span className="text-[9px] font-bold text-slate-400">5G</span>
+                    <Wifi className="h-3 w-3" />
+                    <Battery className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400" />
+                  </div>
+                </div>
+
+                {/* Simulated App Viewport Scroll Container */}
+                <div className="flex-1 w-full overflow-y-auto device-screen-scroll bg-slate-900">
+                  {renderAppContent(true)}
+                </div>
+
+                {/* Bottom Gesture Bar / Home Indicator */}
+                <div className="w-full py-1.5 bg-[#0f172a] flex items-center justify-center flex-shrink-0 border-t border-slate-800/40">
+                  <div className="w-28 h-1 bg-white/40 rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal Fullscreen Render
+  return renderAppContent(false);
 }
+
