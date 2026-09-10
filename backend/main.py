@@ -184,26 +184,27 @@ class TextAnalysisRequest(BaseModel):
 def preprocess_image_for_ocr(img_np: np.ndarray) -> List[Tuple[str, np.ndarray, float]]:
     """
     Generates intelligent enhanced image variants to tackle:
-    - Motion blur and soft camera focus (via Unsharp Masking)
+    - Cylindrical bottle curvature & specular shine (via Bilateral Filtering)
+    - Motion blur and soft camera focus (via Laplacian Unsharp Masking)
     - Uneven package lighting & shiny plastic glare (via Multi-clip CLAHE)
     - Low-contrast label printing (via Adaptive Binarization / Contrast Stretching)
-    - Low resolution (via Bicubic Rescaling)
+    - Low resolution (via High-Fidelity Cubic Rescaling)
 
     Returns: List of tuples (variant_name, image_array, scale_factor)
     """
     variants: List[Tuple[str, np.ndarray, float]] = []
-    
+
     # 1. Base Image & Potential Smart Upscaling for micro-fonts
     h, w = img_np.shape[:2]
     scale_factor = 1.0
     base_img = img_np
-    
-    if max(h, w) < 1400:
-        scale_factor = 1400.0 / max(h, w)
+
+    if max(h, w) < 1600:
+        scale_factor = 1600.0 / max(h, w)
         new_w = int(w * scale_factor)
         new_h = int(h * scale_factor)
         base_img = cv2.resize(img_np, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
-    
+
     variants.append(("original", base_img, scale_factor))
 
     try:
@@ -213,26 +214,27 @@ def preprocess_image_for_ocr(img_np: np.ndarray) -> List[Tuple[str, np.ndarray, 
         else:
             gray = base_img
 
-        # 2. De-blurring / Unsharp Masking (Amplifies text edges on blurry packages)
+        # 2. Bilateral Filter + CLAHE (Anti-glare: smooths shiny cylinder reflections while preserving crisp edges)
+        bilateral = cv2.bilateralFilter(gray, d=9, sigmaColor=75, sigmaSpace=75)
+        clahe_bilateral = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8)).apply(bilateral)
+        variants.append(("bilateral_antiglare", cv2.cvtColor(clahe_bilateral, cv2.COLOR_GRAY2RGB), scale_factor))
+
+        # 3. De-blurring / Unsharp Masking (Amplifies text edges on blurry or camera-shaken packages)
         gaussian_blur = cv2.GaussianBlur(base_img, (0, 0), 2.5)
-        unsharp_img = cv2.addWeighted(base_img, 1.8, gaussian_blur, -0.8, 0)
+        unsharp_img = cv2.addWeighted(base_img, 2.0, gaussian_blur, -1.0, 0)
         variants.append(("unsharp_deblur", unsharp_img, scale_factor))
 
-        # 3. CLAHE (Contrast Limited Adaptive Histogram Equalization) - Moderate
-        clahe_med = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(8, 8))
-        enhanced_gray_med = clahe_med.apply(gray)
-        enhanced_bgr_med = cv2.cvtColor(enhanced_gray_med, cv2.COLOR_GRAY2RGB)
-        variants.append(("clahe_medium", enhanced_bgr_med, scale_factor))
-
-        # 4. CLAHE - High Contrast for glossy packages / dark shadows
-        clahe_high = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(6, 6))
+        # 4. CLAHE - High Contrast for glossy packages / curved side shadows
+        clahe_high = cv2.createCLAHE(clipLimit=4.5, tileGridSize=(6, 6))
         enhanced_gray_high = clahe_high.apply(gray)
         enhanced_bgr_high = cv2.cvtColor(enhanced_gray_high, cv2.COLOR_GRAY2RGB)
         variants.append(("clahe_high", enhanced_bgr_high, scale_factor))
 
-        # 5. Otsu Adaptive Thresholding / Binarization (Handles metallic & reflective backgrounds)
+        # 5. Otsu Adaptive Thresholding + Morphological Closing (Bridges broken dot-matrix characters)
         _, otsu_bin = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        otsu_rgb = cv2.cvtColor(otsu_bin, cv2.COLOR_GRAY2RGB)
+        close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+        otsu_closed = cv2.morphologyEx(otsu_bin, cv2.MORPH_CLOSE, close_kernel)
+        otsu_rgb = cv2.cvtColor(otsu_closed, cv2.COLOR_GRAY2RGB)
         variants.append(("otsu_binarized", otsu_rgb, scale_factor))
 
     except Exception as cv_err:
@@ -259,7 +261,8 @@ def _calculate_box_overlap(box1: List[List[float]], box2: List[List[float]]) -> 
 def extract_segments_from_image(image_bytes: bytes) -> Tuple[List[Dict[str, Any]], Tuple[int, int]]:
     """
     Extracts high-precision OCR text segments, bounding polygons, and confidence scores
-    using multi-variant fusion to ensure maximum text recall on blurry/difficult packaging.
+    using multi-variant fusion, curvature de-glare, and multi-orientation passes
+    to ensure maximum text recall on curved bottles, blurry prints, and complex packaging.
     """
     segments: List[Dict[str, Any]] = []
 
@@ -279,13 +282,20 @@ def extract_segments_from_image(image_bytes: bytes) -> Tuple[List[Dict[str, Any]
     # 2. Run RapidOCR Engine across multi-stage image variants
     try:
         ocr_engine = get_ocr_engine()
-        
+
         if ocr_engine is not None and ocr_engine != "FALLBACK":
             image_variants = preprocess_image_for_ocr(img_np)
             all_detected_candidates: List[Dict[str, Any]] = []
 
+            # Multi-Variant Forward Passes
             for var_name, variant_img, scale_factor in image_variants:
-                results, _ = ocr_engine(variant_img)
+                results, _ = ocr_engine(
+                    variant_img,
+                    text_score=0.25,
+                    box_thresh=0.35,
+                    unclip_ratio=1.8,
+                    use_angle_cls=True
+                )
                 if results:
                     for line in results:
                         box_points = line[0]  # [[x1,y1], [x2,y2], [x3,y3], [x4,y4]]
@@ -305,19 +315,82 @@ def extract_segments_from_image(image_bytes: bytes) -> Tuple[List[Dict[str, Any]
                                 "variant": var_name
                             })
 
+            # Rotational Passes for Vertical/Curved Package Labels (90 CW and 270 CW)
+            base_scaled = image_variants[0][1]
+            scale_fac = image_variants[0][2]
+            scaled_h, scaled_w = base_scaled.shape[:2]
+
+            # Pass A: 90° Clockwise Rotation
+            img_90 = cv2.rotate(base_scaled, cv2.ROTATE_90_CLOCKWISE)
+            results_90, _ = ocr_engine(
+                img_90,
+                text_score=0.25,
+                box_thresh=0.35,
+                unclip_ratio=1.8,
+                use_angle_cls=True
+            )
+            if results_90:
+                for line in results_90:
+                    text_str = str(line[1]).strip()
+                    conf_val = float(line[2])
+                    if text_str and len(text_str) >= 1:
+                        # Inverse coordinate transform for 90 CW: x_orig = y_rot, y_orig = scaled_h - 1 - x_rot
+                        inv_box = [
+                            [
+                                round(float(pt[1]) / scale_fac, 1),
+                                round((float(scaled_h) - 1.0 - float(pt[0])) / scale_fac, 1)
+                            ]
+                            for pt in line[0]
+                        ]
+                        all_detected_candidates.append({
+                            "text": text_str,
+                            "box": inv_box,
+                            "confidence": round(conf_val, 4),
+                            "variant": "rot_90"
+                        })
+
+            # Pass B: 270° Clockwise (90° CCW) Rotation
+            img_270 = cv2.rotate(base_scaled, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            results_270, _ = ocr_engine(
+                img_270,
+                text_score=0.25,
+                box_thresh=0.35,
+                unclip_ratio=1.8,
+                use_angle_cls=True
+            )
+            if results_270:
+                for line in results_270:
+                    text_str = str(line[1]).strip()
+                    conf_val = float(line[2])
+                    if text_str and len(text_str) >= 1:
+                        # Inverse coordinate transform for 270 CW: x_orig = scaled_w - 1 - y_rot, y_orig = x_rot
+                        inv_box = [
+                            [
+                                round((float(scaled_w) - 1.0 - float(pt[1])) / scale_fac, 1),
+                                round(float(pt[0]) / scale_fac, 1)
+                            ]
+                            for pt in line[0]
+                        ]
+                        all_detected_candidates.append({
+                            "text": text_str,
+                            "box": inv_box,
+                            "confidence": round(conf_val, 4),
+                            "variant": "rot_270"
+                        })
+
             # 3. Intelligent Multi-Pass Fusion & Deduplication
             # Retain unique lines; if overlap occurs, choose highest confidence / longest transcription
             seen_texts: List[Dict[str, Any]] = []
             for cand in all_detected_candidates:
                 cand_text = cand["text"].strip().lower()
                 cand_box = cand["box"]
-                
+
                 # Check for near-identical existing segment
                 matched_idx = -1
                 for idx, existing in enumerate(seen_texts):
                     ex_text = existing["text"].strip().lower()
                     dist = _calculate_box_overlap(cand_box, existing["box"])
-                    
+
                     # Same text or heavy spatial overlap (close center distance)
                     if cand_text == ex_text or (dist < 25.0 and (cand_text in ex_text or ex_text in cand_text)):
                         matched_idx = idx
@@ -332,7 +405,7 @@ def extract_segments_from_image(image_bytes: bytes) -> Tuple[List[Dict[str, Any]
 
             # Sort segments top-to-bottom, left-to-right based on Y coordinate
             seen_texts.sort(key=lambda s: (min(pt[1] for pt in s["box"]), min(pt[0] for pt in s["box"])))
-            
+
             segments = [
                 {
                     "text": s["text"],

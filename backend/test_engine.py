@@ -390,7 +390,46 @@ def run_tests():
     assert corrected_res["overall_score"] == 100, f"Expected 100 score, got {corrected_res['overall_score']}"
     assert corrected_res["is_manually_verified"] is True
     assert "mrp" in corrected_res["manual_fields_applied"]
-    print("  --> PASS: Inspector manual input successfully cleared false missing MRP violation and brought score to 100/100 COMPLIANT!")
+    # Test 11: Complex MRP Formats (Embedded Tax Clauses, Dot Matrix & Spaced Digits)
+    print("\n[TEST 11] Evaluating Complex MRP Formats (Embedded Tax Clause, Dot Matrix & Spaced Digits)...")
+    complex_mrp_cases = [
+        ("MRP (INCL. OF ALL TAXES) : Rs. 120.00", "120.00"),
+        ("MRP (INCLUSIVE OF ALL TAXES) 150.00", "150.00"),
+        ("MRP (INCL. OF ALL TAXES) ₹ 250", "250"),
+        ("M R P : 1 2 0 . 0 0 \n INCL. OF ALL TAXES", "120.00"),
+        ("M . R . P . : Rs . 2 5 0 . 0 0 ( INCL OF ALL TAXES )", "250.00"),
+        ("MRP Rs. 45/- (INCL. OF ALL TAXES)", "45"),
+        ("MRP (INCL OF TAXES) : Rs. 50/-", "50"),
+        ("MAX RETAIL PRICE (INCL. OF ALL TAXES): Rs 199.00", "199.00"),
+        ("MRP / USP : Rs. 150.00 / Rs. 1.50 per g \n (INCL. OF ALL TAXES)", "150.00"),
+        ("MRP : 99.00 (INCL. OF ALL TAXES)", "99.00")
+    ]
+    for text_case, expected_val in complex_mrp_cases:
+        case_res = engine.evaluate_compliance([{"text": text_case, "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.98}])
+        assert case_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, f"Failed MRP rule on: {text_case}"
+        assert case_res["extracted_metadata"]["taxes_included"] is True, f"Failed tax clause on: {text_case}"
+        assert case_res["extracted_metadata"]["mrp"] == expected_val, f"Expected {expected_val}, got {case_res['extracted_metadata']['mrp']} for {text_case}"
+    print("  --> PASS: All complex MRP variants (embedded tax clause, dot-matrix, spaced numbers) extracted perfectly!")
+
+    # Test 12: Cylindrical Multi-Line Fragmented Segments
+    print("\n[TEST 12] Evaluating Multi-Line Fragmented Segments on Cylindrical Bottle...")
+    cyl_segments = [
+        {"text": "MRP (INCL.", "box": [[10, 100], [100, 100], [100, 120], [10, 120]], "confidence": 0.98},
+        {"text": "OF ALL TAXES)", "box": [[110, 102], [220, 102], [220, 122], [110, 122]], "confidence": 0.98},
+        {"text": "Rs. 120.00", "box": [[230, 101], [310, 101], [310, 121], [230, 121]], "confidence": 0.98},
+        {"text": "Net Qty:", "box": [[10, 140], [80, 140], [80, 160], [10, 160]], "confidence": 0.98},
+        {"text": "250 ml", "box": [[90, 142], [140, 142], [140, 162], [90, 162]], "confidence": 0.98},
+        {"text": "Customer Care:", "box": [[10, 180], [120, 180], [120, 200], [10, 200]], "confidence": 0.98},
+        {"text": "care@cylbottle.in", "box": [[130, 180], [260, 180], [260, 200], [130, 200]], "confidence": 0.98},
+        {"text": "Mfd: 02/2026", "box": [[10, 220], [120, 220], [120, 240], [10, 240]], "confidence": 0.98},
+        {"text": "Country of Origin: India", "box": [[10, 260], [200, 260], [200, 280], [10, 280]], "confidence": 0.98}
+    ]
+    cyl_res = engine.evaluate_compliance(cyl_segments, (1000, 1000))
+    assert cyl_res["status"] == "COMPLIANT", f"Expected COMPLIANT for cylindrical fragments, got {cyl_res['status']}"
+    assert cyl_res["extracted_metadata"]["mrp"] == "120.00", f"Expected 120.00, got {cyl_res['extracted_metadata']['mrp']}"
+    assert cyl_res["extracted_metadata"]["taxes_included"] is True
+    assert cyl_res["extracted_metadata"]["net_quantity"] == "250"
+    print("  --> PASS: Cylindrical multi-line fragmented segments correctly unified, extracted MRP ₹ 120.00, Status: COMPLIANT!")
 
     print("\n" + "=" * 70)
     print("ALL COMPLIANCE PIPELINES PASSED VERIFICATION PERFECTLY! [SUCCESS]")

@@ -408,9 +408,36 @@ export async function runClientSideOcrAndAudit(images, onProgress = () => {}) {
  * Robust multi-pass regex extractors with proximity stitching for broken or multi-line text.
  */
 export function evaluateClientSideCompliance(rawText, segments = [], manualOverrides = null) {
-  const text = rawText || '';
+  let text = rawText || '';
+
+  // 0. Dot-matrix & Curvature De-spacing
+  text = text.replace(/\bM\s*\.?\s*R\s*\.?\s*P\s*\.?/gi, 'MRP');
+  text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E/gi, 'MAX RETAIL PRICE');
+  text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L/gi, 'MAX RETAIL');
+  text = text.replace(/\bR\s*\.?\s*s\s*\.?/gi, 'Rs.');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b/gi, 'INCL. OF ALL TAXES');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b/gi, 'INCL. OF TAXES');
+  text = text.replace(/\bN\s*E\s*T\s*Q\s*T\s*Y\b/gi, 'NET QTY');
+  text = text.replace(/\bN\s*E\s*T\s*W\s*T\b/gi, 'NET WT');
+  text = text.replace(/\bN\s*E\s*T\s*V\s*O\s*L\b/gi, 'NET VOL');
+  text = text.replace(/\bM\s*F\s*D\b/gi, 'MFD');
+  text = text.replace(/\bM\s*F\s*G\b/gi, 'MFG');
+  text = text.replace(/\bE\s*X\s*P\b/gi, 'EXP');
+  text = text.replace(/\bB\s*\.?\s*N\s*O\b/gi, 'B.NO');
+  text = text.replace(/\bU\s*S\s*P\b/gi, 'USP');
+
+  // Stitch spaced digits: '1 2 0 . 0 0' -> '120.00', '2 5 0 . 0 0' -> '250.00'
+  text = text.replace(/(\d)\s*\.\s*(\d)\s*(\d)/g, '$1.$2$3');
+  text = text.replace(/(\d)\s*\.\s*(\d{2})\b/g, '$1.$2');
+  text = text.replace(/(\d+)\s*\.\s*(\d{2})\b/g, '$1.$2');
+  text = text.replace(/(\d+)\s*\/\s*[\-]\b/g, '$1/-');
+  for (let iter = 0; iter < 4; iter++) {
+    text = text.replace(/\b(\d+)\s+(\d)\b/g, '$1$2');
+  }
+
   const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
   const fullJoinedText = lines.join(' ');
+  const normalizedCondensed = fullJoinedText.toLowerCase().replace(/[^a-zA-Z0-9@.]+/g, '');
   
   let violations = [];
   let passedChecks = [];
@@ -479,32 +506,70 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   let taxSuffixFound = false;
   
   // Tax suffix regex (English & Regional Indian Languages + Curvature variations)
-  const taxSuffixRegex = /(inclusive\s*of\s*all\s*taxes|incl\.?\s*of\s*all\s*taxes|incl\.?\s*all\s*taxes|all\s*taxes\s*incl|taxes\s*included|all\s*taxes\s*included|incl\.?\s*tax|taxes\s*incl|सभी\s*करों?\s*सहित|सर्व\s*करांसह|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|تمام\s*ٹیکسز?\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட)/i;
-  taxSuffixFound = taxSuffixRegex.test(fullJoinedText);
+  const taxSuffixRegex = /(inclusive\s*of\s*all\s*taxes|incl\.?\s*of\s*all\s*taxes|incl\.?\s*all\s*taxes|all\s*taxes\s*incl|taxes\s*included|tax\s*included|all\s*taxes\s*included|incl\.?\s*tax|taxes\s*incl|incl\.?\s*of\s*tax|inclusive\s*taxes|inclusive\s*of\s*tax|inc\s*of\s*all\s*taxes|inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|सभी\s*करों?\s*सहित|सर्व\s*करांसह|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|تمام\s*ٹیکسز?\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட)/i;
+  taxSuffixFound = taxSuffixRegex.test(fullJoinedText) || /inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|alltax(?:es)?inc|inc[l1i]?(?:of)?tax(?:es)?/i.test(normalizedCondensed);
 
-  // Price Regex patterns (Curvature, dot-matrix, spaced letters M R P, and symbol resilient)
-  const mrpRegexList = [
-    /(?:m\.?\s*r\.?\s*p\.?|max(?:imum)?\s+retail\s+price|retail\s+price|price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|గరిష్ట\s*రిటైల్\s*ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت)\s*[\.:=-]*\s*(?:rs\.?|₹|inr|re\.?)?\s*[\.:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)/i,
-    /(?:rs\.?|₹|inr)\s*[\.:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)/i,
-    /\b(\d+(?:\.\d{2}))\s*(?:\/|\/\-|\b)/i,
-    /\b(\d{2,5})\s*\/\s*[\-]/i
-  ];
+  // Hierarchical Multi-Stage MRP Extraction
+  // Stage A: Explicit MRP keyword with optional embedded tax clause or currency symbol, followed by price
+  const pExplicit = /(?:m\.?\s*r\.?\s*p\.?|mr\.?p|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?))?/i;
 
-  let mrpMatch = null;
-  for (const r of mrpRegexList) {
-    mrpMatch = fullJoinedText.match(r);
-    if (mrpMatch && mrpMatch[1]) break;
+  let foundMrpValue = null;
+  const matchExplicit = fullJoinedText.match(pExplicit);
+  if (matchExplicit && matchExplicit[1]) {
+    const val = matchExplicit[1].replace(/,/g, '').trim();
+    if (parseFloat(val) > 0) {
+      foundMrpValue = val;
+    }
   }
 
-  // Multi-line proximity search: check lines adjacent to MRP
-  if (mrpMatch) {
+  // Stage B: Line-by-line / Segment proximity search
+  if (!foundMrpValue) {
+    const mrpKwRe = /(?:m\.?\s*r\.?\s*p\.?|max(?:imum)?\s*retail|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|ధర)/i;
+    const priceCandRe = /(?:(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?)\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)|\b(\d+\.\d{2})\b|\b(\d{1,5})\s*\/\s*[\-]?|\b(\d{2,5})\b)/i;
+
+    for (let idx = 0; idx < lines.length; idx++) {
+      if (mrpKwRe.test(lines[idx])) {
+        for (let j = idx; j < Math.min(lines.length, idx + 3); j++) {
+          const pm = lines[j].match(priceCandRe);
+          if (pm) {
+            const candVal = pm[1] || pm[2] || pm[3] || pm[4];
+            if (candVal && parseFloat(candVal.replace(/,/g, '')) > 0) {
+              foundMrpValue = candVal.replace(/,/g, '').trim();
+              break;
+            }
+          }
+        }
+        if (foundMrpValue) break;
+      }
+    }
+  }
+
+  // Stage C: Standalone currency with price
+  if (!foundMrpValue) {
+    const pCurr = /(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?)\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)/i;
+    const mc = fullJoinedText.match(pCurr);
+    if (mc && mc[1]) {
+      foundMrpValue = mc[1].replace(/,/g, '').trim();
+    }
+  }
+
+  // Stage D: Trailing currency dash / decimal price (e.g. 120/-, 150.00)
+  if (!foundMrpValue) {
+    const pDash = /\b(\d{1,5})\s*\/\s*[\-]/;
+    const md = fullJoinedText.match(pDash);
+    if (md && md[1]) {
+      foundMrpValue = md[1].replace(/,/g, '').trim();
+    }
+  }
+
+  if (foundMrpValue) {
     mrpFound = true;
-    extractedMetadata.mrp = mrpMatch[1].replace(/,/g, '');
+    extractedMetadata.mrp = foundMrpValue;
 
     // Check if line containing MRP or adjacent line contains tax clause
     if (!taxSuffixFound) {
       for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes(mrpMatch[1]) || /mrp|rs|₹/i.test(lines[i])) {
+        if (lines[i].includes(foundMrpValue) || /mrp|rs|₹/i.test(lines[i])) {
           const windowText = [lines[i - 1] || '', lines[i], lines[i + 1] || '', lines[i + 2] || ''].join(' ');
           if (taxSuffixRegex.test(windowText)) {
             taxSuffixFound = true;

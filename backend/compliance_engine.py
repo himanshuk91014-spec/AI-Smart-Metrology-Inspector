@@ -143,9 +143,15 @@ class LegalMetrologyComplianceEngine:
         r"all\s*taxes\s*incl?",
         r"all\s*taxes\s*included",
         r"taxes\s*included",
+        r"tax\s*included",
         r"taxes\s*incl\.?",
         r"incl\.?\s*tax(?:es)?",
+        r"incl\.?\s*of\s*tax(?:es)?",
+        r"inclusive\s*of\s*tax(?:es)?",
+        r"inclusive\s*taxes",
         r"incl\.?\s*of\s*all\s*taxes\.?",
+        r"inc\s*of\s*all\s*taxes",
+        r"inc\.?\s*of\s*all\s*taxes",
         # Curvature & Label Edge Truncation Partial Matches
         r"inclusive\s*of\s*all\s*tax?",
         r"inclusive\s*of\s*al\b",
@@ -309,9 +315,59 @@ class LegalMetrologyComplianceEngine:
         )
         self.pincode_regex = re.compile(r"\b[1-9][0-9]{5}\b")
 
+    def group_segments_into_lines(self, segments: List[Dict[str, Any]], y_threshold: float = 20.0) -> List[str]:
+        """
+        Spatially groups fragmented OCR bounding box segments into unified horizontal lines.
+        Crucial for curved cylindrical bottles where PaddleOCR/RapidOCR breaks a single line into separate boxes.
+        """
+        if not segments:
+            return []
+
+        def get_center(seg):
+            box = seg.get("box", [])
+            if len(box) >= 4:
+                cx = sum(p[0] for p in box) / len(box)
+                cy = sum(p[1] for p in box) / len(box)
+                return cx, cy
+            return 0.0, 0.0
+
+        sorted_segs = sorted(segments, key=lambda s: get_center(s)[1])
+        lines = []
+        current_line = []
+        current_y = None
+
+        for s in sorted_segs:
+            text = str(s.get("text", "")).strip()
+            if not text:
+                continue
+            cx, cy = get_center(s)
+            if current_y is None or abs(cy - current_y) <= y_threshold:
+                current_line.append((cx, text))
+                if current_y is None:
+                    current_y = cy
+                else:
+                    current_y = (current_y + cy) / 2.0
+            else:
+                current_line.sort(key=lambda item: item[0])
+                line_str = " ".join(item[1] for item in current_line).strip()
+                if line_str:
+                    lines.append(line_str)
+                current_line = [(cx, text)]
+                current_y = cy
+
+        if current_line:
+            current_line.sort(key=lambda item: item[0])
+            line_str = " ".join(item[1] for item in current_line).strip()
+            if line_str:
+                lines.append(line_str)
+
+        return lines
+
     def reconstruct_cylindrical_fragments(self, raw_text: str) -> str:
         """
-        Logically stitches fragmented OCR strings caused by cylindrical bottle curvature:
+        Logically stitches fragmented OCR strings caused by cylindrical bottle curvature & dot-matrix printers:
+        - Stitches spaced dot-matrix digits: '1 2 0 . 0 0' -> '120.00', '2 5 0 . 0 0' -> '250.00', '1 2 0 / -' -> '120/-'
+        - De-spaces broken keywords: 'M R P' -> 'MRP', 'R s .' -> 'Rs.', 'I N C L' -> 'INCL', 'N E T Q T Y' -> 'NET QTY'
         - Stitches broken emails: ['customer', 'care', '@', 'herbal.com'] -> 'customercare@herbal.com'
         - Stitches broken phone numbers: ['1800', '222', '3333'] -> '1800-222-3333'
         - Stitches broken PIN codes: ['396', '195'] -> '396195'
@@ -319,6 +375,30 @@ class LegalMetrologyComplianceEngine:
         - Stitches broken net quantities: ['200', 'ml'] -> '200 ml'
         """
         t = raw_text
+
+        # 0. De-space broken keywords & abbreviations (Dot-matrix & curvature resilience)
+        t = re.sub(r'(?i)\bM\s*\.?\s*R\s*\.?\s*P\s*\.?', 'MRP', t)
+        t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E', 'MAX RETAIL PRICE', t)
+        t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L', 'MAX RETAIL', t)
+        t = re.sub(r'(?i)\bR\s*\.?\s*s\s*\.?', 'Rs.', t)
+        t = re.sub(r'(?i)\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b', 'INCL. OF ALL TAXES', t)
+        t = re.sub(r'(?i)\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b', 'INCL. OF TAXES', t)
+        t = re.sub(r'(?i)\bN\s*E\s*T\s*Q\s*T\s*Y\b', 'NET QTY', t)
+        t = re.sub(r'(?i)\bN\s*E\s*T\s*W\s*T\b', 'NET WT', t)
+        t = re.sub(r'(?i)\bN\s*E\s*T\s*V\s*O\s*L\b', 'NET VOL', t)
+        t = re.sub(r'(?i)\bM\s*F\s*D\b', 'MFD', t)
+        t = re.sub(r'(?i)\bM\s*F\s*G\b', 'MFG', t)
+        t = re.sub(r'(?i)\bE\s*X\s*P\b', 'EXP', t)
+        t = re.sub(r'(?i)\bB\s*\.?\s*N\s*O\b', 'B.NO', t)
+        t = re.sub(r'(?i)\bU\s*S\s*P\b', 'USP', t)
+
+        # 0.1 Stitch spaced numbers & currency dashes: '1 2 0 . 0 0' -> '120.00', '2 5 0 . 0 0' -> '250.00'
+        t = re.sub(r'(\d)\s*\.\s*(\d)\s*(\d)', r'\1.\2\3', t)
+        t = re.sub(r'(\d)\s*\.\s*(\d{2})\b', r'\1.\2', t)
+        t = re.sub(r'(\d+)\s*\.\s*(\d{2})\b', r'\1.\2', t)
+        t = re.sub(r'(\d+)\s*\/\s*[\-]\b', r'\1/-', t)
+        for _ in range(4):
+            t = re.sub(r'\b(\d+)\s+(\d)\b', r'\1\2', t)
 
         # 1. Stitch fragmented emails
         t = re.sub(r'([a-zA-Z0-9._%+-]+)\s*@\s*([a-zA-Z0-9.-]+)\s*\.\s*([a-zA-Z]{2,})', r'\1@\2.\3', t)
@@ -562,8 +642,11 @@ class LegalMetrologyComplianceEngine:
         }
 
         # Combine text for holistic document scanning & apply cylindrical fragment reconstruction
+        reconstructed_lines = self.group_segments_into_lines(segments)
+        spatial_text_joined = " \n ".join(reconstructed_lines) if reconstructed_lines else ""
         raw_text_joined = " \n ".join([seg.get("text", "") for seg in segments])
-        full_text = self.reconstruct_cylindrical_fragments(raw_text_joined)
+        full_text_combined = f"{spatial_text_joined} \n {raw_text_joined}" if spatial_text_joined else raw_text_joined
+        full_text = self.reconstruct_cylindrical_fragments(full_text_combined)
         full_text_lower = full_text.lower()
         normalized_condensed = re.sub(r"[^a-zA-Z0-9@.]+", "", full_text_lower)
 
@@ -853,23 +936,77 @@ class LegalMetrologyComplianceEngine:
         violations = []
         found_mrp = None
 
+        # 1. Broad Tax Suffix Detection
         has_tax_suffix = bool(self.tax_suffix_regex.search(full_text)) or bool(
-            re.search(r"inc[l1i]?(?:of)?all(?:tax|ta|taxes)?", normalized_condensed) or
-            re.search(r"alltax(?:es)?inc", normalized_condensed)
+            re.search(r"inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|alltax(?:es)?inc|inc[l1i]?(?:of)?tax(?:es)?|alltax(?:es)?", normalized_condensed)
         )
 
         has_mrp_keyword = bool(
-            re.search(r"\b(m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s+retail\s+price|retail\s+price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત|ಬೆಲೆ|വില)\b", full_text, flags=re.IGNORECASE)
+            re.search(r"\b(m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત|ಬೆಲೆ|വില)\b", full_text, flags=re.IGNORECASE)
         )
 
-        price_matches = self.price_regex.findall(full_text)
-        if not price_matches:
-            price_matches = self.standalone_price_regex.findall(full_text)
+        # 2. Hierarchical Multi-Stage MRP Extraction
+        # Stage A: Explicit MRP keyword with optional embedded tax clause or currency symbol, followed by price
+        p_explicit = re.compile(
+            r"(?i)\b(?:m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?))?",
+            re.IGNORECASE
+        )
+        match_explicit = p_explicit.search(full_text)
+        if match_explicit and match_explicit.group(1):
+            val = match_explicit.group(1).replace(",", "").strip()
+            try:
+                if float(val) > 0:
+                    found_mrp = val
+            except ValueError:
+                pass
 
-        if price_matches:
-            found_mrp = price_matches[0]
-            if isinstance(found_mrp, tuple):
-                found_mrp = found_mrp[0]
+        # Stage B: Line-by-line / Segment proximity search (when MRP label and price are on separate lines)
+        if not found_mrp:
+            lines = [l.strip() for l in full_text.split("\n") if l.strip()]
+            mrp_kw_re = re.compile(r"(?i)\b(?:m\.?r\.?p\.?|max(?:imum)?\s*retail|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|ధర)\b")
+            price_cand_re = re.compile(r"(?:(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?)\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)|\b(\d+\.\d{2})\b|\b(\d{1,5})\s*\/\s*[\-]?|\b(\d{2,5})\b)", re.IGNORECASE)
+
+            for idx, line in enumerate(lines):
+                if mrp_kw_re.search(line):
+                    # Check current line and next 2 lines
+                    for j in range(idx, min(len(lines), idx + 3)):
+                        pm = price_cand_re.search(lines[j])
+                        if pm:
+                            cand_val = pm.group(1) or pm.group(2) or pm.group(3) or pm.group(4)
+                            if cand_val:
+                                cand_clean = cand_val.replace(",", "").strip()
+                                try:
+                                    if float(cand_clean) > 0:
+                                        found_mrp = cand_clean
+                                        break
+                                except ValueError:
+                                    pass
+                    if found_mrp:
+                        break
+
+        # Stage C: Currency with price (e.g. ₹ 150.00, Rs. 250)
+        if not found_mrp:
+            p_curr = re.compile(r"(?i)(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?)\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?)")
+            mc = p_curr.search(full_text)
+            if mc:
+                cand = mc.group(1).replace(",", "").strip()
+                try:
+                    if float(cand) > 0:
+                        found_mrp = cand
+                except ValueError:
+                    pass
+
+        # Stage D: Trailing currency dash / decimal price (e.g. 120/-, 150.00)
+        if not found_mrp:
+            p_dash = re.compile(r"\b(\d{1,5})\s*\/\s*[\-]")
+            md = p_dash.search(full_text)
+            if md:
+                cand = md.group(1).replace(",", "").strip()
+                try:
+                    if float(cand) > 0:
+                        found_mrp = cand
+                except ValueError:
+                    pass
 
         # Case 1: No MRP keyword or price found at all
         if not has_mrp_keyword and not found_mrp:
