@@ -133,7 +133,79 @@ def test_api_verify_and_re_audit():
     assert data["overall_score"] == 100
     assert data["is_manually_verified"] is True
     assert "mrp" in data["manual_fields_applied"]
+    assert data["final_verified_fields"]["mrp"] == "120.00"
     print("  --> /api/v1/verify-and-audit (Hybrid AI + Manual Correction Re-Audit): OK")
+
+def test_api_manual_override_regression():
+    # Flawed OCR: MRP = ₹100 (Missing tax suffix), Net Qty = Not Declared
+    payload = {
+        "segments": [
+            {"text": "CRUNCH PACKAGED COMMODITY", "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99},
+            {"text": "MRP Rs. 100", "box": [[10, 50], [200, 50], [200, 80], [10, 80]], "confidence": 0.98},
+            {"text": "Mfg Date: 02/2026", "box": [[10, 90], [200, 90], [200, 120], [10, 120]], "confidence": 0.98},
+            {"text": "Email: care@crunch.in | 1800-11-2222", "box": [[10, 130], [350, 130], [350, 160], [10, 160]], "confidence": 0.98},
+            {"text": "Country of Origin: India", "box": [[10, 170], [250, 170], [250, 200], [10, 200]], "confidence": 0.98}
+        ],
+        "manual_overrides": {
+            "brand_name": "CRUNCH PACKAGED COMMODITY",
+            "mrp": "40.00",
+            "taxes_included": True,
+            "net_quantity": "200",
+            "unit_of_measure": "g",
+            "manufacturing_date": "02/2026",
+            "consumer_care_email": "care@crunch.in",
+            "consumer_care_phone": "1800-11-2222",
+            "country_of_origin": "India",
+            "manufacturer_name": "Crunch Foods Pvt. Ltd."
+        },
+        "inspector_id": "INSP-DELHI-883",
+        "inspector_name": "Inspector Legal Metrology"
+    }
+    
+    response = client.post("/api/v1/verify-and-audit", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "COMPLIANT"
+    assert data["overall_score"] == 100
+    assert len(data["violations"]) == 0
+    assert data["final_verified_fields"]["mrp"] == "40.00"
+    assert data["final_verified_fields"]["net_quantity"] == "200"
+    assert data["original_ocr_snapshot"]["mrp"] == "100"
+    
+    audit_id = data["audit_id"]
+    
+    # Check persistence in recent_audits_store.json
+    res_get = client.get(f"/api/recent-audits/{audit_id}")
+    assert res_get.status_code == 200
+    db_audit = res_get.json()["audit"]
+    assert db_audit["mrp"] == "₹ 40.00"
+    assert db_audit["net_quantity"] == "200 g"
+    assert db_audit["overall_score"] == 100
+    assert db_audit["status"] == "COMPLIANT"
+    assert db_audit["final_verified_fields"]["mrp"] == "40.00"
+    assert db_audit["is_manually_verified"] is True
+    print("  --> Regression Test (Forward Override & Persistence): OK (MRP ₹40, 200g, Score 100/100 persisted in DB)")
+
+    # Reverse override test: Inspector changing to prohibited fl oz
+    reverse_payload = {
+        "segments": payload["segments"],
+        "manual_overrides": {
+            "brand_name": "CRUNCH PACKAGED COMMODITY",
+            "mrp": "40.00",
+            "taxes_included": True,
+            "net_quantity": "8",
+            "unit_of_measure": "fl oz"
+        }
+    }
+    rev_res = client.post("/api/v1/verify-and-audit", json=reverse_payload)
+    assert rev_res.status_code == 200
+    rev_data = rev_res.json()
+    assert rev_data["status"] == "NON_COMPLIANT"
+    assert rev_data["overall_score"] < 100
+    assert any(v["rule_id"] == "RULE_11_12_PROHIBITED_IMPERIAL" for v in rev_data["violations"])
+    print("  --> Regression Test (Reverse Override): OK (Manual fl oz flagged NON_COMPLIANT)")
+
+
 
 def test_api_vlm_info():
     response = client.get("/api/v1/vlm-info")
@@ -210,6 +282,7 @@ if __name__ == "__main__":
     test_api_audit_text_infringement()
     test_api_audit_image_upload()
     test_api_verify_and_re_audit()
+    test_api_manual_override_regression()
     test_api_recent_audit_detail_and_delete()
     test_api_analyze_fmcg_specimen()
     print("=" * 60)

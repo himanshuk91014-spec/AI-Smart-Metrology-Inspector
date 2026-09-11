@@ -718,6 +718,11 @@ export default function App() {
       source: auditObj.source || (auditObj.ai_engine_used === 'tesseract_client_edge' ? 'Edge OCR (Mobile)' : 'Hybrid AI RapidOCR'),
       thumbnail_base64: auditObj.thumbnail_base64 || uploadedImages[0]?.previewUrl || null,
       extracted_metadata: auditObj.extracted_metadata || {},
+      final_verified_fields: auditObj.final_verified_fields || auditObj.extracted_metadata || {},
+      verified_product_data: auditObj.verified_product_data || auditObj.extracted_metadata || {},
+      corrections_made: auditObj.corrections_made || [],
+      audit_trail: auditObj.audit_trail || auditObj.corrections_made || [],
+      original_ocr_snapshot: auditObj.original_ocr_snapshot || null,
       violations: auditObj.violations || [],
       violations_count: auditObj.violations_count ?? (auditObj.violations?.length || 0),
       violations_summary: (auditObj.violations || []).map((v) => v.rule_name || v.description),
@@ -1042,9 +1047,38 @@ export default function App() {
   };
 
   // =========================================================================
+  const isVerificationFormModified = () => {
+    if (!initialAiForm) return false;
+    const trackedKeys = [
+      'brand_name',
+      'mrp',
+      'taxes_included',
+      'net_quantity',
+      'unit_of_measure',
+      'manufacturing_date',
+      'consumer_care_email',
+      'consumer_care_phone',
+      'consumer_care_address',
+      'manufacturer_name',
+      'country_of_origin',
+      'inspector_id',
+      'inspector_name',
+      'inspection_location',
+      'inspection_remarks'
+    ];
+    return trackedKeys.some((k) => verificationForm[k] !== initialAiForm[k]);
+  };
+
+  // =========================================================================
   // DUAL-ENGINE COMPLIANCE AUDIT EXECUTION
   // =========================================================================
   const handleExecuteAudit = async () => {
+    // If an audit specimen is already loaded and the user clicks execute while verifying or editing fields,
+    // route to handleSaveAndReAudit to enforce manual corrections as single source of truth without discarding edits.
+    if (auditResult && (activeTab === 'verify' || isVerificationFormModified())) {
+      return handleSaveAndReAudit();
+    }
+
     if (!manualTextMode && uploadedImages.length === 0) {
       setErrorMessage('Please capture or upload at least 1 package photograph before running audit.');
       return;
@@ -1247,6 +1281,11 @@ export default function App() {
         overall_score: reAuditData.overall_score,
         is_manually_verified: true,
         manual_fields_applied: reAuditData.manual_fields_applied || Object.keys(sourceForm),
+        corrections_made: reAuditData.corrections_made || [],
+        audit_trail: reAuditData.audit_trail || reAuditData.corrections_made || [],
+        original_ocr_snapshot: reAuditData.original_ocr_snapshot || auditResult.original_ocr_snapshot,
+        final_verified_fields: reAuditData.final_verified_fields || reAuditData.extracted_metadata,
+        verified_product_data: reAuditData.verified_product_data || reAuditData.extracted_metadata,
         inspector_metadata: reAuditData.inspector_metadata || {
           inspector_id: sourceForm.inspector_id || 'INSP-2026-DELHI-883',
           inspector_name: sourceForm.inspector_name || 'Authorized Legal Metrology Officer',
@@ -1277,6 +1316,11 @@ export default function App() {
         overall_score: clientEval.overall_score,
         is_manually_verified: true,
         manual_fields_applied: clientEval.manual_fields_applied || Object.keys(sourceForm),
+        corrections_made: clientEval.corrections_made || [],
+        audit_trail: clientEval.audit_trail || clientEval.corrections_made || [],
+        original_ocr_snapshot: clientEval.original_ocr_snapshot,
+        final_verified_fields: clientEval.final_verified_fields || clientEval.extracted_metadata,
+        verified_product_data: clientEval.verified_product_data || clientEval.extracted_metadata,
         inspector_metadata: {
           inspector_id: sourceForm.inspector_id || 'INSP-2026-DELHI-883',
           inspector_name: sourceForm.inspector_name || 'Authorized Legal Metrology Officer',
@@ -1287,7 +1331,7 @@ export default function App() {
         violations: clientEval.violations,
         passed_checks: clientEval.passed_checks,
         warnings: clientEval.warnings,
-        extracted_metadata: { ...auditResult?.extracted_metadata, ...sourceForm },
+        extracted_metadata: clientEval.extracted_metadata || { ...auditResult?.extracted_metadata, ...sourceForm },
         rules_breakdown: clientEval.rules_breakdown
       };
       setAuditResult(updatedLocalResult);

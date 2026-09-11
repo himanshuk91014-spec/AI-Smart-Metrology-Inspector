@@ -11,6 +11,7 @@ This module verifies OCR extracted text segments against statutory requirements:
 6. Rule 6(10) - Country of Origin (Infers India from 6-digit PIN codes & State names with Low-Severity Advisory)
 """
 
+import copy
 import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
@@ -1039,157 +1040,370 @@ class LegalMetrologyComplianceEngine:
         # =====================================================================
         # HYBRID AI + MANUAL VERIFICATION OVERLAY MERGE
         # Re-evaluates compliance rules against inspector-entered fields
+        # Manual override becomes the SINGLE SOURCE OF TRUTH for the final audit.
         # =====================================================================
+        original_ocr_snapshot = copy.deepcopy(extracted_metadata)
+        manual_corrections: List[Dict[str, Any]] = []
+
         if manual_overrides and isinstance(manual_overrides, dict):
             for field, val in manual_overrides.items():
                 if val is not None and str(val).strip() != "":
                     manual_fields_applied.append(field)
 
             # 1. Brand / Commodity Name
-            if manual_overrides.get("brand_name"):
-                extracted_metadata["brand_name"] = str(manual_overrides["brand_name"]).strip()
+            if "brand_name" in manual_overrides and manual_overrides["brand_name"] is not None:
+                brand_val = str(manual_overrides["brand_name"]).strip()
+                if brand_val:
+                    if original_ocr_snapshot.get("brand_name") != brand_val:
+                        manual_corrections.append({
+                            "field": "brand_name",
+                            "original_ocr_value": str(original_ocr_snapshot.get("brand_name") or "Not Detected"),
+                            "corrected_value": brand_val,
+                            "correction_reason": "Inspector verified product brand label (Manual Override)"
+                        })
+                    extracted_metadata["brand_name"] = brand_val
 
-            # 2. MRP & Tax Suffix Override
+            # 2. MRP & Tax Suffix Override (Rule 6(1)(da))
             if "mrp" in manual_overrides and manual_overrides["mrp"] is not None:
-                mrp_val = str(manual_overrides["mrp"]).strip().replace("₹", "").replace("Rs.", "").strip()
-                tax_incl = bool(manual_overrides.get("taxes_included", True))
-                extracted_metadata["mrp"] = mrp_val
-                extracted_metadata["taxes_included"] = tax_incl
-
-                # Clear previous MRP violations
-                violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_6_1_DA")]
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_6_1_DA"]
-
-                if tax_incl:
-                    passed_checks.append({
-                        "rule_id": "RULE_6_1_DA",
-                        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
-                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
-                        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
-                        "evidence": f"Declared MRP: ₹ {mrp_val} (Inclusive of all taxes) [Inspector Verified]"
-                    })
-                    rules_breakdown["rule_6_1_da_mrp"] = True
+                raw_mrp = str(manual_overrides["mrp"]).strip()
+                clean_mrp = raw_mrp.replace("₹", "").replace("Rs.", "").replace("Rs", "").replace(",", "").strip()
+                
+                raw_tax = manual_overrides.get("taxes_included", True)
+                if isinstance(raw_tax, str):
+                    tax_incl = raw_tax.lower() in ("yes", "true", "1")
                 else:
+                    tax_incl = bool(raw_tax)
+
+                is_missing_mrp = clean_mrp == "" or clean_mrp.lower() in ("not declared", "none", "null", "missing", "nan")
+                
+                # Record audit trail
+                orig_mrp_str = f"₹ {original_ocr_snapshot.get('mrp')}" if original_ocr_snapshot.get("mrp") else "Not Detected"
+                corr_mrp_str = f"₹ {clean_mrp}" if not is_missing_mrp else "Not Declared"
+                if original_ocr_snapshot.get("mrp") != clean_mrp or is_missing_mrp:
+                    manual_corrections.append({
+                        "field": "declared_mrp",
+                        "original_ocr_value": orig_mrp_str,
+                        "corrected_value": corr_mrp_str,
+                        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+                    })
+
+                # Clear previous MRP violations & passed checks
+                violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_6_1_DA")]
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_6_1_DA")]
+
+                if is_missing_mrp:
+                    extracted_metadata["mrp"] = None
+                    extracted_metadata["taxes_included"] = False
                     violations.append({
-                        "rule_id": "RULE_6_1_DA_TAX_SUFFIX_MISSING",
-                        "rule_name": "Rule 6(1)(da) - Missing Statutory Tax Suffix",
+                        "rule_id": "RULE_6_1_DA_MISSING",
+                        "rule_name": "Rule 6(1)(da) - Mandatory MRP Declaration",
                         "severity": "HIGH",
                         "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
-                        "description": "Price declared without mandatory 'Inclusive of all taxes' statutory clause.",
-                        "found_text": f"MRP: ₹ {mrp_val} (Missing Tax Suffix)",
-                        "remediation": "Print 'MRP ₹ [Price] (Inclusive of all taxes)' on the Principal Display Panel."
+                        "description": "Maximum Retail Price (MRP) declaration is missing from the package display.",
+                        "found_text": "None declared [Inspector Verified]",
+                        "remediation": "Print Maximum Retail Price clearly as 'MRP ₹ [Amount] (Inclusive of all taxes)' on the Principal Display Panel."
                     })
                     rules_breakdown["rule_6_1_da_mrp"] = False
-
-            # 3. Net Quantity & Approved Metric Unit Override
-            if "net_quantity" in manual_overrides and manual_overrides["net_quantity"] is not None:
-                qty_val = str(manual_overrides["net_quantity"]).strip()
-                unit_val = str(manual_overrides.get("unit_of_measure", "")).strip().lower()
-                extracted_metadata["net_quantity"] = qty_val
-                if unit_val:
-                    extracted_metadata["unit_of_measure"] = unit_val
-
-                violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_11_12")]
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_11_12_NET_QUANTITY"]
-
-                # Check if unit is prohibited imperial
-                is_prohibited = unit_val in self.UNAMBIGUOUS_IMPERIAL_UNITS or any(unit_val == k for k in self.UNAMBIGUOUS_IMPERIAL_UNITS)
-                if is_prohibited:
+                elif not tax_incl:
+                    extracted_metadata["mrp"] = clean_mrp
+                    extracted_metadata["taxes_included"] = False
                     violations.append({
-                        "rule_id": "RULE_11_12_PROHIBITED_IMPERIAL",
-                        "rule_name": "Rule 11 & 12 - Prohibited Non-Standard Unit",
+                        "rule_id": "RULE_6_1_DA_TAX_SUFFIX_MISSING",
+                        "rule_name": "Rule 6(1)(da) - Statutory Tax Inclusion Suffix",
                         "severity": "HIGH",
-                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
-                        "description": f"Prohibited imperial unit '{unit_val}' declared.",
-                        "found_text": f"{qty_val} {unit_val}",
-                        "remediation": "Declare net quantity exclusively in approved SI metric units (e.g., g, kg, ml, l)."
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+                        "description": "MRP is stated without the mandatory statutory phrase ('Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST').",
+                        "found_text": f"MRP: ₹ {clean_mrp} (Missing Tax Suffix) [Inspector Verified]",
+                        "remediation": "Append the mandatory statutory text 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to the price."
+                    })
+                    rules_breakdown["rule_6_1_da_mrp"] = False
+                else:
+                    extracted_metadata["mrp"] = clean_mrp
+                    extracted_metadata["taxes_included"] = True
+                    passed_checks.append({
+                        "rule_id": "RULE_6_1_DA",
+                        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+                        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+                        "evidence": f"Declared MRP: ₹ {clean_mrp} (Inclusive of all taxes) [Inspector Verified]"
+                    })
+                    rules_breakdown["rule_6_1_da_mrp"] = True
+
+            # 3. Net Quantity & Approved Metric Unit Override (Rule 11 & 12)
+            if "net_quantity" in manual_overrides and manual_overrides["net_quantity"] is not None:
+                raw_qty = str(manual_overrides["net_quantity"]).strip()
+                raw_unit = str(manual_overrides.get("unit_of_measure", "")).strip()
+
+                qty_val = raw_qty
+                unit_val = raw_unit
+                if " " in raw_qty and not raw_unit:
+                    parts = raw_qty.split(" ", 1)
+                    qty_val = parts[0].strip()
+                    unit_val = parts[1].strip()
+
+                is_missing_qty = qty_val == "" or qty_val.lower() in ("not declared", "none", "null", "missing", "nan")
+
+                # Record audit trail
+                orig_qty_str = f"{original_ocr_snapshot.get('net_quantity', '')} {original_ocr_snapshot.get('unit_of_measure', '')}".strip() or "Not Detected"
+                corr_qty_str = f"{qty_val} {unit_val}".strip() if not is_missing_qty else "Not Declared"
+                if original_ocr_snapshot.get("net_quantity") != qty_val or is_missing_qty:
+                    manual_corrections.append({
+                        "field": "net_quantity",
+                        "original_ocr_value": orig_qty_str,
+                        "corrected_value": corr_qty_str,
+                        "correction_reason": "Inspector verified net quantity & metric SI measurement (Manual Override)"
+                    })
+
+                # Clear previous Net Quantity violations & passed checks
+                violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_11_12")]
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_11_12")]
+
+                if is_missing_qty:
+                    extracted_metadata["net_quantity"] = None
+                    extracted_metadata["unit_of_measure"] = None
+                    violations.append({
+                        "rule_id": "RULE_11_12_NO_VALID_METRIC",
+                        "rule_name": "Rule 11 & 12 - Net Quantity Declaration",
+                        "severity": "HIGH",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+                        "description": "Standard net quantity in approved SI units (g, kg, ml, l, N/units/pcs/pages/pens) was not identified.",
+                        "found_text": "None declared [Inspector Verified]",
+                        "remediation": "Provide net quantity clearly in standard units: grams (g), kilograms (kg), millilitres (ml), litres (l), or count (N / Units / Pens / Pcs / Pages)."
                     })
                     rules_breakdown["rule_11_12_net_quantity"] = False
                 else:
-                    passed_checks.append({
-                        "rule_id": "RULE_11_12_NET_QUANTITY",
-                        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
-                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
-                        "description": "Net quantity is declared in approved standard SI units.",
-                        "evidence": f"Declared Net Quantity: {qty_val} {unit_val or 'Units'} [Inspector Verified]"
+                    unit_lower = unit_val.lower().rstrip(".,")
+                    extracted_metadata["net_quantity"] = qty_val
+                    extracted_metadata["unit_of_measure"] = unit_val or "Units"
+
+                    # Check if unit is prohibited imperial
+                    is_prohibited = (
+                        unit_lower in self.UNAMBIGUOUS_IMPERIAL_UNITS or
+                        any(unit_lower == k for k in self.UNAMBIGUOUS_IMPERIAL_UNITS) or
+                        unit_lower in ["oz", "fl oz", "fl. oz.", "fl.oz", "fl oz.", "lbs", "lb", "gallon", "gallons", "quart", "quarts", "pint", "pints", "pt", "yard", "yards", "inch", "inches", "in", "ft", "feet"]
+                    )
+
+                    if is_prohibited:
+                        violations.append({
+                            "rule_id": "RULE_11_12_PROHIBITED_IMPERIAL",
+                            "rule_name": "Rule 11 & 12 - Prohibited Non-Standard Unit",
+                            "severity": "HIGH",
+                            "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+                            "description": f"Prohibited imperial unit '{unit_val}' declared.",
+                            "found_text": f"{qty_val} {unit_val} [Inspector Verified]",
+                            "remediation": "Declare net quantity exclusively in approved SI metric units (e.g., g, kg, ml, l, N)."
+                        })
+                        rules_breakdown["rule_11_12_net_quantity"] = False
+                    else:
+                        passed_checks.append({
+                            "rule_id": "RULE_11_12",
+                            "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+                            "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+                            "description": "Net quantity and dimensions declared in standard statutory metric units.",
+                            "evidence": f"Declared Quantity: {qty_val} {unit_val or 'Units'} [Inspector Verified]"
+                        })
+                        rules_breakdown["rule_11_12_net_quantity"] = True
+
+            # 4. Consumer Care Email, Phone & Address Override (Rule 6(1)(g))
+            if "consumer_care_email" in manual_overrides or "consumer_care_phone" in manual_overrides or "consumer_care_address" in manual_overrides:
+                if "consumer_care_email" in manual_overrides:
+                    raw_email = str(manual_overrides.get("consumer_care_email") or "").strip()
+                    email_val = raw_email if raw_email and raw_email.lower() not in ("none", "null", "not declared", "not detected", "missing") else None
+                else:
+                    email_val = original_ocr_snapshot.get("consumer_care_email")
+
+                if "consumer_care_phone" in manual_overrides:
+                    raw_phone = str(manual_overrides.get("consumer_care_phone") or "").strip()
+                    phone_val = raw_phone if raw_phone and raw_phone.lower() not in ("none", "null", "not declared", "not detected", "missing") else None
+                else:
+                    phone_val = original_ocr_snapshot.get("consumer_care_phone")
+
+                if "consumer_care_address" in manual_overrides:
+                    raw_addr = str(manual_overrides.get("consumer_care_address") or "").strip()
+                    addr_val = raw_addr if raw_addr and raw_addr.lower() not in ("none", "null", "not declared", "not detected", "missing") else None
+                else:
+                    addr_val = original_ocr_snapshot.get("consumer_care_address")
+
+                # Record audit trail
+                orig_care_str = [original_ocr_snapshot.get("consumer_care_email"), original_ocr_snapshot.get("consumer_care_phone")]
+                orig_care_clean = " | ".join([c for c in orig_care_str if c]) or "Not Detected"
+                corr_care_clean = " | ".join([c for c in [email_val, phone_val, addr_val] if c]) or "Not Declared"
+                if orig_care_clean != corr_care_clean:
+                    manual_corrections.append({
+                        "field": "consumer_care",
+                        "original_ocr_value": orig_care_clean,
+                        "corrected_value": corr_care_clean,
+                        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
                     })
-                    rules_breakdown["rule_11_12_net_quantity"] = True
 
-            # 4. Consumer Care Email & Phone Override
-            if manual_overrides.get("consumer_care_email") or manual_overrides.get("consumer_care_phone"):
-                email_val = manual_overrides.get("consumer_care_email")
-                phone_val = manual_overrides.get("consumer_care_phone")
-                if email_val:
-                    extracted_metadata["consumer_care_email"] = str(email_val).strip()
-                if phone_val:
-                    extracted_metadata["consumer_care_phone"] = str(phone_val).strip()
+                extracted_metadata["consumer_care_email"] = email_val
+                extracted_metadata["consumer_care_phone"] = phone_val
+                if addr_val:
+                    extracted_metadata["consumer_care_address"] = addr_val
 
+                # Clear previous Consumer Care violations, warnings, & passed checks
                 violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_6_1_G")]
                 warnings = [w for w in warnings if not w.get("rule_id", "").startswith("RULE_6_1_G")]
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_6_1_G_CARE"]
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_6_1_G")]
 
-                ev_parts = []
-                if extracted_metadata["consumer_care_email"]:
-                    ev_parts.append(f"Email: {extracted_metadata['consumer_care_email']}")
-                if extracted_metadata["consumer_care_phone"]:
-                    ev_parts.append(f"Phone: {extracted_metadata['consumer_care_phone']}")
+                if not email_val and not phone_val and not addr_val:
+                    violations.append({
+                        "rule_id": "RULE_6_1_G_MISSING_ALL",
+                        "rule_name": "Rule 6(1)(g) - Consumer Care Mechanism Missing",
+                        "severity": "HIGH",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+                        "description": "No consumer care or grievance redressal contact information was detected on the package.",
+                        "found_text": "None declared [Inspector Verified]",
+                        "remediation": "Provide name, address, valid telephone helpline number, and email address of the consumer grievance redressal officer."
+                    })
+                    rules_breakdown["rule_6_1_g_consumer_care"] = False
+                else:
+                    ev_parts = []
+                    if email_val: ev_parts.append(f"Email: {email_val}")
+                    if phone_val: ev_parts.append(f"Phone: {phone_val}")
+                    if addr_val: ev_parts.append(f"Address: {addr_val}")
 
-                passed_checks.append({
-                    "rule_id": "RULE_6_1_G_CARE",
-                    "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
-                    "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
-                    "description": "Consumer grievance redressal channel verified.",
-                    "evidence": f"{' | '.join(ev_parts)} [Inspector Verified]"
-                })
-                rules_breakdown["rule_6_1_g_consumer_care"] = True
+                    passed_checks.append({
+                        "rule_id": "RULE_6_1_G",
+                        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+                        "description": "Consumer grievance redressal channel verified.",
+                        "evidence": f"{' | '.join(ev_parts)} [Inspector Verified]"
+                    })
+                    rules_breakdown["rule_6_1_g_consumer_care"] = True
 
-            # 5. Manufacturing / Packaging Date Override
-            if manual_overrides.get("manufacturing_date"):
-                mfg_val = str(manual_overrides["manufacturing_date"]).strip()
-                extracted_metadata["manufacturing_date"] = mfg_val
+                    if not email_val and phone_val:
+                        warnings.append({
+                            "rule_id": "RULE_6_1_G_EMAIL_ADVISORY",
+                            "rule_name": "Rule 6(1)(g) - Consumer Grievance Email Channel Advisory",
+                            "severity": "LOW",
+                            "description": f"Telephonic helpline ({phone_val}) verified. Dedicating an explicit consumer grievance email address is recommended.",
+                            "recommendation": "Mention a dedicated consumer care email address prominently on the label."
+                        })
+
+            # 5. Manufacturing / Packaging Date Override (Rule 6(1)(c))
+            if "manufacturing_date" in manual_overrides and manual_overrides["manufacturing_date"] is not None:
+                raw_mfg = str(manual_overrides["manufacturing_date"]).strip()
+                is_missing_mfg = raw_mfg == "" or raw_mfg.lower() in ("not declared", "none", "null", "missing", "nan")
+
+                orig_date_str = str(original_ocr_snapshot.get("manufacturing_date") or "Not Detected")
+                corr_date_str = raw_mfg if not is_missing_mfg else "Not Declared"
+                if orig_date_str != corr_date_str:
+                    manual_corrections.append({
+                        "field": "manufacturing_date",
+                        "original_ocr_value": orig_date_str,
+                        "corrected_value": corr_date_str,
+                        "correction_reason": "Inspector verified manufacturing/packaging timeline (Manual Override)"
+                    })
+
+                # Clear previous date violations & passed checks
                 violations = [v for v in violations if not v.get("rule_id", "").startswith("RULE_6_1_C")]
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_6_1_C"]
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_6_1_C")]
 
-                passed_checks.append({
-                    "rule_id": "RULE_6_1_C",
-                    "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
-                    "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
-                    "description": "Month and Year of manufacture/packaging is verified.",
-                    "evidence": f"Declared Timeline: {mfg_val} [Inspector Verified]"
-                })
-                rules_breakdown["rule_6_1_c_mfg_date"] = True
+                if is_missing_mfg:
+                    extracted_metadata["manufacturing_date"] = None
+                    violations.append({
+                        "rule_id": "RULE_6_1_C_MISSING_DATE",
+                        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Date Missing",
+                        "severity": "HIGH",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+                        "description": "Month and Year of manufacture, packaging, or import is not declared on the package.",
+                        "found_text": "None declared [Inspector Verified]",
+                        "remediation": "Print Month and Year of manufacture / packaging clearly (e.g., 'Mfd. on : 04/2025' or 'Mfg Date: 03/2026')."
+                    })
+                    rules_breakdown["rule_6_1_c_mfg_date"] = False
+                else:
+                    extracted_metadata["manufacturing_date"] = raw_mfg
+                    passed_checks.append({
+                        "rule_id": "RULE_6_1_C",
+                        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+                        "description": "Month and Year of manufacture/packaging is verified.",
+                        "evidence": f"Declared Timeline: {raw_mfg} [Inspector Verified]"
+                    })
+                    rules_breakdown["rule_6_1_c_mfg_date"] = True
 
-            # 6. Country of Origin Override
-            if manual_overrides.get("country_of_origin"):
+            # 6. Country of Origin Override (Rule 6(10))
+            if "country_of_origin" in manual_overrides and manual_overrides["country_of_origin"] is not None:
                 origin_val = str(manual_overrides["country_of_origin"]).strip()
-                extracted_metadata["country_of_origin"] = origin_val
-                warnings = [w for w in warnings if w.get("rule_id") != "RULE_6_10_ORIGIN_ADVISORY"]
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_6_10_ORIGIN"]
+                is_missing_origin = origin_val == "" or origin_val.lower() in ("none", "null", "not declared", "missing")
 
-                passed_checks.append({
-                    "rule_id": "RULE_6_10_ORIGIN",
-                    "rule_name": "Rule 6(10) - Country of Origin",
-                    "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
-                    "description": "Country of origin verified.",
-                    "evidence": f"Declared Origin: {origin_val} [Inspector Verified]"
-                })
+                orig_origin_str = str(original_ocr_snapshot.get("country_of_origin") or "Not Detected")
+                corr_origin_str = origin_val if not is_missing_origin else "Not Declared"
+                if orig_origin_str != corr_origin_str:
+                    manual_corrections.append({
+                        "field": "country_of_origin",
+                        "original_ocr_value": orig_origin_str,
+                        "corrected_value": corr_origin_str,
+                        "correction_reason": "Inspector verified country of origin declaration (Manual Override)"
+                    })
 
-            # 7. Manufacturer / Packer Name & Address Override
-            if manual_overrides.get("manufacturer_name"):
+                warnings = [w for w in warnings if not w.get("rule_id", "").startswith("RULE_6_10")]
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_6_10")]
+
+                if is_missing_origin:
+                    extracted_metadata["country_of_origin"] = None
+                    warnings.append({
+                        "rule_id": "RULE_6_10_ORIGIN_ADVISORY",
+                        "rule_name": "Rule 6(10) - Country of Origin Advisory",
+                        "severity": "LOW",
+                        "description": "Country of origin declaration is missing from package.",
+                        "recommendation": "Declare Country of Origin (e.g. 'Country of Origin: India') prominently on package."
+                    })
+                else:
+                    extracted_metadata["country_of_origin"] = origin_val
+                    passed_checks.append({
+                        "rule_id": "RULE_6_10",
+                        "rule_name": "Rule 6(10) - Country of Origin",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+                        "description": "Country of origin verified.",
+                        "evidence": f"Declared Origin: {origin_val} [Inspector Verified]"
+                    })
+
+            # 7. Manufacturer / Packer Name & Address Override (Rule 6(1)(a))
+            if "manufacturer_name" in manual_overrides and manual_overrides["manufacturer_name"] is not None:
                 mfg_name = str(manual_overrides["manufacturer_name"]).strip()
-                extracted_metadata["manufacturer_name"] = mfg_name
-                passed_checks = [c for c in passed_checks if c.get("rule_id") != "RULE_6_1_A_MFG_NAME"]
-                passed_checks.append({
-                    "rule_id": "RULE_6_1_A_MFG_NAME",
-                    "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
-                    "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
-                    "description": "Name of Manufacturer/Packer identified and verified.",
-                    "evidence": f"Manufacturer/Packer: {mfg_name} [Inspector Verified]"
-                })
+                is_missing_mfg_name = mfg_name == "" or mfg_name.lower() in ("none", "null", "not declared", "missing")
+
+                orig_mfg_name_str = str(original_ocr_snapshot.get("manufacturer_name") or "Not Detected")
+                corr_mfg_name_str = mfg_name if not is_missing_mfg_name else "Not Declared"
+                if orig_mfg_name_str != corr_mfg_name_str:
+                    manual_corrections.append({
+                        "field": "manufacturer_name",
+                        "original_ocr_value": orig_mfg_name_str,
+                        "corrected_value": corr_mfg_name_str,
+                        "correction_reason": "Inspector verified manufacturer/packer identity (Manual Override)"
+                    })
+
+                passed_checks = [c for c in passed_checks if not c.get("rule_id", "").startswith("RULE_6_1_A")]
+
+                if is_missing_mfg_name:
+                    extracted_metadata["manufacturer_name"] = None
+                else:
+                    extracted_metadata["manufacturer_name"] = mfg_name
+                    passed_checks.append({
+                        "rule_id": "RULE_6_1_A",
+                        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+                        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+                        "description": "Name of Manufacturer/Packer identified and verified.",
+                        "evidence": f"Manufacturer/Packer: {mfg_name} [Inspector Verified]"
+                    })
+
+            # 8. Product Identifiers (batch_number, best_before, article_number, model_number, item_code)
+            for id_field in ["batch_number", "best_before", "article_number", "model_number", "item_code", "consumer_care_address"]:
+                if id_field in manual_overrides and manual_overrides[id_field] is not None:
+                    id_val = str(manual_overrides[id_field]).strip()
+                    if id_val:
+                        extracted_metadata[id_field] = id_val
+
+        # Merge manual corrections into audit trail corrections_made list
+        all_corrections = list(corrections_made)
+        for mc in manual_corrections:
+            all_corrections.append(mc)
 
         extracted_metadata["manual_fields"] = manual_fields_applied
 
-        # Compute Overall Score and Verdict
+        # Compute Overall Score and Verdict dynamically from final verified state
         failed_critical_count = sum(1 for v in violations if v.get("severity") == "HIGH")
         failed_medium_count = sum(1 for v in violations if v.get("severity") == "MEDIUM")
 
@@ -1199,13 +1413,19 @@ class LegalMetrologyComplianceEngine:
 
         status = "COMPLIANT" if len(violations) == 0 else "NON_COMPLIANT"
 
+        final_verified_fields = copy.deepcopy(extracted_metadata)
+
         return {
             "status": status,
             "overall_score": overall_score,
             "timestamp": datetime.now().isoformat(),
             "is_manually_verified": len(manual_fields_applied) > 0,
             "manual_fields_applied": manual_fields_applied,
-            "corrections_made": corrections_made,
+            "corrections_made": all_corrections,
+            "audit_trail": all_corrections,
+            "original_ocr_snapshot": original_ocr_snapshot,
+            "final_verified_fields": final_verified_fields,
+            "verified_product_data": final_verified_fields,
             "total_segments_analyzed": len(segments),
             "multilingual_profile": multilingual_profile,
             "violations": violations,

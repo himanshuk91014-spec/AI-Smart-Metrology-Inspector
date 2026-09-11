@@ -276,7 +276,7 @@ class DatabaseManager:
         timestamp = datetime.utcnow().isoformat()
         audit_id = audit_report.get("audit_id") or f"AUD-{int(time.time() * 1000)}"
         
-        meta = audit_report.get("extracted_metadata", {})
+        meta = audit_report.get("final_verified_fields") or audit_report.get("extracted_metadata", {})
         product_name = meta.get("brand_name") or audit_report.get("brand_name") or audit_report.get("filename") or audit_report.get("product_name") or "Packaged Commodity Specimen"
         mrp = f"₹ {meta.get('mrp')}" if meta.get("mrp") else "Not Declared"
         net_qty = f"{meta.get('net_quantity', '')} {meta.get('unit_of_measure', '')}".strip() or "Not Declared"
@@ -304,6 +304,14 @@ class DatabaseManager:
         full_doc["source"] = source
         full_doc["thumbnail_base64"] = thumb_b64
         full_doc["thumbnail_url"] = thumb_url
+        full_doc["is_manually_verified"] = bool(audit_report.get("is_manually_verified", False))
+        full_doc["manual_fields_applied"] = audit_report.get("manual_fields_applied", [])
+        full_doc["corrections_made"] = audit_report.get("corrections_made", [])
+        full_doc["audit_trail"] = audit_report.get("audit_trail", audit_report.get("corrections_made", []))
+        full_doc["original_ocr_snapshot"] = audit_report.get("original_ocr_snapshot")
+        full_doc["final_verified_fields"] = meta
+        full_doc["verified_product_data"] = meta
+        full_doc["extracted_metadata"] = meta
 
         # 1. Save to MongoDB Atlas if connected (auto-prune to keep max 50)
         if self.is_connected and self.db is not None:

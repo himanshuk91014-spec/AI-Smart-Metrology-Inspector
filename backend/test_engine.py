@@ -544,10 +544,98 @@ def run_tests():
     assert cleaned_email_meta["consumer_care_email"] == "support@brand.com"
     print("  --> Subtest 16.4 Passed: Email comma typo ('@brand,com' -> '@brand.com') corrected.")
 
-    print(f"  --> PASS: All Post-OCR Self-Healing intelligence rules passed flawlessly!")
+    # Test 17: Manual Overwrite / Verification Single Source of Truth Regression Test
+    print("\n[TEST 17] Evaluating Manual Overwrite / Verification Regression (Forward & Reverse)...")
+    
+    # 17.1 Forward Test:
+    # Initial OCR: Wrong MRP = ₹100 (Missing Tax Suffix), Net Quantity = Not Declared
+    flawed_ocr_segments = [
+        {"text": "CRUNCH PACKAGED COMMODITY", "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99},
+        {"text": "MRP Rs. 100", "box": [[10, 50], [200, 50], [200, 80], [10, 80]], "confidence": 0.98}, # Wrong MRP, missing tax suffix
+        # Missing Net Quantity entirely
+        {"text": "Mfg Date: 02/2026", "box": [[10, 90], [200, 90], [200, 120], [10, 120]], "confidence": 0.98},
+        {"text": "Email: care@crunch.in | 1800-11-2222", "box": [[10, 130], [350, 130], [350, 160], [10, 160]], "confidence": 0.98},
+        {"text": "Country of Origin: India", "box": [[10, 170], [250, 170], [250, 200], [10, 200]], "confidence": 0.98}
+    ]
+
+    initial_audit = engine.evaluate_compliance(flawed_ocr_segments, (1000, 1000))
+    assert initial_audit["status"] == "NON_COMPLIANT", "Initial audit must fail due to OCR errors"
+    assert initial_audit["overall_score"] < 100, f"Expected flawed initial score < 100, got {initial_audit['overall_score']}"
+    assert any(v["rule_id"].startswith("RULE_11_12") for v in initial_audit["violations"]), "Initial audit must have Net Qty violation"
+    assert any(v["rule_id"].startswith("RULE_6_1_DA") for v in initial_audit["violations"]), "Initial audit must have MRP tax suffix violation"
+
+    # Inspector manual override: MRP = ₹40 (Inclusive of all taxes), Net Quantity = 200 g
+    manual_corrections_payload = {
+        "brand_name": "CRUNCH PACKAGED COMMODITY",
+        "mrp": "40.00",
+        "taxes_included": True,
+        "net_quantity": "200",
+        "unit_of_measure": "g",
+        "manufacturing_date": "02/2026",
+        "consumer_care_email": "care@crunch.in",
+        "consumer_care_phone": "1800-11-2222",
+        "country_of_origin": "India",
+        "manufacturer_name": "Crunch Foods Pvt. Ltd."
+    }
+
+    final_verified_audit = engine.evaluate_compliance(
+        flawed_ocr_segments,
+        (1000, 1000),
+        manual_overrides=manual_corrections_payload
+    )
+
+    # Verify 1: Compliance engine receives ₹40 and 200 g
+    assert final_verified_audit["final_verified_fields"]["mrp"] == "40.00", f"Expected MRP 40.00, got {final_verified_audit['final_verified_fields']['mrp']}"
+    assert final_verified_audit["final_verified_fields"]["net_quantity"] == "200", f"Expected Net Qty 200, got {final_verified_audit['final_verified_fields']['net_quantity']}"
+    assert final_verified_audit["final_verified_fields"]["unit_of_measure"] == "g", f"Expected unit 'g', got {final_verified_audit['final_verified_fields']['unit_of_measure']}"
+
+    # Verify 2: Old OCR values (₹100, None) are NOT used for final evaluation
+    assert final_verified_audit["extracted_metadata"]["mrp"] == "40.00"
+    assert final_verified_audit["extracted_metadata"]["net_quantity"] == "200"
+
+    # Verify 3: Score is recalculated genuinely to 100
+    assert final_verified_audit["overall_score"] == 100, f"Expected 100/100, got {final_verified_audit['overall_score']}"
+    assert final_verified_audit["status"] == "COMPLIANT", f"Expected COMPLIANT, got {final_verified_audit['status']}"
+
+    # Verify 4: Violations caused solely by old OCR values disappear
+    assert len(final_verified_audit["violations"]) == 0, f"Expected 0 violations, found: {final_verified_audit['violations']}"
+    assert final_verified_audit["rules_breakdown"]["rule_6_1_da_mrp"] is True
+    assert final_verified_audit["rules_breakdown"]["rule_11_12_net_quantity"] is True
+
+    # Verify 5: Audit trail & original OCR snapshot are preserved
+    assert final_verified_audit["original_ocr_snapshot"] is not None
+    assert final_verified_audit["original_ocr_snapshot"]["mrp"] == "100"
+    assert len(final_verified_audit["corrections_made"]) > 0
+    assert any(c["field"] == "declared_mrp" and "40" in c["corrected_value"] for c in final_verified_audit["corrections_made"])
+    print("  --> Subtest 17.1 Passed: Forward Manual Override is 100% Single Source of Truth (₹100 -> ₹40, Not Declared -> 200g, Score: 100/100, 0 violations).")
+
+    # 17.2 Reverse Test:
+    # Initial OCR is 100% Compliant. Inspector changes net_quantity unit to illegal imperial 'fl oz'.
+    compliant_segments = [
+        {"text": "HERBAL SHAMPOO", "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99},
+        {"text": "Net Qty: 200 ml", "box": [[10, 50], [200, 50], [200, 80], [10, 80]], "confidence": 0.98},
+        {"text": "MRP Rs. 150.00 (Inclusive of all taxes)", "box": [[10, 90], [350, 90], [350, 120], [10, 120]], "confidence": 0.98},
+        {"text": "Mfg: 01/2026", "box": [[10, 130], [150, 130], [150, 160], [10, 160]], "confidence": 0.98},
+        {"text": "Helpline: 1800-11-4444 | Email: care@herbal.in", "box": [[10, 170], [350, 170], [350, 200], [10, 200]], "confidence": 0.98},
+        {"text": "Country of Origin: India", "box": [[10, 210], [200, 210], [200, 240], [10, 240]], "confidence": 0.98}
+    ]
+    comp_scan = engine.evaluate_compliance(compliant_segments, (1000, 1000))
+    assert comp_scan["status"] == "COMPLIANT", "Initial scan must be compliant"
+
+    # Inspector enters illegal imperial unit manually
+    reverse_override = {
+        "net_quantity": "8",
+        "unit_of_measure": "fl oz" # Prohibited imperial unit under Rule 11 & 12
+    }
+    reverse_audit = engine.evaluate_compliance(compliant_segments, (1000, 1000), manual_overrides=reverse_override)
+    assert reverse_audit["status"] == "NON_COMPLIANT", f"Expected NON_COMPLIANT when inspector inputs fl oz, got {reverse_audit['status']}"
+    assert reverse_audit["overall_score"] < 100, f"Expected score < 100, got {reverse_audit['overall_score']}"
+    assert any(v["rule_id"] == "RULE_11_12_PROHIBITED_IMPERIAL" for v in reverse_audit["violations"]), "Must flag RULE_11_12_PROHIBITED_IMPERIAL"
+    assert reverse_audit["final_verified_fields"]["unit_of_measure"] == "fl oz"
+    print("  --> Subtest 17.2 Passed: Reverse Manual Override genuinely controls audit (Compliant -> Non-Compliant fl oz flagged).")
 
     print("\n" + "=" * 70)
-    print("ALL 16 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
+    print("ALL 17 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
     print("=" * 70)
 
 

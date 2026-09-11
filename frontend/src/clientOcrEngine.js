@@ -1054,25 +1054,254 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   }
 
   // Apply Manual Overrides if supplied by Inspector
-  if (manualOverrides) {
-    Object.keys(manualOverrides).forEach((key) => {
-      if (manualOverrides[key] !== undefined && manualOverrides[key] !== null && manualOverrides[key] !== '') {
-        extractedMetadata[key] = manualOverrides[key];
+  const originalOcrSnapshot = { ...extractedMetadata };
+  const manualCorrections = [];
+
+  if (manualOverrides && typeof manualOverrides === 'object') {
+    // 1. Brand Name
+    if (manualOverrides.brand_name) {
+      extractedMetadata.brand_name = String(manualOverrides.brand_name).trim();
+    }
+
+    // 2. MRP & Tax Suffix
+    if (manualOverrides.mrp !== undefined && manualOverrides.mrp !== null) {
+      const rawMrp = String(manualOverrides.mrp).trim();
+      const cleanMrp = rawMrp.replace(/₹|Rs\.?|,/gi, '').trim();
+      const taxIncl = manualOverrides.taxes_included !== false && manualOverrides.taxes_included !== 'no' && manualOverrides.taxes_included !== 'false';
+      const isMissingMrp = !cleanMrp || cleanMrp.toLowerCase() === 'not declared' || cleanMrp === '0';
+
+      violations = violations.filter((v) => !v.rule_id.startsWith('RULE_6_1_DA'));
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_6_1_DA'));
+
+      if (isMissingMrp) {
+        extractedMetadata.mrp = null;
+        extractedMetadata.taxes_included = false;
+        violations.push({
+          rule_id: 'RULE_6_1_DA_MISSING',
+          rule_name: 'Rule 6(1)(da) - Mandatory MRP Declaration',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
+          description: 'Maximum Retail Price (MRP) declaration is missing from the package display.',
+          found_text: 'None declared [Inspector Verified]',
+          remediation: "Print Maximum Retail Price clearly as 'MRP ₹ [Amount] (Inclusive of all taxes)' on the Principal Display Panel."
+        });
+        rulesBreakdown.rule_6_1_da_mrp = false;
+      } else if (!taxIncl) {
+        extractedMetadata.mrp = cleanMrp;
+        extractedMetadata.taxes_included = false;
+        violations.push({
+          rule_id: 'RULE_6_1_DA_TAX_SUFFIX_MISSING',
+          rule_name: 'Rule 6(1)(da) - Statutory Tax Inclusion Suffix',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
+          description: "MRP is stated without the mandatory statutory phrase ('Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST').",
+          found_text: `MRP: ₹ ${cleanMrp} (Missing Tax Suffix) [Inspector Verified]`,
+          remediation: "Append the mandatory statutory text 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to the price."
+        });
+        rulesBreakdown.rule_6_1_da_mrp = false;
+      } else {
+        extractedMetadata.mrp = cleanMrp;
+        extractedMetadata.taxes_included = true;
+        passedChecks.push({
+          rule_id: 'RULE_6_1_DA',
+          rule_name: 'Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
+          description: 'Maximum Retail Price declared with statutory tax inclusive clause.',
+          evidence: `Declared MRP: ₹ ${cleanMrp} (Inclusive of all taxes) [Inspector Verified]`
+        });
+        rulesBreakdown.rule_6_1_da_mrp = true;
       }
-    });
+    }
+
+    // 3. Net Quantity & Approved Metric Units
+    if (manualOverrides.net_quantity !== undefined && manualOverrides.net_quantity !== null) {
+      let rawQty = String(manualOverrides.net_quantity).trim();
+      let rawUnit = String(manualOverrides.unit_of_measure || '').trim();
+
+      if (rawQty.includes(' ') && !rawUnit) {
+        const parts = rawQty.split(' ');
+        rawQty = parts[0].trim();
+        rawUnit = parts[1].trim();
+      }
+
+      const isMissingQty = !rawQty || rawQty.toLowerCase() === 'not declared' || rawQty === '0';
+
+      violations = violations.filter((v) => !v.rule_id.startsWith('RULE_11_12'));
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_11_12'));
+
+      if (isMissingQty) {
+        extractedMetadata.net_quantity = null;
+        extractedMetadata.unit_of_measure = null;
+        violations.push({
+          rule_id: 'RULE_11_12_MISSING_QTY',
+          rule_name: 'Rule 11 & 12 - Net Quantity Declaration Missing',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(b) & Rule 11',
+          description: 'Net Quantity / Count declaration is not detected on the Principal Display Panel.',
+          found_text: 'None declared [Inspector Verified]',
+          remediation: "Declare Net Quantity in SI metric units (e.g. 'Net Qty: 500 g' or 'Pages: 428' or 'Net Vol: 200 ml')."
+        });
+        rulesBreakdown.rule_11_12_net_quantity = false;
+      } else {
+        const unitLower = rawUnit.toLowerCase().replace(/[\.,]/g, '');
+        extractedMetadata.net_quantity = rawQty;
+        extractedMetadata.unit_of_measure = rawUnit || 'Units';
+
+        const isProhibited = ['oz', 'fl oz', 'fl. oz.', 'fl.oz', 'lbs', 'lb', 'gallon', 'gallons', 'quart', 'quarts', 'pint', 'pints', 'pt', 'yard', 'yards', 'inch', 'inches', 'in', 'ft', 'feet'].includes(unitLower);
+
+        if (isProhibited) {
+          violations.push({
+            rule_id: 'RULE_11_12_PROHIBITED_IMPERIAL',
+            rule_name: 'Rule 11 & 12 - Prohibited Non-Standard Unit',
+            severity: 'HIGH',
+            legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
+            description: `Prohibited imperial unit '${rawUnit}' declared.`,
+            found_text: `${rawQty} ${rawUnit} [Inspector Verified]`,
+            remediation: 'Declare net quantity exclusively in approved SI metric units (e.g., g, kg, ml, l, N).'
+          });
+          rulesBreakdown.rule_11_12_net_quantity = false;
+        } else {
+          passedChecks.push({
+            rule_id: 'RULE_11_12',
+            rule_name: 'Rule 11 & 12 - Standard Net Quantity in SI Metric Units',
+            legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
+            description: 'Net quantity declared in approved statutory SI metric units.',
+            evidence: `Declared Quantity: ${rawQty} ${rawUnit || 'Units'} [Inspector Verified]`
+          });
+          rulesBreakdown.rule_11_12_net_quantity = true;
+        }
+      }
+    }
+
+    // 4. Consumer Care Email & Phone
+    if (manualOverrides.consumer_care_email !== undefined || manualOverrides.consumer_care_phone !== undefined || manualOverrides.consumer_care_address !== undefined) {
+      const emailVal = manualOverrides.consumer_care_email !== undefined
+        ? (String(manualOverrides.consumer_care_email).trim() || null)
+        : originalOcrSnapshot.consumer_care_email;
+      const phoneVal = manualOverrides.consumer_care_phone !== undefined
+        ? (String(manualOverrides.consumer_care_phone).trim() || null)
+        : originalOcrSnapshot.consumer_care_phone;
+      const addrVal = manualOverrides.consumer_care_address !== undefined
+        ? (String(manualOverrides.consumer_care_address).trim() || null)
+        : originalOcrSnapshot.consumer_care_address;
+
+      extractedMetadata.consumer_care_email = emailVal;
+      extractedMetadata.consumer_care_phone = phoneVal;
+      if (addrVal) extractedMetadata.consumer_care_address = addrVal;
+
+      violations = violations.filter((v) => !v.rule_id.startsWith('RULE_6_1_G'));
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_6_1_G'));
+      warnings = warnings.filter((w) => !w.rule_id.startsWith('RULE_6_1_G'));
+
+      if (!emailVal && !phoneVal && !addrVal) {
+        violations.push({
+          rule_id: 'RULE_6_1_G_MISSING_CARE',
+          rule_name: 'Rule 6(1)(g) - Consumer Care Details Missing',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)',
+          description: 'No consumer redressal email address, telephone helpline, or consumer cell address detected.',
+          found_text: 'None declared [Inspector Verified]',
+          remediation: "Provide consumer care contact details (e.g. 'Helpline: 1800-xxx-xxxx | Email: care@brand.in')."
+        });
+        rulesBreakdown.rule_6_1_g_consumer_care = false;
+      } else {
+        const evParts = [emailVal && `Email: ${emailVal}`, phoneVal && `Phone: ${phoneVal}`, addrVal && `Address: ${addrVal}`].filter(Boolean);
+        passedChecks.push({
+          rule_id: 'RULE_6_1_G',
+          rule_name: 'Rule 6(1)(g) - Consumer Grievance Redressal Mechanism',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)',
+          description: 'Consumer redressal contact channel (Helpline/Email) verified.',
+          evidence: `${evParts.join(' | ')} [Inspector Verified]`
+        });
+        rulesBreakdown.rule_6_1_g_consumer_care = true;
+      }
+    }
+
+    // 5. Manufacturing Date
+    if (manualOverrides.manufacturing_date !== undefined && manualOverrides.manufacturing_date !== null) {
+      const rawDate = String(manualOverrides.manufacturing_date).trim();
+      const isMissingDate = !rawDate || rawDate.toLowerCase() === 'not declared';
+
+      violations = violations.filter((v) => !v.rule_id.startsWith('RULE_6_1_C'));
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_6_1_C'));
+
+      if (isMissingDate) {
+        extractedMetadata.manufacturing_date = null;
+        violations.push({
+          rule_id: 'RULE_6_1_C_MISSING_DATE',
+          rule_name: 'Rule 6(1)(c) - Manufacturing Date Missing',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)',
+          description: 'Month and Year of manufacture, packaging, or import is not declared.',
+          found_text: 'None declared [Inspector Verified]',
+          remediation: "Declare month and year of manufacture (e.g. 'Mfg Date: 02/2026')."
+        });
+        rulesBreakdown.rule_6_1_c_mfg_date = false;
+      } else {
+        extractedMetadata.manufacturing_date = rawDate;
+        passedChecks.push({
+          rule_id: 'RULE_6_1_C',
+          rule_name: 'Rule 6(1)(c) - Month & Year of Manufacture / Packaging',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)',
+          description: 'Month and year of manufacture or packaging timeline verified.',
+          evidence: `Declared Timeline: ${rawDate} [Inspector Verified]`
+        });
+        rulesBreakdown.rule_6_1_c_mfg_date = true;
+      }
+    }
+
+    // 6. Country of Origin & Manufacturer
+    if (manualOverrides.country_of_origin) {
+      extractedMetadata.country_of_origin = String(manualOverrides.country_of_origin).trim();
+      warnings = warnings.filter((w) => !w.rule_id.startsWith('RULE_6_10'));
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_6_10'));
+      passedChecks.push({
+        rule_id: 'RULE_6_10',
+        rule_name: 'Rule 6(10) - Country of Origin',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)',
+        description: 'Country of Origin declared clearly.',
+        evidence: `Declared Origin: ${extractedMetadata.country_of_origin} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_10_country_of_origin = true;
+    }
+
+    if (manualOverrides.manufacturer_name) {
+      extractedMetadata.manufacturer_name = String(manualOverrides.manufacturer_name).trim();
+      passedChecks = passedChecks.filter((c) => !c.rule_id.startsWith('RULE_6_1_A'));
+      passedChecks.push({
+        rule_id: 'RULE_6_1_A',
+        rule_name: 'Rule 6(1)(a) - Name and Address of Manufacturer/Packer',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)',
+        description: 'Name and address of Manufacturer or Packer declared.',
+        evidence: `Manufacturer: ${extractedMetadata.manufacturer_name} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_1_a_manufacturer = true;
+    }
+
+    for (const idKey of ['batch_number', 'best_before', 'article_number', 'model_number', 'item_code']) {
+      if (manualOverrides[idKey]) {
+        extractedMetadata[idKey] = String(manualOverrides[idKey]).trim();
+      }
+    }
   }
 
-  // Calculate Overall Compliance Score (out of 100)
+  // Calculate Overall Compliance Score (out of 100) dynamically
   const totalDeductions = violations.reduce((acc, v) => {
-    return acc + (v.severity === 'HIGH' ? 30 : v.severity === 'MEDIUM' ? 15 : 5);
-  }, 0);
+    return acc + (v.severity === 'HIGH' ? 25 : v.severity === 'MEDIUM' ? 15 : 5);
+  }, 0) + (warnings.length * 3);
 
-  const overallScore = Math.max(0, 100 - totalDeductions);
+  const overallScore = Math.max(0, Math.min(100, 100 - totalDeductions));
   const isCompliant = violations.length === 0;
+
+  const finalVerifiedFields = { ...extractedMetadata };
 
   return {
     status: isCompliant ? 'COMPLIANT' : 'NON_COMPLIANT',
     overall_score: overallScore,
+    is_manually_verified: Boolean(manualOverrides && Object.keys(manualOverrides).length > 0),
+    manual_fields_applied: manualOverrides ? Object.keys(manualOverrides) : [],
+    final_verified_fields: finalVerifiedFields,
+    verified_product_data: finalVerifiedFields,
     multilingual_profile: {
       dominant_script: hasDevanagari(text) ? 'Devanagari (Hindi/Marathi)' : hasTelugu(text) ? 'Telugu' : 'Latin (English)',
       language_name: hasDevanagari(text) ? 'Hindi (हिंदी)' : hasTelugu(text) ? 'Telugu (తెలుగు)' : 'English (Latin)'
