@@ -431,6 +431,73 @@ def run_tests():
     assert cyl_res["extracted_metadata"]["net_quantity"] == "250"
     print("  --> PASS: Cylindrical multi-line fragmented segments correctly unified, extracted MRP ₹ 120.00, Status: COMPLIANT!")
 
+    # Test 13: GST Tax Suffix Variants
+    print("\n[TEST 13] Evaluating GST Tax Suffix Variants ('Inclusive of GST', 'Incl. of GST', 'GST Included', etc.)...")
+    gst_cases = [
+        ("MRP: ₹ 25.00 \n (Inclusive of GST)", "25.00"),
+        ("MRP ₹ 25.00 (Inclusive of GST)", "25.00"),
+        ("MRP: ₹ 35.00 (Incl. of GST)", "35.00"),
+        ("MRP Rs. 50 (Incl of GST)", "50"),
+        ("MRP ₹ 100.00 (GST Included)", "100.00"),
+        ("MRP: 75.00 (GST Incl.)", "75.00"),
+        ("MRP (INCLUSIVE OF GST) ₹ 120", "120"),
+        ("MRP ₹ 200.00 (जीएसटी सहित)", "200.00"),
+        ("MRP ₹ 150.00 (జీఎస్టీ సహా)", "150.00"),
+        ("MRP ₹ 40.00 (జిఎస్టి সহ / GST Inclusive)", "40.00")
+    ]
+    for gst_text, exp_mrp in gst_cases:
+        gst_res = engine.evaluate_compliance([{"text": gst_text, "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.98}])
+        assert gst_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, f"Failed MRP rule on GST case: {gst_text}"
+        assert gst_res["extracted_metadata"]["taxes_included"] is True, f"Failed taxes_included on GST case: {gst_text}"
+        assert gst_res["extracted_metadata"]["mrp"] == exp_mrp, f"Expected {exp_mrp}, got {gst_res['extracted_metadata']['mrp']} for {gst_text}"
+    print("  --> PASS: All GST tax suffix variants verified and accepted as legally compliant under Rule 6(1)(da)!")
+
+    # Test 14: Real Notebook Specimen (User's Exact Test Image)
+    print("\n[TEST 14] Evaluating Real Notebook Back Cover Specimen (Linchpin / Nihar Classic Series)...")
+    notebook_segments = [
+        {"text": "Nihar CLASSIC SERIES", "box": [[10, 10], [200, 10], [200, 30], [10, 30]], "confidence": 0.99},
+        {"text": "A quality product manufactured & marketed by:", "box": [[10, 40], [300, 40], [300, 60], [10, 60]], "confidence": 0.98},
+        {"text": "Linchpin Industries Pvt. Ltd.", "box": [[10, 70], [250, 70], [250, 90], [10, 90]], "confidence": 0.99},
+        {"text": "Khasara No. 160,161,162,152, Mohkampur Phase-1, Delhi Road, Meerut - 250002", "box": [[10, 100], [500, 100], [500, 120], [10, 120]], "confidence": 0.97},
+        {"text": "Customer care no.: 1800 889 0270", "box": [[10, 130], [280, 130], [280, 150], [10, 150]], "confidence": 0.98},
+        {"text": "wow@writeonwhite.in", "box": [[10, 160], [200, 160], [200, 180], [10, 180]], "confidence": 0.99},
+        {"text": "Pages : 80 (Total Pages Include Index & Cover)", "box": [[300, 10], [550, 10], [550, 30], [300, 30]], "confidence": 0.98},
+        {"text": "Size: 23.5 x 17.5 cm", "box": [[300, 40], [450, 40], [450, 60], [300, 60]], "confidence": 0.98},
+        {"text": "MRP: ₹ 25.00", "box": [[300, 70], [420, 70], [420, 90], [300, 90]], "confidence": 0.99},
+        {"text": "(Inclusive of GST)", "box": [[300, 100], [440, 100], [440, 120], [300, 120]], "confidence": 0.99},
+        {"text": "MADE IN INDIA", "box": [[300, 130], [420, 130], [420, 150], [300, 150]], "confidence": 0.99}
+    ]
+    notebook_res = engine.evaluate_compliance(notebook_segments, (1000, 1000))
+    assert notebook_res["status"] == "COMPLIANT", f"Expected COMPLIANT for notebook specimen, got {notebook_res['status']} with violations: {notebook_res['violations']}"
+    assert notebook_res["extracted_metadata"]["mrp"] == "25.00", f"Expected MRP 25.00, got {notebook_res['extracted_metadata']['mrp']}"
+    assert notebook_res["extracted_metadata"]["taxes_included"] is True, "Expected taxes_included True for '(Inclusive of GST)'"
+    assert notebook_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, "Rule 6(1)(da) must PASS for (Inclusive of GST)"
+    assert len(notebook_res["violations"]) == 0, f"Expected 0 violations, found: {notebook_res['violations']}"
+    # Test 15: Vardhman Industries Notebook Specimen (Pages: 428, MRP. Rs. : 110.00, Incl. of all taxes)
+    print("\n[TEST 15] Evaluating Vardhman Industries Real Packaging Specimen (Pages: 428, MRP Rs. 110.00, 04/2025)...")
+    vardhman_segments = [
+        {"text": "Marketed by:", "box": [[10, 10], [100, 10], [100, 30], [10, 30]], "confidence": 0.98},
+        {"text": "Vardhman Industries", "box": [[10, 35], [180, 35], [180, 55], [10, 55]], "confidence": 0.99},
+        {"text": "Delhi Road, Meerut U.P. India.", "box": [[10, 60], [220, 60], [220, 80], [10, 80]], "confidence": 0.98},
+        {"text": "Ph.: +91 121 2400423", "box": [[10, 85], [160, 85], [160, 105], [10, 105]], "confidence": 0.98},
+        {"text": "E-mail: vardhmanindustries@yahoo.co.in", "box": [[10, 110], [280, 110], [280, 130], [10, 130]], "confidence": 0.99},
+        {"text": "www.vardhmanindustries.co.in", "box": [[10, 135], [230, 135], [230, 155], [10, 155]], "confidence": 0.98},
+        {"text": "Pages: 428", "box": [[300, 10], [380, 10], [380, 30], [300, 30]], "confidence": 0.99},
+        {"text": "(Including Index & Cover)", "box": [[300, 35], [450, 35], [450, 55], [300, 55]], "confidence": 0.98},
+        {"text": "Size: 20 x 28cm", "box": [[300, 60], [420, 60], [420, 80], [300, 80]], "confidence": 0.98},
+        {"text": "MRP. Rs. : 110.00", "box": [[300, 85], [430, 85], [430, 105], [300, 105]], "confidence": 0.99},
+        {"text": "Incl. of all taxes.", "box": [[300, 110], [420, 110], [420, 130], [300, 130]], "confidence": 0.99},
+        {"text": "Mfd. on : 04/2025", "box": [[300, 135], [430, 135], [430, 155], [300, 155]], "confidence": 0.98}
+    ]
+    vardhman_res = engine.evaluate_compliance(vardhman_segments, (1000, 1000))
+    assert vardhman_res["status"] == "COMPLIANT", f"Expected COMPLIANT for Vardhman specimen, got {vardhman_res['status']} with violations: {vardhman_res['violations']}"
+    assert vardhman_res["extracted_metadata"]["mrp"] == "110.00", f"Expected MRP 110.00, got {vardhman_res['extracted_metadata']['mrp']}"
+    assert vardhman_res["extracted_metadata"]["taxes_included"] is True, "Expected taxes_included True for 'Incl. of all taxes.'"
+    assert vardhman_res["extracted_metadata"]["net_quantity"] == "428", f"Expected net_quantity 428, got {vardhman_res['extracted_metadata']['net_quantity']}"
+    assert vardhman_res["extracted_metadata"]["manufacturing_date"] == "04/2025", f"Expected 04/2025, got {vardhman_res['extracted_metadata']['manufacturing_date']}"
+    assert vardhman_res["overall_score"] == 100, f"Expected 100/100, got {vardhman_res['overall_score']}"
+    print(f"  --> PASS: Vardhman Industries specimen cleared 100% with status: {vardhman_res['status']} and score: {vardhman_res['overall_score']}/100!")
+
     print("\n" + "=" * 70)
     print("ALL COMPLIANCE PIPELINES PASSED VERIFICATION PERFECTLY! [SUCCESS]")
     print("=" * 70)

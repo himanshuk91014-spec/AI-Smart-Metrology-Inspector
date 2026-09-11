@@ -12,7 +12,9 @@ export const APPROVED_METRIC_UNITS = [
   'ml', 'mls', 'millilitre', 'millilitres', 'milliliter', 'l', 'ltr', 'ltrs', 'litre', 'litres',
   'cl', 'dl', 'm', 'meter', 'metre', 'cm', 'centimeter', 'centimetre', 'mm', 'millimeter',
   'sq.m', 'sq.cm', 'sq.mm', 'units', 'unit', 'u', 'pcs', 'piece', 'pieces', 'pc', 'n', 'count',
-  'nos', 'no.', 'set', 'pair', 'pens', 'pen', 'tablets', 'capsules', 'strips', 'vials', 'bottles',
+  'nos', 'no.', 'set', 'pair', 'pens', 'pen', 'pencils', 'pencil', 'refills', 'refill',
+  'pages', 'page', 'sheets', 'sheet', 'leaves', 'leaf', 'notebooks', 'notebook', 'rolls', 'roll',
+  'tablets', 'capsules', 'strips', 'vials', 'bottles',
   'ग्राम', 'किग्रा', 'मिली', 'लीटर', 'గ్రాములు', 'మి.లీ', 'లీటర్', 'కిలో', 'গ্রাম', 'কেজি', 'মিলি', 'লিটার'
 ];
 
@@ -439,24 +441,28 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E/gi, 'MAX RETAIL PRICE');
   text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L/gi, 'MAX RETAIL');
   text = text.replace(/\bR\s*\.?\s*s\s*\.?/gi, 'Rs.');
+  text = text.replace(/\bG\s*\.?\s*S\s*\.?\s*T\s*\.?\b/gi, 'GST');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b/gi, 'INCLUSIVE OF ALL TAXES');
   text = text.replace(/\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b/gi, 'INCL. OF ALL TAXES');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?G\s*S\s*T\b/gi, 'INCLUSIVE OF GST');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?G\s*S\s*T\b/gi, 'INCL. OF GST');
+  text = text.replace(/\bI\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b/gi, 'INCLUSIVE OF TAXES');
   text = text.replace(/\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b/gi, 'INCL. OF TAXES');
   text = text.replace(/\bN\s*E\s*T\s*Q\s*T\s*Y\b/gi, 'NET QTY');
   text = text.replace(/\bN\s*E\s*T\s*W\s*T\b/gi, 'NET WT');
   text = text.replace(/\bN\s*E\s*T\s*V\s*O\s*L\b/gi, 'NET VOL');
-  text = text.replace(/\bM\s*F\s*D\b/gi, 'MFD');
-  text = text.replace(/\bM\s*F\s*G\b/gi, 'MFG');
   text = text.replace(/\bE\s*X\s*P\b/gi, 'EXP');
   text = text.replace(/\bB\s*\.?\s*N\s*O\b/gi, 'B.NO');
   text = text.replace(/\bU\s*S\s*P\b/gi, 'USP');
 
-  // Stitch spaced digits: '1 2 0 . 0 0' -> '120.00', '2 5 0 . 0 0' -> '250.00'
+  // Preserve paise and dot-matrix decimals: 'MRP Rs. 110 00' -> 'MRP Rs. 110.00', 'MRP 25 00' -> 'MRP 25.00'
+  text = text.replace(/(?:mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)\s+(00|\d{2})\b/gi, 'MRP Rs. $1.$2');
   text = text.replace(/(\d)\s*\.\s*(\d)\s*(\d)/g, '$1.$2$3');
   text = text.replace(/(\d)\s*\.\s*(\d{2})\b/g, '$1.$2');
   text = text.replace(/(\d+)\s*\.\s*(\d{2})\b/g, '$1.$2');
   text = text.replace(/(\d+)\s*\/\s*[\-]\b/g, '$1/-');
-  for (let iter = 0; iter < 4; iter++) {
-    text = text.replace(/\b(\d+)\s+(\d)\b/g, '$1$2');
+  for (let iter = 0; iter < 3; iter++) {
+    text = text.replace(/(?<!mrp|rs|₹|inr|\d\.)\b(\d{1,4})\s+(\d{1,2})\b(?!\.\d)/gi, '$1$2');
   }
 
   const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
@@ -473,6 +479,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
     taxes_included: false,
     net_quantity: null,
     unit_of_measure: null,
+    dimensions: null,
     manufacturing_date: null,
     consumer_care_email: null,
     consumer_care_phone: null,
@@ -531,17 +538,23 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
     extractedMetadata.brand_name = 'Packaged Commodity Specimen';
   }
 
+  // Check dimensions (e.g. Size: 20 x 28cm, 23.5 x 17.5 cm)
+  const dimMatch = fullJoinedText.match(/(?:size|dimensions?|dim)[\s.:=-]*(\d+(?:\.\d+)?\s*(?:x|×)\s*\d+(?:\.\d+)?(?:\s*(?:x|×)\s*\d+(?:\.\d+)?)?\s*(?:cm|mm|m)?)/i);
+  if (dimMatch) {
+    extractedMetadata.dimensions = dimMatch[1].trim();
+  }
+
   // --- 1. Maximum Retail Price (MRP) & Tax Suffix (Rule 6(1)(da)) ---
   let mrpFound = false;
   let taxSuffixFound = false;
   
-  // Tax suffix regex (English & Regional Indian Languages + Curvature variations)
-  const taxSuffixRegex = /(inclusive\s*of\s*all\s*taxes|incl\.?\s*of\s*all\s*taxes|incl\.?\s*all\s*taxes|all\s*taxes\s*incl|taxes\s*included|tax\s*included|all\s*taxes\s*included|incl\.?\s*tax|taxes\s*incl|incl\.?\s*of\s*tax|inclusive\s*taxes|inclusive\s*of\s*tax|inc\s*of\s*all\s*taxes|inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|सभी\s*करों?\s*सहित|सर्व\s*करांसह|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|تمام\s*ٹیکسز?\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட)/i;
-  taxSuffixFound = taxSuffixRegex.test(fullJoinedText) || /inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|alltax(?:es)?inc|inc[l1i]?(?:of)?tax(?:es)?/i.test(normalizedCondensed);
+  // Tax suffix regex (English & Regional Indian Languages + Curvature variations + GST + OCR font tolerance)
+  const taxSuffixRegex = /(inclusive\s*of\s*(?:all\s*)?taxes|incl?\.?\s*(?:of\s*)?(?:all\s*)?taxes|[il1|!]nc[l1i]?(?:usive)?\s*(?:of\s*)?(?:all\s*)?taxes|[il1|!]nc[l1i]?(?:usive)?\s*(?:of\s*)?gst|inclusive\s*of\s*gst|incl?\.?\s*(?:of\s*)?gst|inclusive\s*gst|gst\s*incl?\.?|gst\s*included|gst\s*inclusive|including\s*gst|all\s*taxes\s*incl?\.?|all\s*taxes\s*included|taxes\s*included|tax\s*included|incl?\.?\s*tax(?:es)?|taxes\s*incl?\.?|incl?\.?\s*of\s*tax(?:es)?|inclusive\s*taxes|inclusive\s*of\s*tax(?:es)?|[il1|!]nc\s*of\s*all\s*taxes|[il1|!]nc\.?\s*of\s*all\s*taxes|[il1|!]nc\s*of\s*gst|[il1|!]nc\.?\s*of\s*gst|inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*duties|inclusive\s*of\s*vat|incl?\.?\s*(?:of\s*)?vat|vat\s*included|vat\s*incl?\.?|सभी\s*करों?\s*सहित|सब\s*टैक्स\s*सहित|जीएसटी\s*सहित|जी\.?एस\.?टी\.?\s*सहित|जीएसटी\s*शामिल|सर्व\s*करांसह|सर्व\s*कर\s*समाविष्ट|जीएसटी\s*करांसह|జీఎస్టీ\s*సహా|జీఎస్టీతో\s*కలిపి|జీఎస్టీ\s*కలుపుకొని|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|সব\s*ট্যাক্স\s*সহ|জিএসটি\s*সহ|জিএসটি\s*অন্তর্ভুক্ত|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸ਼ਾਮਲ|تمام\s*ٹیکسز?\s*سمیت|جی\s*ایس\s*ٹی\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட|ஜிஎஸ்டி\s*உட்பட|તમામ\s*કર\s*સહિત|જીએસટી\s*સહિત|ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸಹಿತ|എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ|ജിഎസ്ടി\s*ഉൾപ്പെടെ)/i;
+  taxSuffixFound = taxSuffixRegex.test(fullJoinedText) || /(?:[il1|!]nc[l1i]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!]nc[l1i]?|tax(?:es)?[il1|!]nc[l1i]?|tax(?:es)?included|gstincluded|gst[il1|!]nc[l1i]?)/i.test(normalizedCondensed);
 
   // Hierarchical Multi-Stage MRP Extraction
   // Stage A: Explicit MRP keyword with optional embedded tax clause or currency symbol, followed by price
-  const pExplicit = /(?:m\.?\s*r\.?\s*p\.?|mr\.?p|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?))?/i;
+  const pExplicit = /(?:m\.?\s*r\.?\s*p\.?|mr\.?p|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*मूल্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर|gst|vat)[^)]*\)|incl\.?\s*(?:of\s*)?(?:all\s*)?taxes|incl\.?\s*(?:of\s*)?gst|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर|gst|vat)[^)]*\)|incl\.?\s*(?:of\s*)?(?:all\s*)?taxes|incl\.?\s*(?:of\s*)?gst|incl\.?\s*tax(?:es)?))?/i;
 
   let foundMrpValue = null;
   const matchExplicit = fullJoinedText.match(pExplicit);
@@ -618,7 +631,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
         rule_name: 'Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix',
         legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
         description: 'MRP declared with mandatory statutory tax suffix.',
-        evidence: `MRP: ₹ ${extractedMetadata.mrp} (Inclusive of all taxes verified)`
+        evidence: `MRP: ₹ ${extractedMetadata.mrp} (Inclusive of GST / all taxes verified)`
       });
     } else {
       violations.push({
@@ -626,9 +639,9 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
         rule_name: 'Rule 6(1)(da) - Missing Tax Suffix on MRP',
         severity: 'HIGH',
         legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
-        description: "Statutory mandatory clause 'Inclusive of all taxes' is missing alongside declared MRP.",
+        description: "Statutory mandatory clause 'Inclusive of all taxes' or 'Inclusive of GST' is missing alongside declared MRP.",
         found_text: `MRP: ₹ ${extractedMetadata.mrp}`,
-        remediation: "Add 'Inclusive of all taxes' or 'Incl. of all taxes' immediately adjacent to declared MRP."
+        remediation: "Add 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to declared MRP."
       });
     }
   } else {
@@ -639,7 +652,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
       legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
       description: 'Maximum Retail Price (MRP) declaration is not detected on the packaging.',
       found_text: 'None detected',
-      remediation: "Declare MRP clearly as 'MRP ₹ xxx.xx (Inclusive of all taxes)'."
+      remediation: "Declare MRP clearly as 'MRP ₹ xxx.xx (Inclusive of all taxes / GST)'."
     });
   }
 
@@ -664,33 +677,68 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
     }
   }
 
-  // Check approved metric units & quantity
+  // Clean catalog numbers (e.g. ART NO. 3458, ITEM CODE 901) before quantity extraction
+  const sanitizedQtyText = fullJoinedText.replace(/(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?)\s*[:=-]*\s*\w+/gi, ' [CATALOG_CODE_STRIPPED] ');
+
+  // Check approved metric units & quantity (including prefix formats: Pages: 428, Total Pages: 80, Sheets: 100)
   const netQtyRegexList = [
-    /(?:net\s*(?:qty|quantity|wt|weight|vol|volume|contents?)|शुद्ध\s*मात्रा|परिमाणं|పరిమాణం|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[:=-]?\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|मिली|लीटर|గ్రాములు|మి\.లీ|లీటర్|কেজি|গ্রাম|ਕਿਲੋ|ਗ੍ਰਾਮ|لیٹر|کلو)/i,
-    /(?:net\s*(?:qty|quantity)|quantity|count)\s*[:=-]?\s*(\d+)\s*(n|u|units?|pcs?|pieces?|pens?|tablets?|capsules?|nos|bottles?|sheets?)/i,
-    /\b(\d+(?:\.\d+)?)\s*(g|gm|gms|kg|kgs|ml|mls|l|ltr|ltrs|m|cm|mm|sq\.m|sq\.cm|units?|pcs?|pens?|tablets?|n)\b/i
+    // 1. Explicit net qty / regional phrase
+    /(?:net\s*(?:qty|quantity|wt|weight|vol|volume|contents?)|शुद्ध\s*मात्रा|निव्वळ\s*वजन|परिमाणं|పరిమాణం|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[:=-]?\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|मिली|लीटर|గ్రాములు|మి\.లీ|లీటర్|কেজি|গ্রাম|ਕਿਲੋ|ਗ੍ਰਾਮ|لیٹر|کلو|pages?|sheets?|leaves|pens?|pencils?|units?|u|pcs?|pieces?)/i,
+    // 2. Quantity with unit count / Writing Instruments / Apparel count (e.g. 1 N, 1 Pen, 5 Pens)
+    /(?:(?:net\s*(?:qty|quantity|content|wt|weight)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b/i,
+    // 3. Prefix stationery / publication / count (e.g. Pages: 428, Total Pages: 80, Sheets: 100, Leaves: 50)
+    /(?:total\s*(?:pages?|sheets?|leaves)|no\.?\s*of\s*(?:pages?|sheets?|leaves)|pages?|sheets?|leaves)\s*[:=-]*\s*(\d+)/i,
+    // 4. Postfix standard SI unit
+    /\b(\d+(?:\.\d+)?)\s*(g|gm|gms|kg|kgs|ml|mls|l|ltr|ltrs|m|cm|mm|sq\.m|sq\.cm|units?|pcs?|pieces?|pens?|pencils?|tablets?|pages?|sheets?|leaves|n)\b/i
   ];
 
   let qtyMatch = null;
+  let detectedUnit = 'Units';
+
   for (const r of netQtyRegexList) {
-    qtyMatch = fullJoinedText.match(r);
-    if (qtyMatch) break;
+    const match = sanitizedQtyText.match(r);
+    if (match) {
+      qtyMatch = match;
+      if (r === netQtyRegexList[2]) {
+        detectedUnit = 'Pages / Units';
+      } else if (r === netQtyRegexList[1]) {
+        const u = (match[2] || '').toLowerCase();
+        detectedUnit = (u === 'n' || u === 'nn') ? 'N' : (match[2] || 'Units');
+      } else {
+        detectedUnit = match[2] || 'Units';
+      }
+      break;
+    }
   }
 
   if (qtyMatch) {
     extractedMetadata.net_quantity = qtyMatch[1];
-    extractedMetadata.unit_of_measure = qtyMatch[2];
+    extractedMetadata.unit_of_measure = detectedUnit;
     
     if (!hasProhibitedUnits) {
       rulesBreakdown.rule_11_12_net_quantity = true;
+      const evParts = [`Net Quantity: ${extractedMetadata.net_quantity} ${extractedMetadata.unit_of_measure}`];
+      if (extractedMetadata.dimensions) {
+        evParts.push(`Dimensions: ${extractedMetadata.dimensions}`);
+      }
       passedChecks.push({
         rule_id: 'RULE_11_12',
         rule_name: 'Rule 11 & 12 - Standard Net Quantity in SI Metric Units',
         legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
         description: 'Net quantity declared in approved statutory SI metric units.',
-        evidence: `Net Quantity: ${extractedMetadata.net_quantity} ${extractedMetadata.unit_of_measure}`
+        evidence: evParts.join(' | ')
       });
     }
+  } else if (!hasProhibitedUnits && extractedMetadata.dimensions) {
+    // If explicit dimensions are declared (e.g. Size: 20x28cm)
+    rulesBreakdown.rule_11_12_net_quantity = true;
+    passedChecks.push({
+      rule_id: 'RULE_11_12',
+      rule_name: 'Rule 11 & 12 - Standard Dimensions Declared',
+      legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
+      description: 'Physical dimensions declared in approved metric units.',
+      evidence: `Dimensions: ${extractedMetadata.dimensions}`
+    });
   } else if (!hasProhibitedUnits) {
     violations.push({
       rule_id: 'RULE_11_12_MISSING_QTY',
@@ -699,7 +747,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
       legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(b) & Rule 11',
       description: 'Net Quantity / Count declaration is not detected on the Principal Display Panel.',
       found_text: 'None detected',
-      remediation: "Declare Net Quantity in SI metric units (e.g. 'Net Qty: 500 g' or 'Net Vol: 200 ml')."
+      remediation: "Declare Net Quantity in SI metric units (e.g. 'Net Qty: 500 g' or 'Pages: 428' or 'Net Vol: 200 ml')."
     });
   }
 

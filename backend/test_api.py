@@ -173,6 +173,28 @@ def test_api_recent_audit_detail_and_delete():
     assert del_res.json()["success"] is True
     print(f"  --> DELETE /api/recent-audits/{temp_audit_id}: OK")
 
+
+def test_api_analyze_fmcg_specimen():
+    # Create test package image
+    img = Image.new("RGB", (600, 400), color=(255, 255, 255))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+
+    response = client.post(
+        "/api/v1/analyze-fmcg-specimen",
+        files={"image": ("maggi_packet.jpg", buf, "image/jpeg")}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "mrp" in data
+    assert "has_tax_suffix" in data
+    assert "net_quantity" in data
+    assert "mfg_date" in data
+    assert "violations" in data
+    print("  --> /api/v1/analyze-fmcg-specimen (4-Phase FMCG Engine): OK")
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("RUNNING FASTAPI BACKEND INTEGRATION TESTS")
@@ -189,6 +211,7 @@ if __name__ == "__main__":
     test_api_audit_image_upload()
     test_api_verify_and_re_audit()
     test_api_recent_audit_detail_and_delete()
+    test_api_analyze_fmcg_specimen()
     print("=" * 60)
     print("ALL API INTEGRATION TESTS PASSED CLEANLY! [SUCCESS]")
     print("=" * 60)

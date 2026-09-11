@@ -27,7 +27,7 @@ Return STRICT JSON only, with the following exact keys:
 {
   "brand_name": "Brand / Commodity name (e.g. Britannia Good Day, Parachute Hair Oil)",
   "mrp": "Numeric price string without currency symbol (e.g. '40.00' or '250')",
-  "taxes_included": true/false (true if 'Inclusive of all taxes', 'incl. of all taxes', 'सभी करों सहित', 'అన్ని పన్నులతో కలిపి' or equivalent tax suffix is present),
+  "taxes_included": true/false (true if 'Inclusive of all taxes', 'incl. of all taxes', 'Inclusive of GST', 'Incl. of GST', 'सभी करों सहित', 'అన్ని పన్నులతో కలిపి' or equivalent tax suffix is present),
   "net_quantity": "Numeric quantity or count (e.g. '200', '1', '500')",
   "unit_of_measure": "Approved standard SI metric unit (e.g. 'g', 'kg', 'ml', 'l', 'm', 'N', 'Units')",
   "manufacturing_date": "Month and Year of manufacture or packaging (e.g. '02/2026' or 'March 2026')",

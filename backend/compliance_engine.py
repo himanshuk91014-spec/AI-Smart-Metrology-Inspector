@@ -130,9 +130,9 @@ class LegalMetrologyComplianceEngine:
         (r"(?i)\b(?:pin(?:\s*code)?|postal(?:\s*code)?|zip(?:\s*code)?|పిన్\s*కోడ్|पिन\s*कोड)\s*[:=-]?\s*([1-9][0-9]{5})\b", "pincode"),
     ]
 
-    # Rule 6(1)(da): Statutory Tax Suffix Patterns (English + Regional Indian Languages)
+    # Rule 6(1)(da): Statutory Tax Suffix Patterns (English + Regional Indian Languages + GST)
     TAX_SUFFIX_PATTERNS = [
-        # Full Statutory Clauses - English
+        # Full Statutory Clauses - English (All Taxes & Taxes)
         r"inclusive\s*of\s*all\s*taxes",
         r"incl?\.?\s*of\s*all\s*taxes",
         r"inc[l1i]?\.?\s*(?:of\s*)?all\s*taxes",
@@ -149,43 +149,65 @@ class LegalMetrologyComplianceEngine:
         r"incl\.?\s*of\s*tax(?:es)?",
         r"inclusive\s*of\s*tax(?:es)?",
         r"inclusive\s*taxes",
+        r"inclusive\s*tax",
         r"incl\.?\s*of\s*all\s*taxes\.?",
         r"inc\s*of\s*all\s*taxes",
         r"inc\.?\s*of\s*all\s*taxes",
+        # Full Statutory Clauses - English (GST & Duties & VAT)
+        r"inclusive\s*of\s*gst",
+        r"incl?\.?\s*of\s*gst",
+        r"inc[l1i]?\.?\s*(?:of\s*)?gst",
+        r"incl?\.?\s*gst",
+        r"inclusive\s*gst",
+        r"gst\s*incl?\.?",
+        r"gst\s*included",
+        r"gst\s*inclusive",
+        r"including\s*gst",
+        r"inc\s*of\s*gst",
+        r"inc\.?\s*of\s*gst",
+        r"inclusive\s*of\s*all\s*gst",
+        r"incl?\.?\s*of\s*all\s*gst",
+        r"inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*duties",
+        r"inclusive\s*of\s*all\s*duties\s*(?:&|and)\s*taxes",
+        r"inclusive\s*of\s*vat",
+        r"incl?\.?\s*of\s*vat",
+        r"vat\s*included",
+        r"vat\s*incl?\.?",
         # Curvature & Label Edge Truncation Partial Matches
         r"inclusive\s*of\s*all\s*tax?",
-        r"inclusive\s*of\s*al\b",
-        r"inclusive\s*of\b",
         r"incl?\.?\s*of\s*all\s*tax?",
-        r"incl?\.?\s*of\s*all\b",
-        r"incl?\.?\s*of\s*al\b",
         r"incl?\.?\s*all\s*tax?",
-        r"all\s*taxes\s*inc?",
-        r"all\s*tax\s*inc?",
+        r"all\s*taxes\s*inc\b",
+        r"all\s*tax\s*inc\b",
         r"taxes\s*inc\b",
         r"tax\s*incl?\b",
-        r"inc[l1i]?\.?\s*of\s*all",
-        r"inc[l1i]?\.?\s*all\s*tax",
+        r"inc[l1i]?\.?\s*all\s*tax?",
+        r"inc[l1i]?\.?\s*of\s*all\s*tax?",
+        r"inc[l1i]?\.?\s*of\s*gst",
+        r"inc[l1i]?\.?\s*gst",
         # Multilingual Regional Statutory Phrases
         # Hindi / Devanagari
         r"सभी\s*करों?\s*सहित", r"करों?\s*सहित", r"सब\s*टैक्स\s*सहित", r"सर्व\s*करांसह", r"सर्व\s*कर\s*समाविष्ट",
+        r"जीएसटी\s*सहित", r"जी\.?एस\.?टी\.?\s*सहित", r"जीएसटी\s*शामिल", r"जी\.?एस\.?टी\.?\s*शामिल",
+        # Marathi
+        r"जीएसटी\s*करांसह", r"जीएसटी\s*समाविष्ट",
         # Telugu
         r"అన్ని\s*పన్నులతో\s*కలిపి", r"అన్ని\s*పన్నులు\s*కలుపుకొని", r"పన్నులు\s*సహా", r"పన్నులతో\s*కలిపి",
-        r"అన్ని\s*పన్నులు\s*సహా", r"పన్నులతో\s*సహా",
+        r"అన్ని\s*పన్నులు\s*సహా", r"పన్నులతో\s*సహా", r"జీఎస్టీ\s*సహా", r"జీఎస్టీతో\s*కలిపి", r"జీఎస్టీ\s*కలుపుకొని",
         # Bengali
-        r"সমস্ত\s*কর\s*সহ", r"সমস্ত\s*কর\s*অন্তর্ভুক্ত", r"সব\s*ট্যাক্স\s*সহ",
+        r"সমস্ত\s*কর\s*সহ", r"সমস্ত\s*কর\s*অন্তর্ভুক্ত", r"সব\s*ট্যাক্স\s*সহ", r"জিএসটি\s*সহ", r"জিএসটি\s*অন্তর্ভুক্ত",
         # Punjabi
-        r"ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ", r"ਸਾਰੇ\s*ਟੈਕਸ\s*ਸ਼ਾਮਲ",
+        r"ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ", r"ਸਾਰੇ\s*ਟੈਕਸ\s*ਸ਼ਾਮਲ", r"ਜੀਐਸਟੀ\s*ਸਮੇਤ", r"ਜੀਐਸਟੀ\s*ਸ਼ਾਮਲ",
         # Urdu
-        r"تمام\s*ٹیکسز?\s*سمیت", r"تمام\s*ٹیکس\s*شامل",
+        r"تمام\s*ٹیکسز?\s*سمیت", r"تمام\s*ٹیکس\s*شامل", r"جی\s*ایس\s*ٹی\s*سمیت", r"جی\s*ایس\s*ٹی\s*شامل",
         # Tamil
-        r"அனைத்து\s*வரிகளும்\s*உட்பட", r"வரிகள்\s*உட்பட",
+        r"அனைத்து\s*வரிகளும்\s*உட்பட", r"வரிகள்\s*உட்பட", r"ஜிஎஸ்டி\s*உட்பட",
         # Gujarati
-        r"તમામ\s*કર\s*સહિત", r"બધા\s*કર\s*સહિત",
+        r"તમામ\s*કર\s*સહિત", r"બધા\s*કર\s*સહિત", r"જીએસટી\s*સહિત",
         # Kannada
-        r"ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ", r"ತೆರಿಗೆ\s*ಸಹಿತ",
+        r"ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ", r"ತೆರಿಗೆ\s*ಸಹಿತ", r"ಜಿಎಸ್‌ಟಿ\s*ಸೇರಿವೆ", r"ಜಿಎಸ್‌ಟಿ\s*ಸಹಿತ",
         # Malayalam
-        r"എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ"
+        r"എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ", r"ജിഎസ്ടി\s*ഉൾപ്പെടെ"
     ]
 
     # Rule 6(1)(g): Consumer Care Keywords in English & Regional Languages
@@ -376,13 +398,18 @@ class LegalMetrologyComplianceEngine:
         """
         t = raw_text
 
-        # 0. De-space broken keywords & abbreviations (Dot-matrix & curvature resilience)
+        # 0. De-space broken keywords & abbreviations (Dot-matrix, OCR font error & curvature resilience)
         t = re.sub(r'(?i)\bM\s*\.?\s*R\s*\.?\s*P\s*\.?', 'MRP', t)
         t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E', 'MAX RETAIL PRICE', t)
         t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L', 'MAX RETAIL', t)
         t = re.sub(r'(?i)\bR\s*\.?\s*s\s*\.?', 'Rs.', t)
-        t = re.sub(r'(?i)\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b', 'INCL. OF ALL TAXES', t)
-        t = re.sub(r'(?i)\bI\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b', 'INCL. OF TAXES', t)
+        t = re.sub(r'(?i)\bG\s*\.?\s*S\s*\.?\s*T\s*\.?\b', 'GST', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b', 'INCLUSIVE OF ALL TAXES', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?A\s*L\s*L\s*T\s*A\s*X\s*E\s*S\b', 'INCL. OF ALL TAXES', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?G\s*S\s*T\b', 'INCLUSIVE OF GST', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?G\s*S\s*T\b', 'INCL. OF GST', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*U\s*S\s*I\s*V\s*E\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b', 'INCLUSIVE OF TAXES', t)
+        t = re.sub(r'(?i)\b[il1|!]?\s*N\s*C\s*L\s*\.?\s*(?:O\s*F\s*)?T\s*A\s*X\s*E\s*S\b', 'INCL. OF TAXES', t)
         t = re.sub(r'(?i)\bN\s*E\s*T\s*Q\s*T\s*Y\b', 'NET QTY', t)
         t = re.sub(r'(?i)\bN\s*E\s*T\s*W\s*T\b', 'NET WT', t)
         t = re.sub(r'(?i)\bN\s*E\s*T\s*V\s*O\s*L\b', 'NET VOL', t)
@@ -393,12 +420,14 @@ class LegalMetrologyComplianceEngine:
         t = re.sub(r'(?i)\bU\s*S\s*P\b', 'USP', t)
 
         # 0.1 Stitch spaced numbers & currency dashes: '1 2 0 . 0 0' -> '120.00', '2 5 0 . 0 0' -> '250.00'
+        # Handle MRP Rs. 110 00 -> 110.00 (preserve paise)
+        t = re.sub(r'(?i)(mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)\s+(00|\d{2})\b', r'\1 \2.\3', t)
         t = re.sub(r'(\d)\s*\.\s*(\d)\s*(\d)', r'\1.\2\3', t)
         t = re.sub(r'(\d)\s*\.\s*(\d{2})\b', r'\1.\2', t)
         t = re.sub(r'(\d+)\s*\.\s*(\d{2})\b', r'\1.\2', t)
         t = re.sub(r'(\d+)\s*\/\s*[\-]\b', r'\1/-', t)
-        for _ in range(4):
-            t = re.sub(r'\b(\d+)\s+(\d)\b', r'\1\2', t)
+        for _ in range(3):
+            t = re.sub(r'\b(\d{1,4})\s+(\d{1,2})\b', r'\1\2', t)
 
         # 1. Stitch fragmented emails
         t = re.sub(r'([a-zA-Z0-9._%+-]+)\s*@\s*([a-zA-Z0-9.-]+)\s*\.\s*([a-zA-Z]{2,})', r'\1@\2.\3', t)
@@ -950,17 +979,25 @@ class LegalMetrologyComplianceEngine:
 
         # 1. Broad Tax Suffix Detection
         has_tax_suffix = bool(self.tax_suffix_regex.search(full_text)) or bool(
-            re.search(r"inc[l1i]?(?:of)?all(?:tax|ta|taxes)?|alltax(?:es)?inc|inc[l1i]?(?:of)?tax(?:es)?|alltax(?:es)?", normalized_condensed)
+            re.search(r"(?:[il1|!]nc[l1i]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!]nc[l1i]?|tax(?:es)?[il1|!]nc[l1i]?|tax(?:es)?included|gstincluded|gst[il1|!]nc[l1i]?)", normalized_condensed)
         )
 
         has_mrp_keyword = bool(
             re.search(r"\b(m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત|ಬೆಲೆ|വില)\b", full_text, flags=re.IGNORECASE)
         )
 
+        # Slogan & Marketing Artifact Cleansing (e.g. "2-Minute", "20% Extra", "Buy 1 Get 1")
+        slogan_cleansed_text = re.sub(
+            r"(?i)\b(?:\d+[\s-]*(?:min(?:ute)?s?|sec(?:ond)?s?|hrs?|hours?)|(?:buy\s*\d+\s*get\s*\d+)|\d+%\s*(?:extra|off|more|free)|(?:pack\s*of\s*\d+))\b",
+            " ",
+            full_text
+        )
+        slogan_cleansed_text = re.sub(r"[₹`~|\\;!#]+", " ", slogan_cleansed_text)
+
         # 2. Hierarchical Multi-Stage MRP Extraction
         # Stage A: Explicit MRP keyword with optional embedded tax clause or currency symbol, followed by price
         p_explicit = re.compile(
-            r"(?i)\b(?:m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर)[^)]*\)|incl\.?\s*(?:of\s*)?all\s*taxes|incl\.?\s*tax(?:es)?))?",
+            r"(?i)\b(?:m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*মূল্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત)\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर|gst|vat)[^)]*\)|incl\.?\s*(?:of\s*)?(?:all\s*)?taxes|incl\.?\s*(?:of\s*)?gst|incl\.?\s*tax(?:es)?)?\s*[:=-]*\s*(?:rs\.?|₹|inr|re\.?|रु\.?|రూ\.?|টাকা|ਰੁ\.?|روپے)?\s*[:=-]*\s*(\d+(?:,\d+)*(?:\.\d{1,2})?|\d+)\s*(?:\/\-|\/|per\s+\w+)?(?:\s*(?:\([^)]*(?:tax|taxe|taxes|incl|all|सब|कर|gst|vat)[^)]*\)|incl\.?\s*(?:of\s*)?(?:all\s*)?taxes|incl\.?\s*(?:of\s*)?gst|incl\.?\s*tax(?:es)?))?",
             re.IGNORECASE
         )
         match_explicit = p_explicit.search(full_text)
@@ -1040,9 +1077,9 @@ class LegalMetrologyComplianceEngine:
                 "rule_name": "Rule 6(1)(da) - Statutory Tax Inclusion Suffix",
                 "severity": "HIGH",
                 "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
-                "description": "MRP is stated without the mandatory statutory phrase 'Inclusive of all taxes' or 'Incl. of all taxes'.",
+                "description": "MRP is stated without the mandatory statutory phrase ('Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST').",
                 "found_text": f"MRP: {found_mrp or 'Detected'} (Missing Tax Suffix)",
-                "remediation": "Append the mandatory statutory text 'Inclusive of all taxes' or 'Incl. of all taxes' immediately adjacent to the price."
+                "remediation": "Append the mandatory statutory text 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to the price."
             })
             return {"passed": False, "violations": violations, "data": {"mrp": found_mrp, "taxes_included": False}}
 
@@ -1053,7 +1090,7 @@ class LegalMetrologyComplianceEngine:
                 "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
                 "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
                 "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
-                "evidence": f"Found MRP: ₹ {found_mrp or 'Declared'} with confirmed statutory tax suffix."
+                "evidence": f"Found MRP: ₹ {found_mrp or 'Declared'} with confirmed statutory tax / GST inclusion suffix."
             },
             "data": {"mrp": found_mrp, "taxes_included": True}
         }
@@ -1144,10 +1181,15 @@ class LegalMetrologyComplianceEngine:
         detected_qty_val = None
         detected_dimensions = None
 
+        # Decontaminate Dates from sanitized text before metric unit scanning to eliminate false matches (e.g. 11/26 -> 26 L)
+        date_decontaminated_text = re.sub(r"\b(0[1-9]|1[0-2])[\/\.-](20\d{2}|\d{2})\b", " [DATE_STRIPPED] ", sanitized_text)
+        date_decontaminated_text = re.sub(r"\b(0[1-9]|[12][0-9]|3[01])[\/\.-](0[1-9]|1[0-2])[\/\.-](20\d{2}|\d{2})\b", " [DATE_STRIPPED] ", date_decontaminated_text)
+        date_decontaminated_lower = date_decontaminated_text.lower()
+
         # Check for Dimensions (e.g. Size: 20 x 28 cm, 140 mm x 10 mm)
         size_match = re.search(
             r"(?:size|dimensions?|dim)[\s.:=-]*(\d+(?:\.\d+)?\s*(?:x|×)\s*\d+(?:\.\d+)?(?:\s*(?:x|×)\s*\d+(?:\.\d+)?)?\s*(?:cm|mm|m)?)",
-            full_text_lower
+            date_decontaminated_lower
         )
         if size_match:
             detected_dimensions = size_match.group(1).strip()
@@ -1155,39 +1197,48 @@ class LegalMetrologyComplianceEngine:
         # Check for Tip Size / Writing Instrument Dimensions (e.g. 0.5 mm tip, 1.0 mm)
         tip_match = re.search(
             r"(\d+(?:\.\d+)?\s*mm)\s*(?:tip|ball\s*tip|gel\s*tip|point|nib|line\s*width)?",
-            full_text_lower
+            date_decontaminated_lower
         )
         if tip_match and not detected_dimensions:
             detected_dimensions = f"Tip Size: {tip_match.group(1).strip()}"
 
-        # Check for Stationery / Paper Pages & Sheets (e.g. 428 Pages, 160 Sheets)
-        pages_match = re.search(
-            r"(?:pages?|sheets?|leaves|nos?|count)[\s.:=-]*(\d+)",
-            full_text_lower
-        )
-        if pages_match:
-            detected_qty_val = pages_match.group(1).strip()
-            detected_metric_unit = "Pages / Units"
+        # Clean catalog numbers (e.g. ART NO. 3458, ITEM CODE 901) before quantity extraction
+        qty_scan_text = re.sub(r"(?i)\b(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?)\s*[:=-]*\s*\w+", " [CATALOG_CODE_STRIPPED] ", date_decontaminated_lower)
 
-        # Check for Stationery / Pens / Writing Instruments count (e.g. 1 N, 2 N, 1 Pen, 5 Pens, 1 Pc)
+        # 1. Check for Explicit Count / Writing Instruments / Net Qty (e.g. Net Qty: 1 N, 1 Pen, 5 Pens, 1 Pc)
         pen_qty_match = re.search(
-            r"(?:(?:net\s*(?:qty|quantity|content|wt|weight)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(n|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b",
-            full_text_lower
+            r"(?:(?:net\s*(?:qty|quantity|content|wt|weight)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b",
+            qty_scan_text
         )
-        if pen_qty_match and not detected_qty_val:
+        if pen_qty_match:
             detected_qty_val = pen_qty_match.group(1).strip()
-            detected_metric_unit = pen_qty_match.group(2).strip().upper()
+            unit_raw = pen_qty_match.group(2).strip().lower()
+            detected_metric_unit = "N" if unit_raw in ["n", "nn"] else unit_raw.upper()
 
-        # Check for Liquid Volume / Weight with Curvature Partial Tolerance (e.g. '200 ml', '500ml', '100g', '250 gm')
+        # 2. Check for Stationery / Paper Pages & Sheets (e.g. Pages: 428, 80 Pages, Total Pages: 80, 160 Sheets)
+        if not detected_qty_val:
+            pages_match = re.search(
+                r"(?:total\s*(?:pages?|sheets?|leaves)|no\.?\s*of\s*(?:pages?|sheets?|leaves)|pages?|sheets?|leaves)\s*[:=-]*\s*(\d+)",
+                qty_scan_text
+            )
+            if pages_match:
+                detected_qty_val = pages_match.group(1).strip()
+                detected_metric_unit = "Pages / Units"
+
+        # 3. Check for Liquid Volume / Weight with Curvature Partial Tolerance (e.g. '200 ml', '500ml', '100g', '250 gm')
         if not detected_qty_val:
             cylinder_metric_pattern = re.compile(
-                r"(?:(?:net\s*(?:qty|quantity|content|wt|weight|vol|volume|cont|w|v)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(ml|mls|millilitre|millilitres|l|ltr|ltrs|litre|litres|g|gm|gms|gram|grams|kg|kgs|kilogram|n|units?|pcs?|pieces?|tab|tablet|tablets|cap|capsule|capsules))\b",
+                r"(?:(?:net\s*(?:qty|quantity|content|wt|weight|vol|volume|cont|w|v)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(ml|mls|millilitre|millilitres|l|ltr|ltrs|litre|litres|g|gm|gms|gram|grams|kg|kgs|kilogram|nn?|units?|pcs?|pieces?|tab|tablet|tablets|cap|capsule|capsules))\b",
                 re.IGNORECASE
             )
-            for match in cylinder_metric_pattern.finditer(sanitized_text):
+            for match in cylinder_metric_pattern.finditer(date_decontaminated_text):
                 val = match.group(1)
                 unit_candidate = match.group(2).strip().lower().rstrip(".,")
-                if unit_candidate in self.APPROVED_METRIC_UNITS:
+                if unit_candidate in ["n", "nn"]:
+                    detected_qty_val = val
+                    detected_metric_unit = "N"
+                    break
+                elif unit_candidate in self.APPROVED_METRIC_UNITS:
                     detected_qty_val = val
                     detected_metric_unit = unit_candidate
                     break

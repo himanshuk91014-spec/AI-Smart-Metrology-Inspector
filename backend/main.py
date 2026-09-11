@@ -21,6 +21,7 @@ import numpy as np
 import cv2
 
 from compliance_engine import LegalMetrologyComplianceEngine
+from fmcg_metrology_pipeline import FMCGMetrologyAuditor
 from vlm_engine import vlm_pipeline
 from db_manager import db_manager, DATA_DIR, THUMBNAILS_DIR
 
@@ -612,6 +613,46 @@ async def analyze_package(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred during compliance analysis: {str(exc)}"
+        )
+
+
+fmcg_auditor = None
+
+def get_fmcg_auditor():
+    global fmcg_auditor
+    if fmcg_auditor is None:
+        fmcg_auditor = FMCGMetrologyAuditor()
+    return fmcg_auditor
+
+
+@app.post("/api/v1/analyze-fmcg-specimen")
+async def analyze_fmcg_specimen(
+    image: UploadFile = File(..., description="FMCG package photograph (e.g. Maggi packet, plastic wrapper)")
+):
+    """
+    Specialized 4-Phase FMCG Legal Metrology Compliance Pipeline:
+    - Phase 1: Glare Reduction (CLAHE), Deskewing (minAreaRect), Unsharp Masking
+    - Phase 2: PaddleOCR / RapidOCR Extraction & Spatial Line Clustering (Delta Y <= 20px)
+    - Phase 3: Slogan Cleansing ('2-Minute'), Date De-contamination, Multiline Cross-Row Tax Linking
+    - Phase 4: Output schema: mrp, has_tax_suffix, net_quantity, mfg_date, violations
+    """
+    try:
+        if not image or not image.filename:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No image uploaded for FMCG packaging analysis."
+            )
+        image_bytes = await image.read()
+        auditor = get_fmcg_auditor()
+        result = auditor.audit_fmcg_package(image_bytes)
+        return JSONResponse(status_code=status.HTTP_200_OK, content=result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Error in FMCG pipeline: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"FMCG Metrology Pipeline error: {str(e)}"
         )
 
 

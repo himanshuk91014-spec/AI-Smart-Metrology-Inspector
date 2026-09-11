@@ -24,7 +24,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [1/3] Verifying Backend Compliance Engine Unit Tests & MongoDB Atlas / CSV Sync...
+echo [1/3] Verifying Backend Compliance Engine Unit Tests + MongoDB Atlas / CSV Sync...
 cd /d "%~dp0backend"
 python test_engine.py
 if %errorlevel% neq 0 (
@@ -33,18 +33,18 @@ if %errorlevel% neq 0 (
 
 echo.
 echo [2/3] Starting FastAPI Backend on http://localhost:8000...
-start "Legal Metrology Backend (FastAPI + MongoDB/CSV)" cmd /k "cd /d %~dp0backend && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+start "Legal Metrology Backend (FastAPI + MongoDB/CSV)" cmd /k "cd /d \"%~dp0backend\" && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
 
 echo.
 echo [3/3] Starting React Frontend on http://localhost:5173...
-start "Legal Metrology Frontend (React + Vite + Tesseract.js)" cmd /k "cd /d %~dp0frontend && npm run dev"
+start "Legal Metrology Frontend (React + Vite + Tesseract.js)" cmd /k "cd /d \"%~dp0frontend\" && npm.cmd run dev"
 
 echo.
 echo ===============================================================================
 echo  SYSTEM SERVICES LAUNCHED SUCCESSFULLY!
-echo  - Backend API & Swagger Docs: http://localhost:8000/docs
+echo  - Backend API + Swagger Docs: http://localhost:8000/docs
 echo  - Frontend Compliance Dashboard: http://localhost:5173
-echo  - Live Rear Camera, Tesseract.js Edge OCR & MongoDB Atlas Sync: READY
+echo  - Live Rear Camera, Tesseract.js Edge OCR + MongoDB Atlas Sync: READY
 echo ===============================================================================
 echo.
 pause

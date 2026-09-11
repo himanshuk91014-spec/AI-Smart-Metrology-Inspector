@@ -46,6 +46,20 @@ pens,Pens,Stationery,TRUE,Rule 11/12 PCR 2011
 pen,Pen,Stationery,TRUE,Rule 11/12 PCR 2011
 tablets,Tablets,Pharma,TRUE,Rule 11/12 PCR 2011
 capsules,Capsules,Pharma,TRUE,Rule 11/12 PCR 2011
+pages,Pages,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+page,Page,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+sheets,Sheets,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+sheet,Sheet,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+leaves,Leaves,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+leaf,Leaf,Paper/Stationery,TRUE,Rule 11/12 PCR 2011
+notebooks,Notebooks,Stationery,TRUE,Rule 11/12 PCR 2011
+notebook,Notebook,Stationery,TRUE,Rule 11/12 PCR 2011
+pencils,Pencils,Stationery,TRUE,Rule 11/12 PCR 2011
+pencil,Pencil,Stationery,TRUE,Rule 11/12 PCR 2011
+refills,Refills,Stationery,TRUE,Rule 11/12 PCR 2011
+refill,Refill,Stationery,TRUE,Rule 11/12 PCR 2011
+rolls,Rolls,Paper,TRUE,Rule 11/12 PCR 2011
+roll,Roll,Paper,TRUE,Rule 11/12 PCR 2011
 ग्राम,Gram,Devanagari Mass,TRUE,Rule 11/12 PCR 2011
 किग्रा,Kilogram,Devanagari Mass,TRUE,Rule 11/12 PCR 2011
 मिली,Millilitre,Devanagari Volume,TRUE,Rule 11/12 PCR 2011

@@ -5,27 +5,87 @@ incl of all taxes,en,TRUE
 inclusive all taxes,en,TRUE
 all taxes included,en,TRUE
 all taxes incl,en,TRUE
+all taxes incl.,en,TRUE
 taxes included,en,TRUE
 taxes incl,en,TRUE
+taxes incl.,en,TRUE
 incl tax,en,TRUE
 incl taxes,en,TRUE
+incl. tax,en,TRUE
+incl. taxes,en,TRUE
 inclusive of all tax,en,TRUE
 incl. of all tax,en,TRUE
+incl of all tax,en,TRUE
+inclusive of taxes,en,TRUE
+incl. of taxes,en,TRUE
+incl of taxes,en,TRUE
+inclusive of tax,en,TRUE
+incl. of tax,en,TRUE
+incl of tax,en,TRUE
+inclusive taxes,en,TRUE
+inclusive tax,en,TRUE
+inc of all taxes,en,TRUE
+inc. of all taxes,en,TRUE
+inclusive of gst,en,TRUE
+incl. of gst,en,TRUE
+incl of gst,en,TRUE
+inclusive gst,en,TRUE
+inclusive of all gst,en,TRUE
+incl. gst,en,TRUE
+incl gst,en,TRUE
+gst included,en,TRUE
+gst incl,en,TRUE
+gst incl.,en,TRUE
+gst inclusive,en,TRUE
+including gst,en,TRUE
+inc of gst,en,TRUE
+inc. of gst,en,TRUE
+inclusive of all taxes & duties,en,TRUE
+inclusive of all duties and taxes,en,TRUE
+inclusive of vat,en,TRUE
+incl. of vat,en,TRUE
+incl of vat,en,TRUE
+vat included,en,TRUE
+vat incl,en,TRUE
+vat incl.,en,TRUE
 सभी करों सहित,hi,TRUE
 करों सहित,hi,TRUE
 सब टैक्स सहित,hi,TRUE
+जीएसटी सहित,hi,TRUE
+जी.एस.टी. सहित,hi,TRUE
+जीएसटी शामिल,hi,TRUE
 सर्व करांसह,mr,TRUE
 सर्व कर समाविष्ट,mr,TRUE
+जीएसटी करांसह,mr,TRUE
+जीएसटी समाविष्ट,mr,TRUE
 అన్ని పన్నులతో కలిపి,te,TRUE
 అన్ని పన్నులు కలుపుకొని,te,TRUE
 పన్నులు సహా,te,TRUE
+జీఎస్టీ సహా,te,TRUE
+జీఎస్టీతో కలిపి,te,TRUE
+జీఎస్టీ కలుపుకొని,te,TRUE
 সমস্ত কর সহ,bn,TRUE
-সব ট্যাক্স সহ,bn,TRUE
+সব टैक्स সহ,bn,TRUE
+জিএসটি সহ,bn,TRUE
+সমস্ত কর অন্তর্ভুক্ত,bn,TRUE
+জিএসটি অন্তর্ভুক্ত,bn,TRUE
 ਸਾਰੇ ਟੈਕਸਾਂ ਸਮੇਤ,pa,TRUE
 ਸਾਰੇ ਟੈਕਸ ਸ਼ਾਮਲ,pa,TRUE
+ਜੀਐਸਟੀ ਸਮੇਤ,pa,TRUE
+ਜੀਐਸਟੀ ਸ਼ਾਮਲ,pa,TRUE
 تمام ٹیکسز سمیت,ur,TRUE
 تمام ٹیکس شامل,ur,TRUE
+جی ایس ٹی سمیت,ur,TRUE
+جی ایس ٹی شامل,ur,TRUE
 அனைத்து வரிகளும் உட்பட,ta,TRUE
+வரிகள் உட்பட,ta,TRUE
+ஜிஎஸ்டி உட்பட,ta,TRUE
 તમામ કર સહિત,gu,TRUE
+બધા કર સહિત,gu,TRUE
+જીએસટી સહિત,gu,TRUE
 ಎಲ್ಲಾ ತೆರಿಗೆಗಳು ಸೇರಿವೆ,kn,TRUE
+ತೆರಿಗೆ ಸಹಿತ,kn,TRUE
+ಜಿಎಸ್‌ಟಿ ಸೇರಿವೆ,kn,TRUE
+ಜಿಎಸ್‌ಟಿ ಸಹಿತ,kn,TRUE
 എല്ലാ നികുതികളും ഉൾപ്പെടെ,ml,TRUE
+ജിഎസ്ടി ഉൾപ്പെടെ,ml,TRUE

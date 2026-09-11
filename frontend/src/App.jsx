@@ -1128,10 +1128,25 @@ export default function App() {
         }
       });
 
-      setClientOcrProgress({ percent: 30, message: 'Processing Multi-Angle Image with AI Engine...' });
+      setClientOcrProgress({ percent: 25, message: 'Uploading Specimen to RapidOCR Multilingual Engine...' });
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+      // Progressive interval messaging
+      const progressTimer = setInterval(() => {
+        setClientOcrProgress((prev) => {
+          if (prev.percent < 85) {
+            return {
+              percent: prev.percent + 15,
+              message: prev.percent < 50
+                ? 'RapidOCR / PaddleOCR Multi-Angle Text Extraction in progress...'
+                : 'Evaluating PCR 2011 Legal Metrology Rules & Tax Clauses...'
+            };
+          }
+          return prev;
+        });
+      }, 1200);
 
       const response = await fetch(
         `${baseUrl}/api/audit/image?ocr_lang=${encodeURIComponent(
@@ -1143,6 +1158,7 @@ export default function App() {
           signal: controller.signal
         }
       );
+      clearInterval(progressTimer);
       clearTimeout(timeoutId);
 
       if (!response.ok) {
@@ -1150,6 +1166,7 @@ export default function App() {
       }
 
       const result = await response.json();
+      setClientOcrProgress({ percent: 100, message: 'Compliance Audit Completed!' });
       setAuditResult(result);
       saveAuditToHistory(result);
       setActiveTab(result.violations && result.violations.length > 0 ? 'violations' : 'passed');
@@ -2737,17 +2754,29 @@ export default function App() {
                     isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-blue-50/50 border-blue-200'
                   }`}
                 >
-                  <h5 className="text-xs font-extrabold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-                    <Award className="h-4 w-4" />
-                    Regulatory Inspector Attestation & Credentials
-                  </h5>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h5 className="text-xs font-extrabold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                      <Award className="h-4 w-4" />
+                      Regulatory Inspector Attestation & Credentials
+                    </h5>
+                    <button
+                      type="button"
+                      onClick={handleQuickAttestAllCompliant}
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-extrabold text-[11px] border border-emerald-300 dark:border-emerald-800 flex items-center gap-1.5 transition-all active:scale-95"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                      ⚡ Quick Attest 100% Compliant
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="text-xs font-bold block mb-1">Officer Name:</label>
                       <input
                         type="text"
-                        value={inspectorForm.inspectorName}
-                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectorName: e.target.value })}
+                        value={verificationForm.inspector_name}
+                        onChange={(e) => setVerificationForm({ ...verificationForm, inspector_name: e.target.value })}
+                        placeholder="e.g. Authorized Legal Metrology Officer"
                         className={`w-full p-2 rounded-xl border text-xs font-bold ${
                           isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
@@ -2757,8 +2786,9 @@ export default function App() {
                       <label className="text-xs font-bold block mb-1">Inspector ID Badge:</label>
                       <input
                         type="text"
-                        value={inspectorForm.inspectorId}
-                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectorId: e.target.value })}
+                        value={verificationForm.inspector_id}
+                        onChange={(e) => setVerificationForm({ ...verificationForm, inspector_id: e.target.value })}
+                        placeholder="e.g. INSP-2026-DELHI-883"
                         className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
                           isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
@@ -2768,8 +2798,9 @@ export default function App() {
                       <label className="text-xs font-bold block mb-1">Inspection Location / Zone:</label>
                       <input
                         type="text"
-                        value={inspectorForm.inspectionLocation}
-                        onChange={(e) => setInspectorForm({ ...inspectorForm, inspectionLocation: e.target.value })}
+                        value={verificationForm.inspection_location}
+                        onChange={(e) => setVerificationForm({ ...verificationForm, inspection_location: e.target.value })}
+                        placeholder="e.g. Zonal Retail Market Inspection (New Delhi)"
                         className={`w-full p-2 rounded-xl border text-xs font-bold ${
                           isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                         }`}
@@ -2780,9 +2811,9 @@ export default function App() {
                     <label className="text-xs font-bold block mb-1">Inspector Attestation Remarks:</label>
                     <textarea
                       rows={2}
-                      value={inspectorForm.inspectionRemarks}
-                      onChange={(e) => setInspectorForm({ ...inspectorForm, inspectionRemarks: e.target.value })}
-                      placeholder="e.g. Physical specimen inspected at retail store. All statutory declarations verified against original package."
+                      value={verificationForm.inspection_remarks}
+                      onChange={(e) => setVerificationForm({ ...verificationForm, inspection_remarks: e.target.value })}
+                      placeholder="e.g. Physical specimen inspected at retail store. All statutory declarations verified against original package under PCR 2011."
                       className={`w-full p-2.5 rounded-xl border text-xs font-medium ${
                         isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                       }`}
@@ -2790,13 +2821,24 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-2">
+                <div className="flex items-center justify-end flex-wrap gap-3 pt-2">
                   <button
-                    onClick={handleApplyVerificationOverwrite}
-                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg active:scale-95 transition-all flex items-center gap-2"
+                    type="button"
+                    disabled={reAuditing}
+                    onClick={() => handleSaveAndReAudit()}
+                    className="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-lg active:scale-95 transition-all flex items-center gap-2"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
-                    Save & Generate Verified Certificate
+                    {reAuditing ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Reconciling & Verifying...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-4 w-4" />
+                        Save & Generate Verified Certificate
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
