@@ -14,11 +14,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-cd ..
 
 echo.
-echo [2/2] Deploying to Vercel Production...
-call npx.cmd -y vercel deploy --prod
+echo [2/2] Deploying Frontend to Vercel Production...
+call npx.cmd -y vercel --prod --yes
+cd ..
 echo.
 if %errorlevel% equ 0 (
     echo ===============================================================================
