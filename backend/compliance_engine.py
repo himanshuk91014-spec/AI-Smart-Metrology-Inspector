@@ -55,6 +55,40 @@ class PostOCRErrorCorrectionEngine:
                 mrp_val = float(str(raw_mrp_str).replace(",", "").strip())
                 original_mrp_str = str(raw_mrp_str)
 
+                # Rupee symbol '₹' misread as '7' on 3-digit price (e.g. 7790.00 -> 790.00, 7650.00 -> 650.00, 7100.00 -> 100.00, 7290.00 -> 290.00)
+                if 7100.0 <= mrp_val <= 7999.0:
+                    cand = mrp_val - 7000.0
+                    if 100.0 <= cand <= 999.0:
+                        meta["mrp"] = f"{cand:.2f}" if "." in original_mrp_str else str(int(cand))
+                        corrections.append({
+                            "field": "declared_mrp",
+                            "original_ocr": original_mrp_str,
+                            "corrected_value": meta["mrp"],
+                            "reason": "OCR currency symbol artifact ('₹' read as '7') removed to restore true 3-digit retail price"
+                        })
+                # Rupee symbol '₹' misread as '2' on 3-digit price (e.g. 2650.00 -> 650.00, 2790.00 -> 790.00)
+                elif 2100.0 <= mrp_val <= 2999.0 and not any(k in full_lower for k in ["tv", "laptop", "appliance", "refrigerator"]):
+                    cand = mrp_val - 2000.0
+                    if 100.0 <= cand <= 999.0:
+                        meta["mrp"] = f"{cand:.2f}" if "." in original_mrp_str else str(int(cand))
+                        corrections.append({
+                            "field": "declared_mrp",
+                            "original_ocr": original_mrp_str,
+                            "corrected_value": meta["mrp"],
+                            "reason": "OCR currency symbol artifact ('₹' read as '2') removed to restore true 3-digit retail price"
+                        })
+                # Rupee symbol '₹' misread as '7' on 2-digit price (e.g. 714.00 -> 14.00, 725.00 -> 25.00, 790.00 -> 90.00)
+                elif 710.0 <= mrp_val <= 799.0 and (any(k in full_lower for k in ["noodle", "maggi", "notebook", "pages", "sheets", "dal", "biscuit", "soap", "pen", "snack", "masala", "70 g", "400 g", "200 g"])):
+                    cand = mrp_val - 700.0
+                    if 10.0 <= cand <= 95.0:
+                        meta["mrp"] = f"{cand:.2f}" if "." in original_mrp_str else str(int(cand))
+                        corrections.append({
+                            "field": "declared_mrp",
+                            "original_ocr": original_mrp_str,
+                            "corrected_value": meta["mrp"],
+                            "reason": "OCR currency symbol artifact ('₹' read as '7') removed to restore true 2-digit retail price"
+                        })
+
                 # Case A: Notebook / Stationery Commodity Matrix Regression
                 is_notebook = any(k in full_lower or k in brand_lower for k in ["notebook", "book", "pages", "sheets", "nihar", "vardhman", "classmate", "doms", "navneet"])
                 
@@ -571,7 +605,7 @@ class LegalMetrologyComplianceEngine:
         t = raw_text
 
         # 0. De-space broken keywords & abbreviations (Dot-matrix, OCR font error & curvature resilience)
-        t = re.sub(r'(?i)\bM\s*\.?\s*R\s*\.?\s*P\s*\.?', 'MRP', t)
+        t = re.sub(r'(?i)\bM\s*\.?\s*R\s*\.?\s*P\b\.?', 'MRP', t)
         t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E', 'MAX RETAIL PRICE', t)
         t = re.sub(r'(?i)\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L', 'MAX RETAIL', t)
         t = re.sub(r'(?i)\bR\s*\.?\s*s\s*\.?', 'Rs.', t)
@@ -606,6 +640,13 @@ class LegalMetrologyComplianceEngine:
         # 1. Normalize currency glyph noise: '?14.00' -> '₹ 14.00', '*100.00' -> '₹ 100.00'
         t = re.sub(r'(?i)(?:mrp|price)\s*[:=-]*\s*[₹`~|\\;!#*?TzZ]+\s*(\d+(?:[.,·•\'`´’‘\s]\d{2})?)', r'MRP ₹ \1', t)
         t = re.sub(r'[?*`~\\|]\s*(\d+\.\d{2})\b', r'₹ \1', t)
+
+        # 1.1 Disambiguate Rupee symbol '₹' misread as '7' or '2' after MRP:
+        # e.g. "MRP: 7 790.00" -> "MRP ₹ 790.00", "MRP: 7 650.00" -> "MRP ₹ 650.00", "MRP: 7 100.00" -> "MRP ₹ 100.00"
+        t = re.sub(r'(?i)\bMRP\s*[:=-]*\s*[72]\s+(\d{2,4}(?:\.\d{1,2})?)\b', r'MRP ₹ \1', t)
+        # e.g. "MRP: 7790.00" -> "MRP ₹ 790.00", "MRP: 7650.00" -> "MRP ₹ 650.00", "MRP: 7100.00" -> "MRP ₹ 100.00", "MRP: 7290.00" -> "MRP ₹ 290.00"
+        t = re.sub(r'(?i)\bMRP\s*[:=-]*\s*7([1-9]\d{2}(?:\.\d{1,2})?)\b', r'MRP ₹ \1', t)
+        t = re.sub(r'(?i)\bMRP\s*[:=-]*\s*2([1-9]\d{2}(?:\.\d{1,2})?)\b', r'MRP ₹ \1', t)
 
         # 2. Normalize decimal paise across all separators: middle dot (·, •), apostrophe (', `, ´, ’, ‘), comma (,), dash (-), slash (/)
         t = re.sub(r'(\d+)\s*[·•,`\'´’‘]\s*(\d{2})\b', r'\1.\2', t)
@@ -1362,13 +1403,32 @@ class LegalMetrologyComplianceEngine:
         if found_mrp:
             try:
                 mrp_f = float(found_mrp)
-                # 1. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00)
-                if 200.0 <= mrp_f <= 235.0:
+                # 1. Rupee symbol '₹' misread as '7' on 3-digit price (e.g. 7790.00 -> 790.00, 7650.00 -> 650.00, 7100.00 -> 100.00, 7290.00 -> 290.00)
+                if 7100.0 <= mrp_f <= 7999.0:
+                    cand = mrp_f - 7000.0
+                    if 100.0 <= cand <= 999.0:
+                        found_mrp = f"{cand:.2f}"
+                        mrp_f = cand
+                # 2. Rupee symbol '₹' misread as '2' on 3-digit price (e.g. 2650.00 -> 650.00, 2790.00 -> 790.00)
+                elif 2100.0 <= mrp_f <= 2999.0 and not any(k in full_text_lower for k in ["tv", "laptop", "appliance", "refrigerator"]):
+                    cand = mrp_f - 2000.0
+                    if 100.0 <= cand <= 999.0:
+                        found_mrp = f"{cand:.2f}"
+                        mrp_f = cand
+                # 3. Rupee symbol '₹' misread as '7' on 2-digit price (e.g. 714.00 -> 14.00, 725.00 -> 25.00, 790.00 -> 90.00)
+                elif 710.0 <= mrp_f <= 799.0:
+                    cand = mrp_f - 700.0
+                    if 10.0 <= cand <= 95.0 and (any(k in full_text_lower for k in ["noodle", "maggi", "notebook", "pages", "sheets", "dal", "biscuit", "soap", "pen", "snack", "masala", "70 g", "400 g", "200 g"])):
+                        found_mrp = f"{cand:.2f}"
+                        mrp_f = cand
+                # 4. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00)
+                elif 200.0 <= mrp_f <= 235.0:
                     if any(k in full_text_lower for k in ['2-minute', 'noodle', 'maggi', 'masala', '70 g', 'biscuit', 'snack']):
                         cand = mrp_f - 200.0
                         if 5.0 <= cand <= 35.0:
                             found_mrp = f"{cand:.2f}"
-                # 2. Disambiguate 00 paise artifacts e.g. "11000" -> "110.00"
+                            mrp_f = cand
+                # 5. Disambiguate 00 paise artifacts e.g. "11000" -> "110.00"
                 elif mrp_f >= 1000.0 and (found_mrp.endswith("00") or found_mrp.endswith("50")):
                     if any(kw in full_text_lower for kw in ["pages", "sheets", "notebook", "book", "vardhman", "nihar", "pen", "soap", "shampoo"]) or (10.0 <= mrp_f / 100.0 <= 1500.0):
                         found_mrp = f"{mrp_f / 100.0:.2f}"

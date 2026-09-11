@@ -437,7 +437,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   let text = rawText || '';
 
   // 0. Dot-matrix & Curvature De-spacing
-  text = text.replace(/\bM\s*\.?\s*R\s*\.?\s*P\s*\.?/gi, 'MRP');
+  text = text.replace(/\bM\s*\.?\s*R\s*\.?\s*P\b\.?/gi, 'MRP');
   text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E/gi, 'MAX RETAIL PRICE');
   text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L/gi, 'MAX RETAIL');
   text = text.replace(/\bR\s*\.?\s*s\s*\.?/gi, 'Rs.');
@@ -460,6 +460,13 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   // 1. Normalize currency glyph noise: '?14.00' -> '₹ 14.00', '*100.00' -> '₹ 100.00'
   text = text.replace(/(?:mrp|price)\s*[:=-]*\s*[₹`~|\\;!#*?TzZ]+\s*(\d+(?:[.,·•'`´’‘\s]\d{2})?)/gi, 'MRP ₹ $1');
   text = text.replace(/[?*`~\\|]\s*(\d+\.\d{2})\b/g, '₹ $1');
+
+  // 1.1 Disambiguate Rupee symbol '₹' misread as '7' or '2' after MRP:
+  // e.g. "MRP: 7 790.00" -> "MRP ₹ 790.00", "MRP: 7 650.00" -> "MRP ₹ 650.00", "MRP: 7 100.00" -> "MRP ₹ 100.00"
+  text = text.replace(/\bMRP\s*[:=-]*\s*[72]\s+(\d{2,4}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
+  // e.g. "MRP: 7790.00" -> "MRP ₹ 790.00", "MRP: 7650.00" -> "MRP ₹ 650.00", "MRP: 7100.00" -> "MRP ₹ 100.00", "MRP: 7290.00" -> "MRP ₹ 290.00"
+  text = text.replace(/\bMRP\s*[:=-]*\s*7([1-9]\d{2}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
+  text = text.replace(/\bMRP\s*[:=-]*\s*2([1-9]\d{2}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
 
   // 2. Normalize decimal paise across all separators: middle dot (·, •), apostrophe (', `, ´, ’, ‘), comma (,), dash (-), slash (/)
   text = text.replace(/(\d+)\s*[·•,`'´’‘]\s*(\d{2})\b/g, '$1.$2');
@@ -716,18 +723,44 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
 
   if (foundMrpValue) {
     // Intelligent post-processing:
-    // 1. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00)
     let mrpFloat = parseFloat(foundMrpValue);
+    const lowerFull = fullJoinedText.toLowerCase();
+
+    // 1. Rupee symbol '₹' misread as '7' on 3-digit price (e.g. 7790.00 -> 790.00, 7650.00 -> 650.00, 7100.00 -> 100.00, 7290.00 -> 290.00)
+    if (mrpFloat >= 7100 && mrpFloat <= 7999) {
+      const cand = mrpFloat - 7000;
+      if (cand >= 100 && cand <= 999) {
+        foundMrpValue = cand.toFixed(2);
+        mrpFloat = parseFloat(foundMrpValue);
+      }
+    }
+    // 2. Rupee symbol '₹' misread as '2' on 3-digit price (e.g. 2650.00 -> 650.00, 2790.00 -> 790.00)
+    else if (mrpFloat >= 2100 && mrpFloat <= 2999 && !lowerFull.includes('tv') && !lowerFull.includes('laptop') && !lowerFull.includes('appliance')) {
+      const cand = mrpFloat - 2000;
+      if (cand >= 100 && cand <= 999) {
+        foundMrpValue = cand.toFixed(2);
+        mrpFloat = parseFloat(foundMrpValue);
+      }
+    }
+    // 3. Rupee symbol '₹' misread as '7' on 2-digit price (e.g. 714.00 -> 14.00, 725.00 -> 25.00, 745.00 -> 45.00, 750.00 -> 50.00, 790.00 -> 90.00)
+    if (mrpFloat >= 710 && mrpFloat <= 799) {
+      const cand = mrpFloat - 700;
+      if (cand >= 10 && cand <= 95 && (lowerFull.includes('noodle') || lowerFull.includes('maggi') || lowerFull.includes('notebook') || lowerFull.includes('pages') || lowerFull.includes('sheets') || lowerFull.includes('dal') || lowerFull.includes('biscuit') || lowerFull.includes('soap') || lowerFull.includes('pen') || lowerFull.includes('snack') || lowerFull.includes('masala') || lowerFull.includes('70 g') || lowerFull.includes('400 g') || lowerFull.includes('200 g'))) {
+        foundMrpValue = cand.toFixed(2);
+        mrpFloat = parseFloat(foundMrpValue);
+      }
+    }
+    // 4. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00, 225.00 -> 25.00)
     if (mrpFloat >= 200 && mrpFloat <= 235) {
-      const lowerFull = fullJoinedText.toLowerCase();
-      if (lowerFull.includes('2-minute') || lowerFull.includes('noodle') || lowerFull.includes('maggi') || lowerFull.includes('masala') || lowerFull.includes('70 g') || lowerFull.includes('snack') || lowerFull.includes('biscuit')) {
+      if (lowerFull.includes('2-minute') || lowerFull.includes('noodle') || lowerFull.includes('maggi') || lowerFull.includes('masala') || lowerFull.includes('70 g') || lowerFull.includes('snack') || lowerFull.includes('biscuit') || lowerFull.includes('notebook') || lowerFull.includes('pages')) {
         const cand = mrpFloat - 200;
         if (cand >= 5 && cand <= 35) {
           foundMrpValue = cand.toFixed(2);
+          mrpFloat = parseFloat(foundMrpValue);
         }
       }
     }
-    // 2. Disambiguate 00 paise artifacts e.g. "11000" -> "110.00"
+    // 5. Disambiguate 00 paise artifacts e.g. "11000" -> "110.00"
     else if (mrpFloat >= 1000 && (foundMrpValue.endsWith('00') || foundMrpValue.endsWith('50'))) {
       const isNotebookOrFmcg = /pages|sheets|notebook|book|vardhman|nihar|linchpin|pen|soap|shampoo/i.test(fullJoinedText);
       if (isNotebookOrFmcg || (mrpFloat / 100 >= 10 && mrpFloat / 100 <= 1500)) {

@@ -443,6 +443,30 @@ class FMCGDeclarationExtractor:
             if not has_tax_suffix:
                 has_tax_suffix = bool(cls.TAX_SUFFIX_REGEX.search(full_text))
 
+        # Step 4: Post-processing Disambiguation for Rupee symbol '₹' misread as '7' or '2'
+        if found_mrp is not None:
+            # 1. Rupee symbol '₹' misread as '7' on 3-digit price (e.g. 7790.00 -> 790.00, 7650.00 -> 650.00, 7100.00 -> 100.00, 7290.00 -> 290.00)
+            if 7100.0 <= found_mrp <= 7999.0:
+                cand = found_mrp - 7000.0
+                if 100.0 <= cand <= 999.0:
+                    found_mrp = cand
+            # 2. Rupee symbol '₹' misread as '2' on 3-digit price (e.g. 2650.00 -> 650.00, 2790.00 -> 790.00)
+            elif 2100.0 <= found_mrp <= 2999.0 and not any(k in full_text.lower() for k in ["tv", "laptop", "appliance"]):
+                cand = found_mrp - 2000.0
+                if 100.0 <= cand <= 999.0:
+                    found_mrp = cand
+            # 3. Rupee symbol '₹' misread as '7' on 2-digit price (e.g. 714.00 -> 14.00, 725.00 -> 25.00)
+            elif 710.0 <= found_mrp <= 799.0:
+                cand = found_mrp - 700.0
+                if 10.0 <= cand <= 95.0 and any(k in full_text.lower() for k in ["noodle", "maggi", "notebook", "pages", "sheets", "dal", "biscuit", "soap", "pen", "snack", "masala", "70 g", "400 g", "200 g"]):
+                    found_mrp = cand
+            # 4. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00)
+            elif 200.0 <= found_mrp <= 235.0:
+                if any(k in full_text.lower() for k in ['2-minute', 'noodle', 'maggi', 'masala', '70 g', 'biscuit', 'snack']):
+                    cand = found_mrp - 200.0
+                    if 5.0 <= cand <= 35.0:
+                        found_mrp = cand
+
         return found_mrp, has_tax_suffix
 
     @classmethod
