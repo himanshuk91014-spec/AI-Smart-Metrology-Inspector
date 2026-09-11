@@ -561,9 +561,9 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   let foundUspValue = null;
   
   // Tax suffix regex (English & Regional Indian Languages + Curvature variations + GST + OCR font tolerance)
-  const taxSuffixRegex = /(?:inclusive\s*(?:of\s*)?(?:all\s*)?taxes?|incl?\.?\s*(?:of\s*)?(?:all\s*)?taxes?|[il1|!t]nc[l1i!t]?(?:usive)?\s*(?:of\s*)?(?:all\s*)?taxes?|in[cdel][lti1!]?\.?\s*(?:of\s*)?(?:all\s*)?taxes?|(?:all\s*)?taxes?\s*(?:incl?\.?|included|inclusive)|taxes?\s*incl?\.?|tax\s*included|incl?\.?\s*(?:of\s*)?tax(?:es)?|inclusive\s*(?:of\s*)?tax(?:es)?|inclusive\s*(?:of\s*)?gst|incl?\.?\s*(?:of\s*)?gst|[il1|!t]nc[l1i!t]?(?:usive)?\s*(?:of\s*)?gst|in[cdel][lti1!]?\.?\s*(?:of\s*)?gst|gst\s*(?:incl?\.?|included|inclusive)|including\s*gst|all\s*taxes|of\s*all\s*taxes|incl?\.?\s*of\s*all|inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*duties|inclusive\s*of\s*vat|incl?\.?\s*(?:of\s*)?vat|vat\s*included|vat\s*incl?\.?|सभी\s*करों?\s*सहित|सब\s*टैक्स\s*सहित|जीएसटी\s*सहित|जी\.?एस\.?टी\.?\s*सहित|जीएसटी\s*शामिल|सर्व\s*करांसह|सर्व\s*कर\s*समाविष्ट|जीएसटी\s*करांसह|జీఎస్టీ\s*సహా|జీఎస్టీతో\s*కలిపి|జీఎస్టీ\s*కలుపుకొని|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|সব\s*ট্যাক্স\s*সহ|জিএসটি\s*সহ|জিএসটি\s*অন্তর্ভুক্ত|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸ਼ਾਮਲ|تمام\s*ٹیکسز?\s*سمیت|جی\s*ایس\s*ٹی\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட|ஜிஎஸ்டி\s*உட்பட|તમામ\s*કર\s*સહિત|જીએસટી\s*સહિત|ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸಹಿತ|എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ|ജിഎസ്ടി\s*ഉൾപ്പെടെ)/i;
+  const taxSuffixRegex = /(?:price\s*(?:is\s*)?(?:inclusive|incl?\.?|includes?|including)\s*(?:of\s*)?(?:all\s*)?(?:applicable\s*)?(?:taxes?|gst)|all\s*(?:applicable\s*)?taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)|(?:including|inclusive|incl?\.?)\s*(?:of\s*)?all\s*applicable\s*taxes?|includes?\s*(?:of\s*)?(?:all\s*)?(?:applicable\s*)?taxes?|inclusive\s*of\s*all\s*taxes?|incl?\.?\s*of\s*all\s*taxes?|[il1|!t]nc[l1i!t]?\.?\s*(?:of\s*)?all\s*taxes?|in[cdel][lti1!]?\.?\s*(?:of\s*)?(?:all\s*)?taxes?|inclusive\s*(?:of\s*)?taxes?|incl?\.?\s*(?:of\s*)?tax(?:es)?|taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)|tax\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|tax\s*inclusive|gst\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|inclusive\s*(?:of\s*)?gst|incl?\.?\s*(?:of\s*)?gst|[il1|!t]nc[l1i!t]?\.?\s*(?:of\s*)?gst|in[cdel][lti1!]?\.?\s*(?:of\s*)?gst|including\s*(?:all\s*)?gst|vat\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|(?:inclusive|incl?\.?)\s*(?:of\s*)?vat(?:\s*(?:&|and)\s*(?:other\s*)?taxes?)?|inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*(?:duties|other\s*taxes?)|inclusive\s*of\s*all\s*duties\s*(?:&|and)\s*taxes|सभी\s*करों?\s*सहित|सब\s*टैक्स\s*सहित|जीएसटी\s*सहित|जी\.?एस\.?टी\.?\s*सहित|जीएसटी\s*शामिल|सर्व\s*करांसह|सर्व\s*कर\s*समाविष्ट|जीएसटी\s*करांसह|జీఎస్టీ\s*సహా|జీఎస్టీతో\s*కలిపి|జీఎస్టీ\s*కలుపుకొని|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|সব\s*ট্যাক্স\s*সহ|জিএসটি\s*সহ|জিএসটি\s*অন্তর্ভুক্ত|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸ਼ਾਮਲ|تمام\s*ٹیکسز?\s*سمیت|جی\s*ایس\s*ٹی\s*سمیت|வரி\s*உட்பட|கரங்கள்\s*உட்பட|ஜிஎஸ்டி\s*உட்பட|તમામ\s*કર\s*સહિત|જીએસટી\s*સહિત|ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸಹಿತ|എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ|ജിഎസ്ടി\s*ഉൾപ്പെടെ)/i;
   taxSuffixFound = taxSuffixRegex.test(fullJoinedText) ||
-    /(?:[il1|!t]nc[l1i!t]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?included|gstincluded|gst[il1|!t]nc[l1i!t]?|ofalltaxes|alltaxes|inclofalltaxes|inclusiveofalltaxes|inclofgst|inclusiveofgst|incoftaxes|inctofalltaxes|inciofalltaxes|indofalltaxes|inelofalltaxes)/i.test(normalizedAlphaOnly);
+    /(?:[il1|!t]nc[l1i!t]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?included|gstincluded|gst[il1|!t]nc[l1i!t]?|ofalltaxes|alltaxes|inclofalltaxes|inclusiveofalltaxes|inclofgst|inclusiveofgst|incoftaxes|inctofalltaxes|inciofalltaxes|indofalltaxes|inelofalltaxes|priceinclusiveofalltaxes|includingallapplicabletaxes|includesalltaxes|taxincluded|taxinclusive|priceincludesgst|includinggst|allapplicabletaxesincluded|vatincluded|inclusiveofvat)/i.test(normalizedAlphaOnly);
 
   function isNonPriceToken(fullLine, matchText, startPos, endPos) {
     if (!fullLine || !matchText) return true;
@@ -776,14 +776,11 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].includes(foundMrpValue) || /mrp|rs|₹/i.test(lines[i])) {
           const windowText = [lines[i - 2] || '', lines[i - 1] || '', lines[i], lines[i + 1] || '', lines[i + 2] || ''].join(' ');
-          if (taxSuffixRegex.test(windowText) || /incl|tax|taxes|gst/i.test(windowText)) {
+          if (taxSuffixRegex.test(windowText)) {
             taxSuffixFound = true;
             break;
           }
         }
-      }
-      if (!taxSuffixFound && (/incl|taxes|all\s*taxes|gst|tax/i.test(fullJoinedText))) {
-        taxSuffixFound = true;
       }
     }
 

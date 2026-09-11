@@ -1,5 +1,1820 @@
 [
   {
+    "status": "NON_COMPLIANT",
+    "overall_score": 72,
+    "timestamp": "2026-09-11T20:43:26.091170",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure"
+    ],
+    "corrections_made": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "₹ 100",
+        "corrected_value": "₹ 40.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "net_quantity",
+        "original_ocr_value": "None None",
+        "corrected_value": "8 fl oz",
+        "correction_reason": "Inspector verified net quantity & metric SI measurement (Manual Override)"
+      }
+    ],
+    "audit_trail": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "₹ 100",
+        "corrected_value": "₹ 40.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "net_quantity",
+        "original_ocr_value": "None None",
+        "corrected_value": "8 fl oz",
+        "correction_reason": "Inspector verified net quantity & metric SI measurement (Manual Override)"
+      }
+    ],
+    "original_ocr_snapshot": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "100",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "8",
+      "unit_of_measure": "fl oz",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure"
+      ]
+    },
+    "verified_product_data": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "8",
+      "unit_of_measure": "fl oz",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure"
+      ]
+    },
+    "total_segments_analyzed": 5,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 144
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_11_12_PROHIBITED_IMPERIAL",
+        "rule_name": "Rule 11 & 12 - Prohibited Non-Standard Unit",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Prohibited imperial unit 'fl oz' declared.",
+        "found_text": "8 fl oz [Inspector Verified]",
+        "remediation": "Declare net quantity exclusively in approved SI metric units (e.g., g, kg, ml, l, N)."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: care@crunch.in"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 02/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 5 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin identified.",
+        "evidence": "Declared Origin: India"
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 40.00 (Inclusive of all taxes) [Inspector Verified]"
+      }
+    ],
+    "warnings": [
+      {
+        "rule_id": "RULE_6_1_G_HELPLINE_ADVISORY",
+        "rule_name": "Rule 6(1)(g) - Consumer Helpline Number Advisory",
+        "severity": "LOW",
+        "description": "Consumer care email (care@crunch.in) verified. Providing a dedicated telephonic helpline / toll-free number is recommended under Rule 6(1)(g).",
+        "recommendation": "Provide a telephonic helpline number (e.g. 1800-XXX-XXXX or local office phone) for consumer queries."
+      }
+    ],
+    "extracted_metadata": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "8",
+      "unit_of_measure": "fl oz",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": false,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "LM-INSP-2026-DELHI",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Audit",
+      "inspection_remarks": "Physical package specimen inspected and verified under PCR 2011.",
+      "verified_at": "2026-09-12T02:13:26.091094",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789159406091",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjZTExZDQ4IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UxMWQ0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPiE8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZjhmYWZjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+Q1JVTkNIIFBBQ0tBR0VEIENPTU0uLjwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "CRUNCH PACKAGED COMMODITY",
+    "brand_name": "CRUNCH PACKAGED COMMODITY",
+    "mrp": "₹ 40.00",
+    "net_quantity": "8 fl oz",
+    "violations_count": 1,
+    "violations_summary": [
+      "Rule 11 & 12 - Prohibited Non-Standard Unit"
+    ],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-11T20:43:25.922936",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_email",
+      "consumer_care_phone",
+      "country_of_origin",
+      "manufacturer_name"
+    ],
+    "corrections_made": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "₹ 100",
+        "corrected_value": "₹ 40.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "net_quantity",
+        "original_ocr_value": "None None",
+        "corrected_value": "200 g",
+        "correction_reason": "Inspector verified net quantity & metric SI measurement (Manual Override)"
+      },
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "care@crunch.in",
+        "corrected_value": "care@crunch.in | 1800-11-2222",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "manufacturer_name",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "Crunch Foods Pvt. Ltd.",
+        "correction_reason": "Inspector verified manufacturer/packer identity (Manual Override)"
+      }
+    ],
+    "audit_trail": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "₹ 100",
+        "corrected_value": "₹ 40.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "net_quantity",
+        "original_ocr_value": "None None",
+        "corrected_value": "200 g",
+        "correction_reason": "Inspector verified net quantity & metric SI measurement (Manual Override)"
+      },
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "care@crunch.in",
+        "corrected_value": "care@crunch.in | 1800-11-2222",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "manufacturer_name",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "Crunch Foods Pvt. Ltd.",
+        "correction_reason": "Inspector verified manufacturer/packer identity (Manual Override)"
+      }
+    ],
+    "original_ocr_snapshot": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "100",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-11-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Crunch Foods Pvt. Ltd.",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name"
+      ]
+    },
+    "verified_product_data": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-11-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Crunch Foods Pvt. Ltd.",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name"
+      ]
+    },
+    "total_segments_analyzed": 5,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 144
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 5 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 40.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 200 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: care@crunch.in | Phone: 1800-11-2222 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 02/2026 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Crunch Foods Pvt. Ltd. [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "CRUNCH PACKAGED COMMODITY",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-11-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Crunch Foods Pvt. Ltd.",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-DELHI-883",
+      "inspector_name": "Inspector Legal Metrology",
+      "inspection_location": "Zonal Retail Audit",
+      "inspection_remarks": "Physical package specimen inspected and verified under PCR 2011.",
+      "verified_at": "2026-09-12T02:13:25.922851",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789159405922",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5DUlVOQ0ggUEFDS0FHRUQgQ09NTS4uPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "CRUNCH PACKAGED COMMODITY",
+    "brand_name": "CRUNCH PACKAGED COMMODITY",
+    "mrp": "₹ 40.00",
+    "net_quantity": "200 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-11T20:43:25.838780",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "consumer_care_email",
+      "consumer_care_phone",
+      "country_of_origin"
+    ],
+    "corrections_made": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "₹ 120.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "care@tea.in | 1800-333-2222",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "country_of_origin",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "India",
+        "correction_reason": "Inspector verified country of origin declaration (Manual Override)"
+      }
+    ],
+    "audit_trail": [
+      {
+        "field": "declared_mrp",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "₹ 120.00",
+        "correction_reason": "Inspector verified Maximum Retail Price & tax clause (Manual Override)"
+      },
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "care@tea.in | 1800-333-2222",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "country_of_origin",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "India",
+        "correction_reason": "Inspector verified country of origin declaration (Manual Override)"
+      }
+    ],
+    "original_ocr_snapshot": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": null,
+      "taxes_included": false,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": null,
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": "120.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": "care@tea.in",
+      "consumer_care_phone": "1800-333-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin"
+      ]
+    },
+    "verified_product_data": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": "120.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": "care@tea.in",
+      "consumer_care_phone": "1800-333-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin"
+      ]
+    },
+    "total_segments_analyzed": 3,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 40
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 250 g"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 01/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 3 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 120.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: care@tea.in | Phone: 1800-333-2222 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": "120.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": "care@tea.in",
+      "consumer_care_phone": "1800-333-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "LM-INSP-2026-DELHI",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Audit",
+      "inspection_remarks": "Physical package specimen inspected and verified under PCR 2011.",
+      "verified_at": "2026-09-12T02:13:25.838703",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789159405838",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5QUkVNSVVNIFRFQTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "PREMIUM TEA",
+    "brand_name": "PREMIUM TEA",
+    "mrp": "₹ 120.00",
+    "net_quantity": "250 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "NON_COMPLIANT",
+    "overall_score": 0,
+    "timestamp": "2026-09-11T20:43:25.694301",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "audit_trail": [],
+    "original_ocr_snapshot": {
+      "brand_name": null,
+      "mrp": null,
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": null,
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": null,
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": null,
+      "mrp": null,
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": null,
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": null,
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "verified_product_data": {
+      "brand_name": null,
+      "mrp": null,
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": null,
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": null,
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "total_segments_analyzed": 0,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [],
+      "regional_char_count": 0,
+      "latin_char_count": 0
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_6_1_DA_MISSING",
+        "rule_name": "Rule 6(1)(da) - Mandatory MRP Declaration",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price (MRP) declaration is missing from the package display.",
+        "found_text": "None detected",
+        "remediation": "Print Maximum Retail Price clearly as 'MRP ₹ [Amount] (Inclusive of all taxes)' on the Principal Display Panel."
+      },
+      {
+        "rule_id": "RULE_11_12_NO_VALID_METRIC",
+        "rule_name": "Rule 11 & 12 - Net Quantity Declaration",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Standard net quantity in approved SI units (g, kg, ml, l, N/units/pcs/pages/pens) was not identified.",
+        "found_text": "Missing valid metric quantity statement",
+        "remediation": "Provide net quantity clearly in standard units: grams (g), kilograms (kg), millilitres (ml), litres (l), or count (N / Units / Pens / Pcs / Pages)."
+      },
+      {
+        "rule_id": "RULE_6_1_G_MISSING_ALL",
+        "rule_name": "Rule 6(1)(g) - Consumer Care Mechanism Missing",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "No consumer care or grievance redressal contact information was detected on the package.",
+        "found_text": "None detected",
+        "remediation": "Provide name, address, valid telephone helpline number, and email address of the consumer grievance redressal officer."
+      },
+      {
+        "rule_id": "RULE_6_1_C_MISSING_DATE",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Date Missing",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture, packaging, or import is not declared on the package.",
+        "found_text": "None detected",
+        "remediation": "Print Month and Year of manufacture / packaging clearly (e.g., 'Mfd. on : 04/2025' or 'Mfg Date: 03/2026')."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_9",
+        "rule_name": "Rule 9 - Font Size & Layout",
+        "evidence": "No segments to calculate."
+      }
+    ],
+    "warnings": [
+      {
+        "rule_id": "RULE_6_10_ORIGIN_ADVISORY",
+        "rule_name": "Rule 6(10) - Country of Origin Advisory",
+        "severity": "LOW",
+        "description": "Explicit 'Country of Origin' declaration keyword was not detected on the panel.",
+        "recommendation": "Mention 'Country of Origin: India' or originating nation as per Rule 6(10)."
+      }
+    ],
+    "extracted_metadata": {
+      "brand_name": null,
+      "mrp": null,
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": null,
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": null,
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": false,
+      "rule_11_12_net_quantity": false,
+      "rule_6_1_g_consumer_care": false,
+      "rule_6_1_c_mfg_date": false,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-1789159405674",
+    "thumbnail_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAYFBQUGBgYHCQ4JCQgICRINDQoOFRIWFhUSFBQXGiEcFxgfGRQUHScdHyIjJSUlFhwpLCgkKyEkJST/2wBDAQYGBgkICREJCREkGBQYJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCT/wAARCACgAPADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6VooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z",
+    "thumbnail_url": "/static/thumbnails/AUD-1789159405674.jpg",
+    "filename": "test_package.jpg",
+    "product_name": "test_package.jpg",
+    "brand_name": null,
+    "mrp": "Not Declared",
+    "net_quantity": "None None",
+    "violations_count": 4,
+    "violations_summary": [
+      "Rule 6(1)(da) - Mandatory MRP Declaration",
+      "Rule 11 & 12 - Net Quantity Declaration",
+      "Rule 6(1)(g) - Consumer Care Mechanism Missing",
+      "Rule 6(1)(c) - Manufacturing / Packaging Date Missing"
+    ],
+    "source": "backend_ocr"
+  },
+  {
+    "status": "NON_COMPLIANT",
+    "overall_score": 25,
+    "timestamp": "2026-09-11T20:43:20.559961",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "audit_trail": [],
+    "original_ocr_snapshot": {
+      "brand_name": "SHINE SHAMPOO",
+      "mrp": "300",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "Usa",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "SHINE SHAMPOO",
+      "mrp": "300",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "Usa",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "verified_product_data": {
+      "brand_name": "SHINE SHAMPOO",
+      "mrp": "300",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "Usa",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "total_segments_analyzed": 5,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 96
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_6_1_DA_TAX_SUFFIX_MISSING",
+        "rule_name": "Rule 6(1)(da) - Statutory Tax Inclusion Suffix",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "MRP is stated without the mandatory statutory phrase ('Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST').",
+        "found_text": "MRP: 300 (Missing Tax Suffix)",
+        "remediation": "Append the mandatory statutory text 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to the price."
+      },
+      {
+        "rule_id": "RULE_11_12_PROHIBITED_UNIT",
+        "rule_name": "Rule 11 & 12 - Prohibited Imperial Units Detected",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Found non-standard imperial measurement '12 fl oz'. Fluid Ounce (Imperial Unit - Prohibited under Rule 11).",
+        "found_text": "12 fl oz",
+        "remediation": "Remove imperial units (oz, fl oz, lbs, etc.). All net quantities must be expressed strictly in standard SI metric units (g, kg, ml, l, N/units, cm)."
+      },
+      {
+        "rule_id": "RULE_6_1_G_MISSING_ALL",
+        "rule_name": "Rule 6(1)(g) - Consumer Care Mechanism Missing",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "No consumer care or grievance redressal contact information was detected on the package.",
+        "found_text": "None detected",
+        "remediation": "Provide name, address, valid telephone helpline number, and email address of the consumer grievance redressal officer."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 01/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 5 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin declared clearly.",
+        "evidence": "Declared Origin: Usa"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "SHINE SHAMPOO",
+      "mrp": "300",
+      "taxes_included": false,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "Usa",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": false,
+      "rule_11_12_net_quantity": false,
+      "rule_6_1_g_consumer_care": false,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-TEXT-1789159400559",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjZTExZDQ4IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UxMWQ0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPiE8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZjhmYWZjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+U0hJTkUgU0hBTVBPTzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "SHINE SHAMPOO",
+    "brand_name": "SHINE SHAMPOO",
+    "mrp": "₹ 300",
+    "net_quantity": "None None",
+    "violations_count": 3,
+    "violations_summary": [
+      "Rule 6(1)(da) - Statutory Tax Inclusion Suffix",
+      "Rule 11 & 12 - Prohibited Imperial Units Detected",
+      "Rule 6(1)(g) - Consumer Care Mechanism Missing"
+    ],
+    "source": "backend_text_eval",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-11T20:43:20.507348",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "audit_trail": [],
+    "original_ocr_snapshot": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "verified_product_data": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "total_segments_analyzed": 6,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 204
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 40.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 200 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: care@crunch.in | Helpline: 1800-222-3344"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 02/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 6 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin identified.",
+        "evidence": "Declared Origin: India"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-TEXT-1789159400507",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5TVVBFUiBDUlVOQ0ggQklTQ1VJVC4uPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "SUPER CRUNCH BISCUITS",
+    "brand_name": "SUPER CRUNCH BISCUITS",
+    "mrp": "₹ 40.00",
+    "net_quantity": "200 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_text_eval",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-11T20:26:10.970042",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_email",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "himanshukumar22391@gmail.com",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "country_of_origin",
+        "original_ocr_value": "India (Inferred from Address & PIN Code)",
+        "corrected_value": "India",
+        "correction_reason": "Inspector verified country of origin declaration (Manual Override)"
+      },
+      {
+        "field": "manufacturer_name",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "Packaged Commodity Enterprise",
+        "correction_reason": "Inspector verified manufacturer/packer identity (Manual Override)"
+      }
+    ],
+    "audit_trail": [
+      {
+        "field": "consumer_care",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "himanshukumar22391@gmail.com",
+        "correction_reason": "Inspector verified consumer grievance redressal channel (Manual Override)"
+      },
+      {
+        "field": "country_of_origin",
+        "original_ocr_value": "India (Inferred from Address & PIN Code)",
+        "corrected_value": "India",
+        "correction_reason": "Inspector verified country of origin declaration (Manual Override)"
+      },
+      {
+        "field": "manufacturer_name",
+        "original_ocr_value": "Not Detected",
+        "corrected_value": "Packaged Commodity Enterprise",
+        "correction_reason": "Inspector verified manufacturer/packer identity (Manual Override)"
+      }
+    ],
+    "original_ocr_snapshot": {
+      "brand_name": "BF m SNR Cy",
+      "mrp": "3",
+      "taxes_included": false,
+      "net_quantity": "3",
+      "unit_of_measure": "N",
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "BF m SNR Cy",
+      "mrp": "3",
+      "taxes_included": true,
+      "net_quantity": "3",
+      "unit_of_measure": "units",
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "himanshukumar22391@gmail.com",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "verified_product_data": {
+      "brand_name": "BF m SNR Cy",
+      "mrp": "3",
+      "taxes_included": true,
+      "net_quantity": "3",
+      "unit_of_measure": "units",
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "himanshukumar22391@gmail.com",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "total_segments_analyzed": 27,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 260
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 52.2px across 27 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 3 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 3 units [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: himanshukumar22391@gmail.com [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 03/26 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "BF m SNR Cy",
+      "mrp": "3",
+      "taxes_included": true,
+      "net_quantity": "3",
+      "unit_of_measure": "units",
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "himanshukumar22391@gmail.com",
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified.",
+      "verified_at": "2026-09-12T01:56:10.969916",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789158370969",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5CRiBtIFNOUiBDeTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "BF m SNR Cy",
+    "brand_name": "BF m SNR Cy",
+    "mrp": "₹ 3",
+    "net_quantity": "3 units",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "NON_COMPLIANT",
+    "overall_score": 72,
+    "timestamp": "2026-09-11T20:25:38.952775",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "audit_trail": [],
+    "original_ocr_snapshot": {
+      "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+      "mrp": "42",
+      "taxes_included": true,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "qmat@itc.in",
+      "consumer_care_phone": "18004254444",
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": "Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "final_verified_fields": {
+      "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+      "mrp": "42",
+      "taxes_included": true,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "qmat@itc.in",
+      "consumer_care_phone": "18004254444",
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": "Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "verified_product_data": {
+      "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+      "mrp": "42",
+      "taxes_included": true,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "qmat@itc.in",
+      "consumer_care_phone": "18004254444",
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": "Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "total_segments_analyzed": 62,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 1960
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_11_12_NO_VALID_METRIC",
+        "rule_name": "Rule 11 & 12 - Net Quantity Declaration",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Standard net quantity in approved SI units (g, kg, ml, l, N/units/pcs/pages/pens) was not identified.",
+        "found_text": "Missing valid metric quantity statement",
+        "remediation": "Provide net quantity clearly in standard units: grams (g), kilograms (kg), millilitres (ml), litres (l), or count (N / Units / Pens / Pcs / Pages)."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 42 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: qmat@itc.in | Helpline: 18004254444"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 03/26"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 220.1px across 62 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin inferred as India from domestic manufacturer address.",
+        "evidence": "Inferred Origin: India (State/City: Kolkata, PIN Code: 444444)"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified on package.",
+        "evidence": "Manufacturer/Packer: Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick"
+      }
+    ],
+    "warnings": [
+      {
+        "rule_id": "RULE_6_10_ORIGIN_ADVISORY",
+        "rule_name": "Rule 6(10) - Country of Origin Advisory",
+        "severity": "LOW",
+        "description": "Country of origin inferred as 'India' from domestic manufacturer address (State/City: Kolkata, PIN Code: 444444).",
+        "recommendation": "Print explicit statutory phrase 'Country of Origin: India' on the Principal Display Panel as per Rule 6(10) for strict compliance."
+      }
+    ],
+    "extracted_metadata": {
+      "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+      "mrp": "42",
+      "taxes_included": true,
+      "net_quantity": null,
+      "unit_of_measure": null,
+      "dimensions": null,
+      "manufacturing_date": "03/26",
+      "consumer_care_email": "qmat@itc.in",
+      "consumer_care_phone": "18004254444",
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": "Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": false,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-1789158338873",
+    "thumbnail_base64": "data:image/jpeg;base64,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",
+    "thumbnail_url": "/static/thumbnails/AUD-1789158338873.jpg",
+    "filename": "smm.jpeg",
+    "product_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+    "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
+    "mrp": "₹ 42",
+    "net_quantity": "None None",
+    "violations_count": 1,
+    "violations_summary": [
+      "Rule 11 & 12 - Net Quantity Declaration"
+    ],
+    "source": "backend_ocr"
+  },
+  {
     "status": "COMPLIANT",
     "overall_score": 100,
     "timestamp": "2026-09-11T20:20:28.790263",

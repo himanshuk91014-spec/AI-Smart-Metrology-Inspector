@@ -339,55 +339,84 @@ class LegalMetrologyComplianceEngine:
 
     # Rule 6(1)(da): Statutory Tax Suffix Patterns (English + Regional Indian Languages + GST)
     TAX_SUFFIX_PATTERNS = [
-        # Full Statutory Clauses - English (All Taxes & Taxes)
-        r"inclusive\s*of\s*all\s*taxes",
-        r"incl?\.?\s*of\s*all\s*taxes",
-        r"inc[l1i]?\.?\s*(?:of\s*)?all\s*taxes",
+        # 1. Inclusive of All Taxes & variations
+        r"inclusive\s*of\s*all\s*taxes?",
+        r"incl?\.?\s*of\s*all\s*taxes?",
+        r"inc[l1i]?\.?\s*(?:of\s*)?all\s*taxes?",
         r"inc[l1i]?\s*ofalltaxes",
-        r"incl?[\s_]*of[\s_]*all[\s_]*taxes",
-        r"incl?\.?\s*all\s*taxes",
-        r"inclusive\s*all\s*taxes",
-        r"all\s*taxes\s*incl?",
-        r"all\s*taxes\s*included",
-        r"taxes\s*included",
-        r"tax\s*included",
-        r"taxes\s*incl\.?",
-        r"incl\.?\s*tax(?:es)?",
-        r"incl\.?\s*of\s*tax(?:es)?",
-        r"inclusive\s*of\s*tax(?:es)?",
-        r"inclusive\s*taxes",
-        r"inclusive\s*tax",
+        r"incl?[\s_]*of[\s_]*all[\s_]*taxes?",
+        r"incl?\.?\s*all\s*taxes?",
+        r"inclusive\s*all\s*taxes?",
         r"incl\.?\s*of\s*all\s*taxes\.?",
         r"inc\s*of\s*all\s*taxes",
         r"inc\.?\s*of\s*all\s*taxes",
-        # Full Statutory Clauses - English (GST & Duties & VAT)
+        # 2. Price Inclusive of All Taxes
+        r"price\s*(?:is\s*)?(?:inclusive|incl?\.?|includes?|including)\s*(?:of\s*)?all\s*(?:applicable\s*)?taxes?",
+        r"price\s*(?:is\s*)?(?:inclusive|incl?\.?)\s*(?:of\s*)?taxes?",
+        # 3. All Taxes Included
+        r"all\s*taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)",
+        r"all\s*taxes\s*incl?",
+        r"all\s*taxes\s*included",
+        # 4. Taxes Included
+        r"taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)",
+        r"taxes\s*included",
+        r"taxes\s*incl\.?",
+        r"taxes\s*inc\b",
+        # 5. Inclusive of Taxes
+        r"inclusive\s*of\s*tax(?:es)?",
+        r"incl?\.?\s*of\s*tax(?:es)?",
+        r"inclusive\s*taxes?",
+        r"inclusive\s*tax",
+        r"incl\.?\s*tax(?:es)?",
+        # 6. Including All Applicable Taxes
+        r"(?:including|inclusive|incl?\.?)\s*(?:of\s*)?all\s*applicable\s*taxes?",
+        r"including\s*all\s*applicable\s*taxes?",
+        # 7. Includes All Taxes
+        r"includes?\s*(?:of\s*)?all\s*(?:applicable\s*)?taxes?",
+        r"includes?\s*(?:of\s*)?taxes?",
+        # 8. Tax Included
+        r"tax\s*(?:is\s*)?(?:included|incl?\.?)",
+        r"tax\s*included",
+        r"tax\s*incl?\b",
+        # 9. Tax Inclusive
+        r"tax\s*inclusive",
+        # 10. GST Included
+        r"gst\s*(?:is\s*)?(?:included|incl?\.?|inclusive)",
+        r"gst\s*incl?\.?",
+        r"gst\s*included",
+        r"gst\s*inclusive",
+        # 11. Inclusive of GST
         r"inclusive\s*of\s*gst",
         r"incl?\.?\s*of\s*gst",
         r"inc[l1i]?\.?\s*(?:of\s*)?gst",
         r"incl?\.?\s*gst",
         r"inclusive\s*gst",
-        r"gst\s*incl?\.?",
-        r"gst\s*included",
-        r"gst\s*inclusive",
-        r"including\s*gst",
         r"inc\s*of\s*gst",
         r"inc\.?\s*of\s*gst",
         r"inclusive\s*of\s*all\s*gst",
         r"incl?\.?\s*of\s*all\s*gst",
-        r"inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*duties",
-        r"inclusive\s*of\s*all\s*duties\s*(?:&|and)\s*taxes",
-        r"inclusive\s*of\s*vat",
-        r"incl?\.?\s*of\s*vat",
+        # 12. Price Includes GST
+        r"price\s*(?:is\s*)?(?:includes?|including|inclusive|incl?\.?)\s*(?:of\s*)?(?:all\s*)?gst",
+        # 13. Including GST
+        r"including\s*(?:all\s*)?gst",
+        # 14. All Applicable Taxes Included
+        r"all\s*applicable\s*taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)",
+        # 15. VAT Included
+        r"vat\s*(?:is\s*)?(?:included|incl?\.?|inclusive)",
         r"vat\s*included",
         r"vat\s*incl?\.?",
+        r"inclusive\s*of\s*vat",
+        r"incl?\.?\s*of\s*vat",
+        # 16. Inclusive of VAT and Other Taxes
+        r"(?:inclusive|incl?\.?)\s*(?:of\s*)?vat\s*(?:&|and)\s*(?:other\s*)?taxes?",
+        r"inclusive\s*of\s*vat\s*and\s*other\s*taxes?",
+        r"inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*(?:duties|other\s*taxes?)",
+        r"inclusive\s*of\s*all\s*duties\s*(?:&|and)\s*taxes",
         # Curvature & Label Edge Truncation Partial Matches
         r"inclusive\s*of\s*all\s*tax?",
         r"incl?\.?\s*of\s*all\s*tax?",
         r"incl?\.?\s*all\s*tax?",
-        r"all\s*taxes\s*inc\b",
         r"all\s*tax\s*inc\b",
-        r"taxes\s*inc\b",
-        r"tax\s*incl?\b",
         r"inc[l1i]?\.?\s*all\s*tax?",
         r"inc[l1i]?\.?\s*of\s*all\s*tax?",
         r"inc[l1i]?\.?\s*of\s*gst",
@@ -1527,11 +1556,11 @@ class LegalMetrologyComplianceEngine:
         # 1. Broad Tax Suffix Detection
         normalized_alpha_only = re.sub(r"[^a-z0-9]+", "", full_text.lower())
         has_tax_suffix = bool(self.tax_suffix_regex.search(full_text)) or bool(
-            re.search(r"(?:[il1|!t]nc[l1i!t]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?included|gstincluded|gst[il1|!t]nc[l1i!t]?|ofalltaxes|alltaxes|inclofalltaxes|inclusiveofalltaxes|inclofgst|inclusiveofgst|incoftaxes|inctofalltaxes|inciofalltaxes|indofalltaxes|inelofalltaxes)", normalized_alpha_only)
-        ) or any(k in full_text_lower for k in ["incl", "taxes", "all taxes", "gst"])
+            re.search(r"(?:[il1|!t]nc[l1i!t]?(?:usive)?(?:of)?(?:all)?(?:tax(?:es)?|gst)|alltax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?[il1|!t]nc[l1i!t]?|tax(?:es)?included|gstincluded|gst[il1|!t]nc[l1i!t]?|ofalltaxes|alltaxes|inclofalltaxes|inclusiveofalltaxes|inclofgst|inclusiveofgst|incoftaxes|inctofalltaxes|inciofalltaxes|indofalltaxes|inelofalltaxes|priceinclusiveofalltaxes|includingallapplicabletaxes|includesalltaxes|taxincluded|taxinclusive|priceincludesgst|includinggst|allapplicabletaxesincluded|vatincluded|inclusiveofvat)", normalized_alpha_only)
+        )
 
         has_mrp_keyword = bool(
-            re.search(r"\b(m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*मूल্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત|ಬೆಲೆ|വില)\b", full_text, flags=re.IGNORECASE)
+            re.search(r"\b(m\.?r\.?p\.?|mr\.?p|m\.?r\.?|max(?:imum)?\s*retail\s*price|retail\s*price|price|अधिकतम\s*खुदरा\s*मूल्य|अ\.?खु\.?मू\.?|एमआरपी|कमाल\s*किरकोळ\s*किंमत|గరిష్ట\s*రిటైల్\s*ధర|ధర|সর্বোচ্চ\s*খুচরা\s*मूल্য|ਵੱਧ\s*ਤੋਂ\s*ਵੱਧ\s*ਪ੍ਰਚੂਨ\s*ਮੁੱਲ|زیادہ\s*سے\s*زیادہ\s*خوردہ\s*قیمت|அதிகபட்ச\s*சில்லறை\s*விலை|કિંમત|ಬೆಲೆ|ವില)\b", full_text, flags=re.IGNORECASE)
         )
 
         # 2. Extract Candidate Prices with Detailed Context Scoring
@@ -1659,11 +1688,9 @@ class LegalMetrologyComplianceEngine:
                 for idx, l in enumerate(lines):
                     if found_mrp in l or "mrp" in l.lower() or "rs" in l.lower() or "₹" in l:
                         win = " ".join(lines[max(0, idx - 2):min(len(lines), idx + 3)])
-                        if self.tax_suffix_regex.search(win) or any(k in win.lower() for k in ["incl", "tax", "taxes", "gst"]):
+                        if self.tax_suffix_regex.search(win):
                             has_tax_suffix = True
                             break
-                if not has_tax_suffix and any(k in full_text_lower for k in ["incl", "taxes", "all taxes", "gst", "tax"]):
-                    has_tax_suffix = True
 
         # Case 1: No MRP keyword or price found at all
         if not has_mrp_keyword and not found_mrp:

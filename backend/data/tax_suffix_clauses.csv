@@ -48,6 +48,14 @@ incl of vat,en,TRUE
 vat included,en,TRUE
 vat incl,en,TRUE
 vat incl.,en,TRUE
+price inclusive of all taxes,en,TRUE
+including all applicable taxes,en,TRUE
+includes all taxes,en,TRUE
+tax included,en,TRUE
+tax inclusive,en,TRUE
+price includes gst,en,TRUE
+all applicable taxes included,en,TRUE
+inclusive of vat and other taxes,en,TRUE
 सभी करों सहित,hi,TRUE
 करों सहित,hi,TRUE
 सब टैक्स सहित,hi,TRUE

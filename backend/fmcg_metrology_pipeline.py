@@ -292,14 +292,33 @@ class FMCGDeclarationExtractor:
 
     # Statutory Tax Suffix regex patterns (English, GST, Regional)
     TAX_SUFFIX_REGEX = re.compile(
-        r"(?:inclusive\s*of\s*(?:all\s*)?taxes|incl?\.?\s*(?:of\s*)?(?:all\s*)?taxes|"
-        r"[il1|!]nc[l1i]?(?:usive)?\s*(?:of\s*)?(?:all\s*)?taxes|[il1|!]nc[l1i]?(?:usive)?\s*(?:of\s*)?gst|"
-        r"inclusive\s*of\s*gst|incl?\.?\s*(?:of\s*)?gst|inclusive\s*gst|gst\s*incl?\.?|gst\s*included|"
-        r"gst\s*inclusive|including\s*gst|all\s*taxes\s*incl?\.?|all\s*taxes\s*included|taxes\s*included|"
-        r"tax\s*included|incl?\.?\s*tax(?:es)?|taxes\s*incl?\.?|incl?\.?\s*of\s*tax(?:es)?|inclusive\s*taxes|"
-        r"[il1|!]nc\s*of\s*all\s*taxes|[il1|!]nc\.?\s*of\s*all\s*taxes|[il1|!]nc\s*of\s*gst|[il1|!]nc\.?\s*of\s*gst|"
-        r"inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*duties|inclusive\s*of\s*vat|incl?\.?\s*(?:of\s*)?vat|"
-        r"सभी\s*करों?\s*सहित|सब\s*टैक्स\s*सहित|जीएसटी\s*सहित|सर्व\s*करांसह|అన్ని\s*పన్నులతో\s*కలిపి|జీఎస్టీ\s*సహా)",
+        r"(?:"
+        r"price\s*(?:is\s*)?(?:inclusive|incl?\.?|includes?|including)\s*(?:of\s*)?(?:all\s*)?(?:applicable\s*)?(?:taxes?|gst)|"
+        r"all\s*(?:applicable\s*)?taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)|"
+        r"(?:including|inclusive|incl?\.?)\s*(?:of\s*)?all\s*applicable\s*taxes?|"
+        r"includes?\s*(?:of\s*)?(?:all\s*)?(?:applicable\s*)?taxes?|"
+        r"inclusive\s*of\s*all\s*taxes?|"
+        r"incl?\.?\s*of\s*all\s*taxes?|"
+        r"[il1|!]nc[l1i]?\.?\s*(?:of\s*)?all\s*taxes?|"
+        r"inclusive\s*(?:of\s*)?taxes?|"
+        r"incl?\.?\s*(?:of\s*)?tax(?:es)?|"
+        r"taxes?\s*(?:are\s*)?(?:included|incl?\.?|inclusive)|"
+        r"tax\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|"
+        r"tax\s*inclusive|"
+        r"gst\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|"
+        r"inclusive\s*(?:of\s*)?gst|"
+        r"incl?\.?\s*(?:of\s*)?gst|"
+        r"[il1|!]nc[l1i]?\.?\s*(?:of\s*)?gst|"
+        r"including\s*(?:all\s*)?gst|"
+        r"vat\s*(?:is\s*)?(?:included|incl?\.?|inclusive)|"
+        r"(?:inclusive|incl?\.?)\s*(?:of\s*)?vat(?:\s*(?:&|and)\s*(?:other\s*)?taxes?)?|"
+        r"inclusive\s*of\s*all\s*taxes\s*(?:&|and)\s*(?:duties|other\s*taxes?)|"
+        r"inclusive\s*of\s*all\s*duties\s*(?:&|and)\s*taxes|"
+        r"सभी\s*करों?\s*सहित|सब\s*टैक्स\s*सहित|सर्व\s*करांसह|सर्व\s*कर\s*समाविष्ट|जीएसटी\s*सहित|जी\.?एस\.?टी\.?\s*सहित|जीएसटी\s*शामिल|"
+        r"జీఎస్టీ\s*సహా|జీఎస్టీతో\s*కలిపి|అన్ని\s*పన్నులతో\s*కలిపి|সমস্ত\s*কর\s*সহ|জিএসটি\s*সহ|ਸਾਰੇ\s*ਟੈਕਸਾਂ?\s*ਸਮੇਤ|ਜੀਐਸਟੀ\s*ਸਮੇਤ|"
+        r"تمام\s*ٹیکسز?\s*سمیت|جی\s*ایس\s*ٹی\s*سمیت|அனைத்து\s*வரிகளும்\s*உட்பட|ஜிஎஸ்டி\s*உட்பட|તમામ\s*કર\s*સહિત|બધા\s*કર\s*સહિત|જીએસટી\s*સહિત|"
+        r"ಎಲ್ಲಾ\s*ತೆರಿಗೆಗಳು\s*ಸೇರಿವೆ|ಜಿಎಸ್‌ಟಿ\s*ಸೇರಿವೆ|എല്ലാ\s*നികുതികളും\s*ഉൾപ്പെടെ|ജിഎസ്ടി\s*ഉൾപ്പെടെ"
+        r")",
         re.IGNORECASE
     )
 

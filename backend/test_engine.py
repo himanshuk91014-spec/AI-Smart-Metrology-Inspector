@@ -634,12 +634,86 @@ def run_tests():
     assert reverse_audit["final_verified_fields"]["unit_of_measure"] == "fl oz"
     print("  --> Subtest 17.2 Passed: Reverse Manual Override genuinely controls audit (Compliant -> Non-Compliant fl oz flagged).")
 
+    # Test 18: Comprehensive Statutory Tax Suffix Recognition Suite (All 16 Phrases + Casing + Negative Test)
+    print("\n[TEST 18] Evaluating All 16 Statutory Tax Inclusion Phrases, Case/Punctuation Variations & Negative GST isolation...")
+    
+    sixteen_phrases = [
+        "Inclusive of All Taxes",
+        "Price Inclusive of All Taxes",
+        "All Taxes Included",
+        "Taxes Included",
+        "Inclusive of Taxes",
+        "Including All Applicable Taxes",
+        "Includes All Taxes",
+        "Tax Included",
+        "Tax Inclusive",
+        "GST Included",
+        "Inclusive of GST",
+        "Price Includes GST",
+        "Including GST",
+        "All Applicable Taxes Included",
+        "VAT Included",
+        "Inclusive of VAT and Other Taxes"
+    ]
+
+    for phrase in sixteen_phrases:
+        test_text = f"MRP ₹ 99.00 ({phrase})"
+        t_res = engine.evaluate_compliance([{"text": test_text, "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99}])
+        assert t_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, f"Failed Rule 6(1)(da) on phrase: '{phrase}'"
+        assert t_res["extracted_metadata"]["taxes_included"] is True, f"Failed taxes_included on phrase: '{phrase}'"
+
+    print("  --> Subtest 18.1 Passed: All 16 statutory tax inclusion phrases individually verified.")
+
+    # Casing, Punctuation and Spacing Variations
+    case_punctuation_variations = [
+        "inclusive of all taxes",
+        "INCLUSIVE OF ALL TAXES",
+        "Inclusive Of All Taxes",
+        "Inclusive  of   all   taxes",
+        "Incl. of all taxes",
+        "Incl of all taxes",
+        "Incl of All Taxes",
+        "Including GST",
+        "INCL. OF GST",
+        "GST Included",
+        "GST included",
+        "GST INCLUDED",
+        "Price Includes GST",
+        "Price includes GST",
+        "All Applicable Taxes Included"
+    ]
+
+    for variant in case_punctuation_variations:
+        test_text = f"MRP: Rs. 149.00 ({variant})"
+        v_res = engine.evaluate_compliance([{"text": test_text, "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99}])
+        assert v_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, f"Failed Rule 6(1)(da) on variation: '{variant}'"
+        assert v_res["extracted_metadata"]["taxes_included"] is True, f"Failed taxes_included on variation: '{variant}'"
+
+    print("  --> Subtest 18.2 Passed: Case, punctuation, dot, and spacing variations verified.")
+
+    # Negative Test: Isolated 'GST' / 'GSTIN' / 'tax' token without tax-inclusion phrase must FAIL Rule 6(1)(da)
+    negative_segments = [
+        {"text": "PREMIUM TEA PACK", "box": [[10, 10], [300, 10], [300, 40], [10, 40]], "confidence": 0.99},
+        {"text": "Net Qty: 250 g", "box": [[10, 50], [200, 50], [200, 80], [10, 80]], "confidence": 0.98},
+        {"text": "MRP: Rs. 200.00", "box": [[10, 90], [200, 90], [200, 120], [10, 120]], "confidence": 0.98}, # Missing tax suffix
+        {"text": "Mfg: 01/2026", "box": [[10, 130], [150, 130], [150, 160], [10, 160]], "confidence": 0.98},
+        {"text": "GSTIN: 07AAAAA0000A1Z5", "box": [[10, 170], [300, 170], [300, 200], [10, 200]], "confidence": 0.98}, # Standalone GST token
+        {"text": "Helpline: 1800-11-2233 | care@tea.in", "box": [[10, 210], [350, 210], [350, 240], [10, 240]], "confidence": 0.98},
+        {"text": "Country of Origin: India", "box": [[10, 250], [200, 250], [200, 280], [10, 280]], "confidence": 0.98}
+    ]
+    neg_res = engine.evaluate_compliance(negative_segments, (1000, 1000))
+    assert neg_res["rules_breakdown"]["rule_6_1_da_mrp"] is False, "Isolated GSTIN token must NOT satisfy tax inclusion requirement"
+    assert neg_res["extracted_metadata"]["taxes_included"] is False, "taxes_included must be False for isolated GSTIN"
+    assert any(v["rule_id"] == "RULE_6_1_DA_TAX_SUFFIX_MISSING" for v in neg_res["violations"]), "RULE_6_1_DA_TAX_SUFFIX_MISSING must be triggered"
+    print("  --> Subtest 18.3 Passed: Isolated GSTIN / GST token correctly rejected (no false positive).")
+
     print("\n" + "=" * 70)
-    print("ALL 17 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
+    print("ALL 18 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
     print("=" * 70)
 
 
 if __name__ == "__main__":
     run_tests()
+
 
 
