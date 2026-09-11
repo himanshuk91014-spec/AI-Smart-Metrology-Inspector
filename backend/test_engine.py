@@ -329,6 +329,13 @@ def run_tests():
         },
     ]
     res7 = engine.evaluate_compliance(segments7, (1000, 1000))
+    assert res7["status"] == "COMPLIANT", f"Expected COMPLIANT for pen specimen, got {res7['status']}"
+    assert res7["extracted_metadata"]["net_quantity"] in ["1", "1 N"]
+    assert res7["extracted_metadata"]["mrp"] == "50.00"
+    assert res7["rules_breakdown"]["rule_6_1_da_mrp"] is True
+    assert res7["rules_breakdown"]["rule_11_12_net_quantity"] is True
+    print("  --> PASS: Stationery Pen with 'ART NO. 3458' and 'Net Qty: 1 N' cleared with status:", res7["status"])
+
     # Test 8: Regional Language - Telugu Compliant Label
     print("\n[TEST 8] Evaluating Regional Language - Telugu Compliant FMCG Label...")
     segments8 = [
@@ -364,6 +371,10 @@ def run_tests():
     assert res9["extracted_metadata"]["detected_language"] == "hi", f"Expected 'hi', got {res9['extracted_metadata']['detected_language']}"
     assert res9["rules_breakdown"]["rule_6_1_da_mrp"] is True
     assert res9["rules_breakdown"]["rule_11_12_net_quantity"] is True
+    assert res9["rules_breakdown"]["rule_6_1_g_consumer_care"] is True
+    assert res9["rules_breakdown"]["rule_6_1_c_mfg_date"] is True
+    print(f"  --> PASS: Hindi Regional Script Label accurately analyzed! Detected: {res9['extracted_metadata']['language_name']} | Status: {res9['status']}")
+
     # Test 10: Hybrid AI + Manual Verification Override (Eliminating False Positives)
     print("\n[TEST 10] Evaluating Hybrid AI + Manual Verification Override...")
     # Simulate a package image with blurry/missed MRP and tax suffix in OCR
@@ -390,6 +401,7 @@ def run_tests():
     assert corrected_res["overall_score"] == 100, f"Expected 100 score, got {corrected_res['overall_score']}"
     assert corrected_res["is_manually_verified"] is True
     assert "mrp" in corrected_res["manual_fields_applied"]
+    print(f"  --> PASS: Hybrid Inspector Override successfully verified! Status: {corrected_res['status']}, Score: {corrected_res['overall_score']}")
     # Test 11: Complex MRP Formats (Embedded Tax Clauses, Dot Matrix & Spaced Digits)
     print("\n[TEST 11] Evaluating Complex MRP Formats (Embedded Tax Clause, Dot Matrix & Spaced Digits)...")
     complex_mrp_cases = [
@@ -473,6 +485,8 @@ def run_tests():
     assert notebook_res["extracted_metadata"]["taxes_included"] is True, "Expected taxes_included True for '(Inclusive of GST)'"
     assert notebook_res["rules_breakdown"]["rule_6_1_da_mrp"] is True, "Rule 6(1)(da) must PASS for (Inclusive of GST)"
     assert len(notebook_res["violations"]) == 0, f"Expected 0 violations, found: {notebook_res['violations']}"
+    print(f"  --> PASS: Real Notebook specimen (Linchpin / Nihar) cleared 100%! MRP: ₹{notebook_res['extracted_metadata']['mrp']}, Status: {notebook_res['status']}")
+
     # Test 15: Vardhman Industries Notebook Specimen (Pages: 428, MRP. Rs. : 110.00, Incl. of all taxes)
     print("\n[TEST 15] Evaluating Vardhman Industries Real Packaging Specimen (Pages: 428, MRP Rs. 110.00, 04/2025)...")
     vardhman_segments = [
@@ -498,8 +512,42 @@ def run_tests():
     assert vardhman_res["overall_score"] == 100, f"Expected 100/100, got {vardhman_res['overall_score']}"
     print(f"  --> PASS: Vardhman Industries specimen cleared 100% with status: {vardhman_res['status']} and score: {vardhman_res['overall_score']}/100!")
 
+    # Test 16: Post-OCR Intelligent Error Correction & Self-Healing Intelligence
+    print("\n[TEST 16] Evaluating Post-OCR Intelligent Error Correction & Self-Healing Intelligence...")
+    from compliance_engine import PostOCRErrorCorrectionEngine
+
+    # Case 1: Notebook ₹25 misread as 225.00
+    nb_raw = "Nihar Notebook 80 Pages MRP ₹ 25.00 (Inclusive of GST)"
+    nb_meta = {"brand_name": "Nihar Notebook", "mrp": "225.00", "net_quantity": "80", "unit_of_measure": "Pages"}
+    cleaned_nb_meta, nb_corrs = PostOCRErrorCorrectionEngine.apply_corrections(nb_raw, nb_meta)
+    assert cleaned_nb_meta["mrp"] == "25.00", f"Expected 25.00, got {cleaned_nb_meta['mrp']}"
+    assert any(c["field"] == "declared_mrp" for c in nb_corrs)
+    print("  --> Subtest 16.1 Passed: Notebook ₹ 25 symbol artifact (225.00 -> 25.00) corrected.")
+
+    # Case 2: Slogan prepending (2-Minute Noodles MRP ₹14 -> 214.00)
+    slogan_raw = "Nestle Maggi 2-Minute Noodles MRP ₹ 14.00"
+    slogan_meta = {"brand_name": "Maggi 2-Minute Noodles", "mrp": "214.00"}
+    cleaned_slogan_meta, slogan_corrs = PostOCRErrorCorrectionEngine.apply_corrections(slogan_raw, slogan_meta)
+    assert cleaned_slogan_meta["mrp"] == "14.00", f"Expected 14.00, got {cleaned_slogan_meta['mrp']}"
+    assert any(c["field"] == "declared_mrp" for c in slogan_corrs)
+    print("  --> Subtest 16.2 Passed: Marketing slogan '2-Minute' disambiguated (214.00 -> 14.00).")
+
+    # Case 3: Unit glyph duplication (1 nN -> 1 N)
+    apparel_meta = {"net_quantity": "1", "unit_of_measure": "nN"}
+    cleaned_app_meta, app_corrs = PostOCRErrorCorrectionEngine.apply_corrections("Net Qty: 1 nN", apparel_meta)
+    assert cleaned_app_meta["unit_of_measure"] == "N", f"Expected N, got {cleaned_app_meta['unit_of_measure']}"
+    print("  --> Subtest 16.3 Passed: Unit double glyph ('nN' -> 'N') corrected.")
+
+    # Case 4: Email domain comma typo (support@brand,com -> support@brand.com)
+    email_meta = {"consumer_care_email": "support@brand,com"}
+    cleaned_email_meta, email_corrs = PostOCRErrorCorrectionEngine.apply_corrections("support@brand,com", email_meta)
+    assert cleaned_email_meta["consumer_care_email"] == "support@brand.com"
+    print("  --> Subtest 16.4 Passed: Email comma typo ('@brand,com' -> '@brand.com') corrected.")
+
+    print(f"  --> PASS: All Post-OCR Self-Healing intelligence rules passed flawlessly!")
+
     print("\n" + "=" * 70)
-    print("ALL COMPLIANCE PIPELINES PASSED VERIFICATION PERFECTLY! [SUCCESS]")
+    print("ALL 16 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
     print("=" * 70)
 
 
