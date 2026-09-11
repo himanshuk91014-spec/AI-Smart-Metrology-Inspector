@@ -8,7 +8,7 @@ echo.
 cd /d "%~dp0"
 echo [1/2] Building frontend bundle...
 cd frontend
-call npm run build
+call npm.cmd run build
 if %errorlevel% neq 0 (
     echo [ERROR] Frontend build failed.
     pause
@@ -18,7 +18,7 @@ cd ..
 
 echo.
 echo [2/2] Deploying to Vercel Production...
-call npx -y vercel deploy --prod
+call npx.cmd -y vercel deploy --prod
 echo.
 if %errorlevel% equ 0 (
     echo ===============================================================================
