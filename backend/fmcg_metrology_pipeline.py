@@ -16,8 +16,15 @@ import re
 import math
 import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
-import cv2
-import numpy as np
+
+try:
+    import cv2
+    import numpy as np
+    HAS_CV2 = True
+except ImportError:
+    cv2 = None
+    np = None
+    HAS_CV2 = False
 
 # Configure Logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")

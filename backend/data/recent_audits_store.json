@@ -1,5 +1,1486 @@
 [
   {
+    "status": "NON_COMPLIANT",
+    "overall_score": 72,
+    "timestamp": "2026-09-20T13:41:43.414991",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "consumer_care_phone",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 15,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 640
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_6_1_C_MISSING_DATE",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Date Missing",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture, packaging, or import is not declared on the package.",
+        "found_text": "None detected",
+        "remediation": "Print Month and Year of manufacture / packaging clearly (e.g., 'Mfd. on : 04/2025' or 'Mfg Date: 03/2026')."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 80 Pages / Units | Dimensions: 23.5x17.5 cm"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Helpline: 8800071077"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.8px across 15 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 225.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 80 pages / units [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Phone: 1800 889 0270 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [
+      {
+        "rule_id": "RULE_9_FONT_SIZE_WARNING",
+        "rule_name": "Rule 9 & Schedule II - Minimum Font Height Advisory",
+        "severity": "LOW",
+        "description": "Text size for statutory declarations appears below recommended height threshold (1 declarations found in micro-font).",
+        "affected_declarations": [
+          "Customer care no.: 1800 889 0270 = MADE IN INDIA"
+        ],
+        "recommendation": "Ensure numeral and letter heights meet statutory minimums (1.0mm to 6.0mm depending on package size/weight under Schedule II)."
+      }
+    ],
+    "extracted_metadata": {
+      "brand_name": "TRE Ll",
+      "mrp": "225.00",
+      "taxes_included": true,
+      "net_quantity": "80",
+      "unit_of_measure": "pages / units",
+      "dimensions": "23.5x17.5 cm",
+      "manufacturing_date": null,
+      "consumer_care_email": null,
+      "consumer_care_phone": "1800 889 0270",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": false,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "All statutory declarations verified physically on package specimen. Reconciled false OCR positives under PCR 2011.",
+      "verified_at": "2026-09-20T19:11:43.414888",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789911703414",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjZTExZDQ4IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UxMWQ0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPiE8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZjhmYWZjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+VFJFIExsPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "TRE Ll",
+    "brand_name": "TRE Ll",
+    "mrp": "₹ 225.00",
+    "net_quantity": "80 pages / units",
+    "violations_count": 1,
+    "violations_summary": [
+      "Rule 6(1)(c) - Manufacturing / Packaging Date Missing"
+    ],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-20T13:38:42.856697",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_email",
+      "consumer_care_phone",
+      "consumer_care_address",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [
+      {
+        "field": "brand_name",
+        "original_ocr": "Co — prem : i",
+        "corrected_value": "Co prem i",
+        "reason": "Sanitized OCR glyph noise from brand title"
+      }
+    ],
+    "total_segments_analyzed": 17,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 400
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Helpline: 1001805102617"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 57.2px across 17 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 40.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 250 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: consumer.care@verifiedproduct.in | Phone: 001805102617 | Address: Customer Support Cell, Plot 42, Industrial Area, New Delhi [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: Declared on package [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "RT —— aati",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "Declared on package",
+      "consumer_care_email": "consumer.care@verifiedproduct.in",
+      "consumer_care_phone": "001805102617",
+      "consumer_care_address": "Customer Support Cell, Plot 42, Industrial Area, New Delhi",
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "consumer_care_address",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "All statutory declarations verified physically on package specimen. Reconciled false OCR positives under PCR 2011.",
+      "verified_at": "2026-09-20T19:08:42.856594",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789911522856",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5SVCDigJTigJQgYWF0aTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "RT —— aati",
+    "brand_name": "RT —— aati",
+    "mrp": "₹ 40.00",
+    "net_quantity": "250 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-20T13:21:41.458251",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_email",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 14,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 338
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 59.5px across 14 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 40.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 50 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: 258822222 | Phone: 258822222 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: Declared on package [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "GHEE",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "50",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "Declared on package",
+      "consumer_care_email": "258822222",
+      "consumer_care_phone": "258822222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": "AGTH",
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_email",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "OFFICER: AKASH TEWARI",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified.",
+      "verified_at": "2026-09-20T18:51:41.458130",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789910501458",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5HSEVFPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "GHEE",
+    "brand_name": "GHEE",
+    "mrp": "₹ 40.00",
+    "net_quantity": "50 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "NON_COMPLIANT",
+    "overall_score": 75,
+    "timestamp": "2026-09-20T13:20:58.980516",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 14,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 338
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_6_1_G_MISSING_ALL",
+        "rule_name": "Rule 6(1)(g) - Consumer Care Mechanism Missing",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "No consumer care or grievance redressal contact information was detected on the package.",
+        "found_text": "None detected",
+        "remediation": "Provide name, address, valid telephone helpline number, and email address of the consumer grievance redressal officer."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 59.5px across 14 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 40.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 50 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: Declared on package [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "GHEE",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "50",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "Declared on package",
+      "consumer_care_email": null,
+      "consumer_care_phone": null,
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": "AGTH",
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": false,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified.",
+      "verified_at": "2026-09-20T18:50:58.980376",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789910458980",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjZTExZDQ4IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UxMWQ0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPiE8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZjhmYWZjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+R0hFRTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "GHEE",
+    "brand_name": "GHEE",
+    "mrp": "₹ 40.00",
+    "net_quantity": "50 g",
+    "violations_count": 1,
+    "violations_summary": [
+      "Rule 6(1)(g) - Consumer Care Mechanism Missing"
+    ],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 91,
+    "timestamp": "2026-09-18T12:37:00.906923",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "total_segments_analyzed": 257,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 7050
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 90.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 400 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Helpline: 083-312311"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 12/26"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 17.0px across 257 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin inferred as India from domestic manufacturer address.",
+        "evidence": "Inferred Origin: India (State/City: Or, PIN Code: 810008)"
+      }
+    ],
+    "warnings": [
+      {
+        "rule_id": "RULE_6_1_G_EMAIL_ADVISORY",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Email Channel Advisory",
+        "severity": "LOW",
+        "description": "Telephonic helpline (083-312311) verified. Dedicating an explicit consumer grievance email address (e.g. care@company.in) is recommended under Rule 6(1)(g).",
+        "recommendation": "Mention a dedicated consumer care email address prominently on the label."
+      },
+      {
+        "rule_id": "RULE_9_FONT_SIZE_WARNING",
+        "rule_name": "Rule 9 & Schedule II - Minimum Font Height Advisory",
+        "severity": "LOW",
+        "description": "Text size for statutory declarations appears below recommended height threshold (2 declarations found in micro-font).",
+        "affected_declarations": [
+          "ceeserrod cars.",
+          "plestis seruoers."
+        ],
+        "recommendation": "Ensure numeral and letter heights meet statutory minimums (1.0mm to 6.0mm depending on package size/weight under Schedule II)."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN_ADVISORY",
+        "rule_name": "Rule 6(10) - Country of Origin Advisory",
+        "severity": "LOW",
+        "description": "Country of origin inferred as 'India' from domestic manufacturer address (State/City: Or, PIN Code: 810008).",
+        "recommendation": "Print explicit statutory phrase 'Country of Origin: India' on the Principal Display Panel as per Rule 6(10) for strict compliance."
+      }
+    ],
+    "extracted_metadata": {
+      "brand_name": "Haldiram's",
+      "mrp": "90.00",
+      "taxes_included": true,
+      "net_quantity": "400",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "12/26",
+      "consumer_care_email": null,
+      "consumer_care_phone": "083-312311",
+      "consumer_care_address": null,
+      "country_of_origin": "India (Inferred from Address & PIN Code)",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-1789735020883",
+    "thumbnail_base64": "data:image/jpeg;base64,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",
+    "thumbnail_url": "/static/thumbnails/AUD-1789735020883.jpg",
+    "filename": "sample10.jpeg",
+    "product_name": "Haldiram's",
+    "brand_name": "Haldiram's",
+    "mrp": "₹ 90.00",
+    "net_quantity": "400 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_ocr"
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-18T05:45:22.415005",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [
+      {
+        "field": "brand_name",
+        "original_ocr": "SKU:975887",
+        "corrected_value": "SKU 975887",
+        "reason": "Sanitized OCR glyph noise from brand title"
+      }
+    ],
+    "total_segments_analyzed": 109,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 3986
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 290.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 1 N"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: suppott@savana.com | Helpline: 91-8448290500"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 03/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 47.3px across 109 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin declared clearly.",
+        "evidence": "Declared Origin: Countryof Origin"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified on package.",
+        "evidence": "Manufacturer/Packer: Marketed By: Imported & Mar Keted By: Irtten & Mm Keie: By: Marketedby:"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "SKU 975887",
+      "mrp": "290.00",
+      "taxes_included": true,
+      "net_quantity": "1",
+      "unit_of_measure": "N",
+      "dimensions": null,
+      "manufacturing_date": "03/2026",
+      "consumer_care_email": "suppott@savana.com",
+      "consumer_care_phone": "91-8448290500",
+      "consumer_care_address": null,
+      "country_of_origin": "Countryof Origin",
+      "manufacturer_name": "Marketed By: Imported & Mar Keted By: Irtten & Mm Keie: By: Marketedby:",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-1789710322194",
+    "thumbnail_base64": "data:image/jpeg;base64,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",
+    "thumbnail_url": "/static/thumbnails/AUD-1789710322194.jpg",
+    "filename": "WhatsApp Image 2026-09-11 at 15.44.00.jpeg",
+    "product_name": "SKU 975887",
+    "brand_name": "SKU 975887",
+    "mrp": "₹ 290.00",
+    "net_quantity": "1 N",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_ocr"
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-12T03:35:51.905868",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "consumer_care_email",
+      "consumer_care_phone",
+      "country_of_origin"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 3,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 40
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 250 g"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 01/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 3 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 120.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: care@tea.in | Phone: 1800-333-2222 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": "120.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": "care@tea.in",
+      "consumer_care_phone": "1800-333-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "LM-INSP-2026-DELHI",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Audit",
+      "inspection_remarks": "Physical package specimen inspected and verified under PCR 2011.",
+      "verified_at": "2026-09-12T09:05:51.905743",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789184151905",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5QUkVNSVVNIFRFQTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "PREMIUM TEA",
+    "brand_name": "PREMIUM TEA",
+    "mrp": "₹ 120.00",
+    "net_quantity": "250 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-12T03:35:44.578444",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "total_segments_analyzed": 6,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 204
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 40.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 200 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: care@crunch.in | Helpline: 1800-222-3344"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 02/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 6 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin identified.",
+        "evidence": "Declared Origin: India"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-TEXT-1789184144578",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5TVVBFUiBDUlVOQ0ggQklTQ1VJVC4uPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "SUPER CRUNCH BISCUITS",
+    "brand_name": "SUPER CRUNCH BISCUITS",
+    "mrp": "₹ 40.00",
+    "net_quantity": "200 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_text_eval",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-12T03:22:55.878381",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "consumer_care_email",
+      "consumer_care_phone",
+      "country_of_origin"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 3,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 40
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 250 g"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 01/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 3 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 120.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Email: care@tea.in | Phone: 1800-333-2222 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "PREMIUM TEA",
+      "mrp": "120.00",
+      "taxes_included": true,
+      "net_quantity": "250",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "01/2026",
+      "consumer_care_email": "care@tea.in",
+      "consumer_care_phone": "1800-333-2222",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "consumer_care_email",
+        "consumer_care_phone",
+        "country_of_origin"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "LM-INSP-2026-DELHI",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Audit",
+      "inspection_remarks": "Physical package specimen inspected and verified under PCR 2011.",
+      "verified_at": "2026-09-12T08:52:55.878296",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789183375878",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5QUkVNSVVNIFRFQTwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "PREMIUM TEA",
+    "brand_name": "PREMIUM TEA",
+    "mrp": "₹ 120.00",
+    "net_quantity": "250 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-12T03:22:50.920177",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "total_segments_analyzed": 6,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 204
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 40.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 200 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: care@crunch.in | Helpline: 1800-222-3344"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 02/2026"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 30.0px across 6 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin identified.",
+        "evidence": "Declared Origin: India"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "SUPER CRUNCH BISCUITS",
+      "mrp": "40.00",
+      "taxes_included": true,
+      "net_quantity": "200",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "02/2026",
+      "consumer_care_email": "care@crunch.in",
+      "consumer_care_phone": "1800-222-3344",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": null,
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-TEXT-1789183370920",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5TVVBFUiBDUlVOQ0ggQklTQ1VJVC4uPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "SUPER CRUNCH BISCUITS",
+    "brand_name": "SUPER CRUNCH BISCUITS",
+    "mrp": "₹ 40.00",
+    "net_quantity": "200 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_text_eval",
+    "thumbnail_url": null
+  },
+  {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-12T02:53:13.416853",
+    "is_manually_verified": false,
+    "manual_fields_applied": [],
+    "corrections_made": [],
+    "total_segments_analyzed": 112,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 3128
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
+        "evidence": "Found MRP: ₹ 25.00 with confirmed statutory tax / GST inclusion suffix."
+      },
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 80 Pages / Units | Dimensions: 23.5x17.5cm"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Email: writeonwhite@write.onwhite | Helpline: 8893071077"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: Declared on package"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 23.5px across 112 segments."
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of Origin identified.",
+        "evidence": "Declared Origin: India"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified on package.",
+        "evidence": "Manufacturer/Packer: Marketed By: A Quality Product Manufactured & Marketed By: Classicseries Classic Series Classit Series Pm Er Save Earthto Stay On Earth Saveearthtostayonearth Saveearthto Stay On Earth Saveearthto Stayon Earth Saveearthtostayon Earth Save Earth To Siai Chi Eacth Scan Fhe Qr Code Scan The Qr Code And Join Scan The Qr Codeand Join Our World On Social Media Ourworldon Social Medla 回@Writeonwhite@Write.Onwhite 同 Awr Tr Awhn @Write Onwhite Fl A -Stwthewhu!? F@Justwriteonwhite Wwwwriteonwhitein @Www Wr Teonwhite I Wo+R Tenwtp Ir Www.Writeonwhite.In Www.Writeonwhitein Wow@Writeonwhite.In Wow@Writeonwhitein Wow@Writeonwhitelin Pcges 80 Pages : 80 Pages 80 Pages:80 Idr & U.. Descove Index&Coven Index&Cover) Tua Pages Lhelude (Total Poges Include (Total Pages Include Tofalpoges Inelude I++ R'R+ + Lu..."
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "三Notebook",
+      "mrp": "25.00",
+      "taxes_included": true,
+      "net_quantity": "80",
+      "unit_of_measure": "Pages / Units",
+      "dimensions": "23.5x17.5cm",
+      "manufacturing_date": null,
+      "consumer_care_email": "writeonwhite@write.onwhite",
+      "consumer_care_phone": "8893071077",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Marketed By: A Quality Product Manufactured & Marketed By: Classicseries Classic Series Classit Series Pm Er Save Earthto Stay On Earth Saveearthtostayonearth Saveearthto Stay On Earth Saveearthto Stayon Earth Saveearthtostayon Earth Save Earth To Siai Chi Eacth Scan Fhe Qr Code Scan The Qr Code And Join Scan The Qr Codeand Join Our World On Social Media Ourworldon Social Medla 回@Writeonwhite@Write.Onwhite 同 Awr Tr Awhn @Write Onwhite Fl A -Stwthewhu!? F@Justwriteonwhite Wwwwriteonwhitein @Www Wr Teonwhite I Wo+R Tenwtp Ir Www.Writeonwhite.In Www.Writeonwhitein Wow@Writeonwhite.In Wow@Writeonwhitein Wow@Writeonwhitelin Pcges 80 Pages : 80 Pages 80 Pages:80 Idr & U.. Descove Index&Coven Index&Cover) Tua Pages Lhelude (Total Poges Include (Total Pages Include Tofalpoges Inelude I++ R'R+ + Lu...",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": []
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "audit_id": "AUD-1789181593336",
+    "thumbnail_base64": "data:image/jpeg;base64,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",
+    "thumbnail_url": "/static/thumbnails/AUD-1789181593336.jpg",
+    "filename": "sample 3.jpeg",
+    "product_name": "三Notebook",
+    "brand_name": "三Notebook",
+    "mrp": "₹ 25.00",
+    "net_quantity": "80 Pages / Units",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "backend_ocr"
+  },
+  {
     "status": "COMPLIANT",
     "overall_score": 100,
     "timestamp": "2026-09-11T19:05:31.160205",
@@ -512,133 +1993,6 @@
     "product_name": "Mtd.byTCLimited 37 J.LNehruRoad",
     "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
     "mrp": "₹ 70.05",
-    "net_quantity": "None None",
-    "violations_count": 1,
-    "violations_summary": [
-      "Rule 11 & 12 - Net Quantity Declaration"
-    ],
-    "source": "backend_ocr"
-  },
-  {
-    "status": "NON_COMPLIANT",
-    "overall_score": 72,
-    "timestamp": "2026-09-11T19:00:32.157695",
-    "is_manually_verified": false,
-    "manual_fields_applied": [],
-    "corrections_made": [],
-    "total_segments_analyzed": 62,
-    "multilingual_profile": {
-      "dominant_language": "en",
-      "language_name": "English",
-      "dominant_script": "Latin",
-      "is_multilingual": false,
-      "scripts_present": [
-        "Latin"
-      ],
-      "regional_char_count": 0,
-      "latin_char_count": 1960
-    },
-    "violations": [
-      {
-        "rule_id": "RULE_11_12_NO_VALID_METRIC",
-        "rule_name": "Rule 11 & 12 - Net Quantity Declaration",
-        "severity": "HIGH",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
-        "description": "Standard net quantity in approved SI units (g, kg, ml, l, N/units/pcs/pages/pens) was not identified.",
-        "found_text": "Missing valid metric quantity statement",
-        "remediation": "Provide net quantity clearly in standard units: grams (g), kilograms (kg), millilitres (ml), litres (l), or count (N / Units / Pens / Pcs / Pages)."
-      }
-    ],
-    "passed_checks": [
-      {
-        "rule_id": "RULE_6_1_DA",
-        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP) & Tax Suffix",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
-        "description": "Validated Maximum Retail Price format and mandatory statutory tax inclusion clause.",
-        "evidence": "Found MRP: ₹ 42 with confirmed statutory tax / GST inclusion suffix."
-      },
-      {
-        "rule_id": "RULE_6_1_G",
-        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
-        "description": "Consumer grievance redressal channel verified on package.",
-        "evidence": "Email: qmat@itc.in | Helpline: 18004254444"
-      },
-      {
-        "rule_id": "RULE_6_1_C",
-        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
-        "description": "Month and Year of manufacture/packaging is verified.",
-        "evidence": "Declared Timeline: 03/26"
-      },
-      {
-        "rule_id": "RULE_9_LAYOUT",
-        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
-        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
-        "evidence": "Estimated Average Font Box Height: 220.1px across 62 segments."
-      },
-      {
-        "rule_id": "RULE_6_10_ORIGIN",
-        "rule_name": "Rule 6(10) - Country of Origin",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
-        "description": "Country of Origin inferred as India from domestic manufacturer address.",
-        "evidence": "Inferred Origin: India (State/City: Kolkata, PIN Code: 444444)"
-      },
-      {
-        "rule_id": "RULE_6_1_A_MFG_NAME",
-        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
-        "description": "Name of Manufacturer/Packer identified on package.",
-        "evidence": "Manufacturer/Packer: Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick"
-      }
-    ],
-    "warnings": [
-      {
-        "rule_id": "RULE_6_10_ORIGIN_ADVISORY",
-        "rule_name": "Rule 6(10) - Country of Origin Advisory",
-        "severity": "LOW",
-        "description": "Country of origin inferred as 'India' from domestic manufacturer address (State/City: Kolkata, PIN Code: 444444).",
-        "recommendation": "Print explicit statutory phrase 'Country of Origin: India' on the Principal Display Panel as per Rule 6(10) for strict compliance."
-      }
-    ],
-    "extracted_metadata": {
-      "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
-      "mrp": "42",
-      "taxes_included": true,
-      "net_quantity": null,
-      "unit_of_measure": null,
-      "dimensions": null,
-      "manufacturing_date": "03/26",
-      "consumer_care_email": "qmat@itc.in",
-      "consumer_care_phone": "18004254444",
-      "consumer_care_address": null,
-      "country_of_origin": "India (Inferred from Address & PIN Code)",
-      "manufacturer_name": "Mfd By Amar Splints Pvt Ltd. Mfd. By Amar Splints Pvt. Ltd. 70.05Perstick 70.05 Per Stick R0.05Perstick",
-      "article_number": null,
-      "item_code": null,
-      "model_number": null,
-      "batch_number": null,
-      "barcode": null,
-      "detected_language": "en",
-      "language_name": "English",
-      "detected_script": "Latin",
-      "manual_fields": []
-    },
-    "rules_breakdown": {
-      "rule_6_1_da_mrp": true,
-      "rule_11_12_net_quantity": false,
-      "rule_6_1_g_consumer_care": true,
-      "rule_6_1_c_mfg_date": true,
-      "rule_9_font_aspect": true
-    },
-    "audit_id": "AUD-1789153232126",
-    "thumbnail_base64": "data:image/jpeg;base64,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",
-    "thumbnail_url": "/static/thumbnails/AUD-1789153232126.jpg",
-    "filename": "smm.jpeg",
-    "product_name": "Mtd.byTCLimited 37 J.LNehruRoad",
-    "brand_name": "Mtd.byTCLimited 37 J.LNehruRoad",
-    "mrp": "₹ 42",
     "net_quantity": "None None",
     "violations_count": 1,
     "violations_summary": [
@@ -1542,118 +2896,6 @@
     "audit_id": "AUD-1789151509992",
     "thumbnail_base64": "data:image/jpeg;base64,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",
     "thumbnail_url": "/static/thumbnails/AUD-1789151509992.jpg",
-    "filename": "WhatsApp Image 2026-09-11 at 11.14.32 AM (1).jpeg",
-    "product_name": "CURL STYLING GEL",
-    "brand_name": "CURL STYLING GEL",
-    "mrp": "₹ 99.00",
-    "net_quantity": "50 g",
-    "violations_count": 1,
-    "violations_summary": [
-      "Rule 6(1)(da) - Statutory Tax Inclusion Suffix"
-    ],
-    "source": "backend_ocr"
-  },
-  {
-    "status": "NON_COMPLIANT",
-    "overall_score": 75,
-    "timestamp": "2026-09-11T18:30:04.851046",
-    "is_manually_verified": false,
-    "manual_fields_applied": [],
-    "corrections_made": [],
-    "total_segments_analyzed": 269,
-    "multilingual_profile": {
-      "dominant_language": "en",
-      "language_name": "English",
-      "dominant_script": "Latin",
-      "is_multilingual": false,
-      "scripts_present": [
-        "Latin"
-      ],
-      "regional_char_count": 0,
-      "latin_char_count": 9038
-    },
-    "violations": [
-      {
-        "rule_id": "RULE_6_1_DA_TAX_SUFFIX_MISSING",
-        "rule_name": "Rule 6(1)(da) - Statutory Tax Inclusion Suffix",
-        "severity": "HIGH",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
-        "description": "MRP is stated without the mandatory statutory phrase ('Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST').",
-        "found_text": "MRP: 99.00 (Missing Tax Suffix)",
-        "remediation": "Append the mandatory statutory text 'Inclusive of all taxes', 'Incl. of all taxes', or 'Inclusive of GST' immediately adjacent to the price."
-      }
-    ],
-    "passed_checks": [
-      {
-        "rule_id": "RULE_11_12",
-        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
-        "description": "Net quantity and dimensions declared in standard statutory metric units.",
-        "evidence": "Declared Quantity: 50 g"
-      },
-      {
-        "rule_id": "RULE_6_1_G",
-        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
-        "description": "Consumer grievance redressal channel verified on package.",
-        "evidence": "Email: choip@trent.tata.com | Helpline: 6031 0872026"
-      },
-      {
-        "rule_id": "RULE_6_1_C",
-        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
-        "description": "Month and Year of manufacture/packaging is verified.",
-        "evidence": "Declared Timeline: 10/19"
-      },
-      {
-        "rule_id": "RULE_9_LAYOUT",
-        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
-        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
-        "evidence": "Estimated Average Font Box Height: 34.9px across 269 segments."
-      },
-      {
-        "rule_id": "RULE_6_10_ORIGIN",
-        "rule_name": "Rule 6(10) - Country of Origin",
-        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
-        "description": "Country of Origin identified.",
-        "evidence": "Declared Origin: India"
-      }
-    ],
-    "warnings": [],
-    "extracted_metadata": {
-      "brand_name": "CURL STYLING GEL",
-      "mrp": "99.00",
-      "taxes_included": false,
-      "net_quantity": "50",
-      "unit_of_measure": "g",
-      "dimensions": null,
-      "manufacturing_date": "10/19",
-      "consumer_care_email": "choip@trent.tata.com",
-      "consumer_care_phone": "6031 0872026",
-      "consumer_care_address": null,
-      "country_of_origin": "India",
-      "manufacturer_name": null,
-      "article_number": null,
-      "item_code": null,
-      "model_number": null,
-      "batch_number": null,
-      "barcode": null,
-      "detected_language": "en",
-      "language_name": "English",
-      "detected_script": "Latin",
-      "manual_fields": []
-    },
-    "rules_breakdown": {
-      "rule_6_1_da_mrp": false,
-      "rule_11_12_net_quantity": true,
-      "rule_6_1_g_consumer_care": true,
-      "rule_6_1_c_mfg_date": true,
-      "rule_9_font_aspect": true
-    },
-    "audit_id": "AUD-1789151404776",
-    "thumbnail_base64": "data:image/jpeg;base64,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",
-    "thumbnail_url": "/static/thumbnails/AUD-1789151404776.jpg",
     "filename": "WhatsApp Image 2026-09-11 at 11.14.32 AM (1).jpeg",
     "product_name": "CURL STYLING GEL",
     "brand_name": "CURL STYLING GEL",

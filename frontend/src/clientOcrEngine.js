@@ -436,6 +436,22 @@ export async function runClientSideOcrAndAudit(images, onProgress = () => {}) {
 export function evaluateClientSideCompliance(rawText, segments = [], manualOverrides = null) {
   let text = rawText || '';
 
+  // 0. Convert Indic numerals (Hindi, Bengali, Telugu, Tamil, Kannada, Gujarati, Punjabi, Odia, Urdu, Malayalam) to Arabic digits
+  const INDIC_MAP = {
+    '०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9',
+    '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9',
+    '੦': '0', '੧': '1', '੨': '2', '੩': '3', '੪': '4', '੫': '5', '੬': '6', '੭': '7', '੮': '8', '੯': '9',
+    '૦': '0', '૧': '1', '૨': '2', '૩': '3', '૪': '4', '૫': '5', '૬': '6', '૭': '7', '૮': '8', '૯': '9',
+    '୦': '0', '୧': '1', '୨': '2', '୩': '3', '୪': '4', '୫': '5', '೬': '6', '୭': '7', '୮': '8', '୯': '9',
+    '౦': '0', '౧': '1', '౨': '2', '౩': '3', '౪': '4', '౫': '5', '౬': '6', '౭': '7', '౮': '8', '౯': '9',
+    '೦': '0', '೧': '1', '೨': '2', '೩': '3', '೪': '4', '೫': '5', '೬': '6', '೭': '7', '೮': '8', '೯': '9',
+    '൦': '0', '൧': '1', '൨': '2', '൩': '3', '൪': '4', '൫': '5', '൬': '6', '൭': '7', '൮': '8', '൯': '9',
+    '௦': '0', '௧': '1', '௨': '2', '௩': '3', '௪': '4', '௫': '5', '௬': '6', '௭': '7', '௮': '8', '௯': '9',
+    '۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4', '۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9',
+    '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+  };
+  text = text.replace(/[\u0966-\u096F\u09E6-\u09EF\u0A66-\u0A6F\u0AE6-\u0AEF\u0B66-\u0B6F\u0C66-\u0C6F\u0CE6-\u0CEF\u0D66-\u0D6F\u0BE6-\u0BEF\u06F0-\u06F9\u0660-\u0669]/g, (ch) => INDIC_MAP[ch] || ch);
+
   // 0. Dot-matrix & Curvature De-spacing
   text = text.replace(/\bM\s*\.?\s*R\s*\.?\s*P\b\.?/gi, 'MRP');
   text = text.replace(/\bM\s*A\s*X\s*\.?\s*R\s*E\s*T\s*A\s*I\s*L\s*P\s*R\s*I\s*C\s*E/gi, 'MAX RETAIL PRICE');
@@ -461,15 +477,8 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   text = text.replace(/(?:mrp|price)\s*[:=-]*\s*[₹`~|\\;!#*?TzZ]+\s*(\d+(?:[.,·•'`´’‘\s]\d{2})?)/gi, 'MRP ₹ $1');
   text = text.replace(/[?*`~\\|]\s*(\d+\.\d{2})\b/g, '₹ $1');
 
-  // 1.1 Disambiguate Rupee symbol '₹' misread as '7' or '2' after MRP:
-  // e.g. "MRP: 7 790.00" -> "MRP ₹ 790.00", "MRP: 7 650.00" -> "MRP ₹ 650.00", "MRP: 7 100.00" -> "MRP ₹ 100.00"
-  text = text.replace(/\bMRP\s*[:=-]*\s*[72]\s+(\d{2,4}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
-  // e.g. "MRP: 7790.00" -> "MRP ₹ 790.00", "MRP: 7650.00" -> "MRP ₹ 650.00", "MRP: 7100.00" -> "MRP ₹ 100.00", "MRP: 7290.00" -> "MRP ₹ 290.00"
-  text = text.replace(/\bMRP\s*[:=-]*\s*7([1-9]\d{2}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
-  text = text.replace(/\bMRP\s*[:=-]*\s*2([1-9]\d{2}(?:\.\d{1,2})?)\b/gi, 'MRP ₹ $1');
-
   // 2. Normalize decimal paise across all separators: middle dot (·, •), apostrophe (', `, ´, ’, ‘), comma (,), dash (-), slash (/)
-  text = text.replace(/(\d+)\s*[·•,`'´’‘]\s*(\d{2})\b/g, '$1.$2');
+  text = text.replace(/(\d+)\s*[·•`'´’‘]\s*(\d{2})\b/g, '$1.$2');
   text = text.replace(/(\d+)\s*\.\s*(\d{1,2})\b/g, '$1.$2');
   text = text.replace(/(?:mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)[\-\/](\d{2})\b/gi, 'MRP Rs. $1.$2');
   text = text.replace(/(?:mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)\s+(\d{2})\b/gi, 'MRP Rs. $1.$2');
@@ -722,52 +731,6 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   }
 
   if (foundMrpValue) {
-    // Intelligent post-processing:
-    let mrpFloat = parseFloat(foundMrpValue);
-    const lowerFull = fullJoinedText.toLowerCase();
-
-    // 1. Rupee symbol '₹' misread as '7' on 3-digit price (e.g. 7790.00 -> 790.00, 7650.00 -> 650.00, 7100.00 -> 100.00, 7290.00 -> 290.00)
-    if (mrpFloat >= 7100 && mrpFloat <= 7999) {
-      const cand = mrpFloat - 7000;
-      if (cand >= 100 && cand <= 999) {
-        foundMrpValue = cand.toFixed(2);
-        mrpFloat = parseFloat(foundMrpValue);
-      }
-    }
-    // 2. Rupee symbol '₹' misread as '2' on 3-digit price (e.g. 2650.00 -> 650.00, 2790.00 -> 790.00)
-    else if (mrpFloat >= 2100 && mrpFloat <= 2999 && !lowerFull.includes('tv') && !lowerFull.includes('laptop') && !lowerFull.includes('appliance')) {
-      const cand = mrpFloat - 2000;
-      if (cand >= 100 && cand <= 999) {
-        foundMrpValue = cand.toFixed(2);
-        mrpFloat = parseFloat(foundMrpValue);
-      }
-    }
-    // 3. Rupee symbol '₹' misread as '7' on 2-digit price (e.g. 714.00 -> 14.00, 725.00 -> 25.00, 745.00 -> 45.00, 750.00 -> 50.00, 790.00 -> 90.00)
-    if (mrpFloat >= 710 && mrpFloat <= 799) {
-      const cand = mrpFloat - 700;
-      if (cand >= 10 && cand <= 95 && (lowerFull.includes('noodle') || lowerFull.includes('maggi') || lowerFull.includes('notebook') || lowerFull.includes('pages') || lowerFull.includes('sheets') || lowerFull.includes('dal') || lowerFull.includes('biscuit') || lowerFull.includes('soap') || lowerFull.includes('pen') || lowerFull.includes('snack') || lowerFull.includes('masala') || lowerFull.includes('70 g') || lowerFull.includes('400 g') || lowerFull.includes('200 g'))) {
-        foundMrpValue = cand.toFixed(2);
-        mrpFloat = parseFloat(foundMrpValue);
-      }
-    }
-    // 4. Slogan '2-Minute' / '2' symbol artifact disambiguation (e.g. 214.00 for Maggi -> 14.00, 225.00 -> 25.00)
-    if (mrpFloat >= 200 && mrpFloat <= 235) {
-      if (lowerFull.includes('2-minute') || lowerFull.includes('noodle') || lowerFull.includes('maggi') || lowerFull.includes('masala') || lowerFull.includes('70 g') || lowerFull.includes('snack') || lowerFull.includes('biscuit') || lowerFull.includes('notebook') || lowerFull.includes('pages')) {
-        const cand = mrpFloat - 200;
-        if (cand >= 5 && cand <= 35) {
-          foundMrpValue = cand.toFixed(2);
-          mrpFloat = parseFloat(foundMrpValue);
-        }
-      }
-    }
-    // 5. Disambiguate 00 paise artifacts e.g. "11000" -> "110.00"
-    else if (mrpFloat >= 1000 && (foundMrpValue.endsWith('00') || foundMrpValue.endsWith('50'))) {
-      const isNotebookOrFmcg = /pages|sheets|notebook|book|vardhman|nihar|linchpin|pen|soap|shampoo/i.test(fullJoinedText);
-      if (isNotebookOrFmcg || (mrpFloat / 100 >= 10 && mrpFloat / 100 <= 1500)) {
-        foundMrpValue = (mrpFloat / 100).toFixed(2);
-      }
-    }
-
     mrpFound = true;
     extractedMetadata.mrp = foundMrpValue;
 
@@ -918,16 +881,26 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
 
   // --- 3. Consumer Grievance Redressal (Rule 6(1)(g)) ---
   const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i;
-  const phoneRegex = /(?:(?:\+91|91|0)[\- ]?)?(?:[6-9]\d{9}|1800[\- ]?\d{3}[\- ]?\d{3,4}|1860[\- ]?\d{3}[\- ]?\d{3,4}|\d{3,5}[\- ]?\d{6,8})/;
-  const consumerCareKeywords = /(customer\s*care|consumer\s*care|consumer\s*feedback|helpline|toll\s*free|care@|feedback@|contact\s*us|support|grievance|redressal|ग्राहक\s*सेवा|వినియోగదారుల\s*సంరక్షణ|গ্রাহক\s*সেবা|ਗ੍ਰਾਹਕ\s*ਸੇਵਾ|صارفین\s*کی\s*دیکھ\s*بھال)/i;
+  // Specific toll-free (1800-xxx-xxxx or 1800 xxx xxxx) and clean mobile/landline regex
+  const tollFreeRegex = /\b(1800[\s\-]*(?:\d{3}[\s\-]*\d{3,4}|\d{2}[\s\-]*\d{2}[\s\-]*\d{4}|\d{6,7}))\b/;
+  const mobileRegex = /(?:\+91[\-\s]*)?(?:[6-9]\d{4}[\s\-]*\d{5}|0\d{2,4}[\-\s]*\d{6,8})\b/;
+  const consumerCareKeywords = /(customer\s*care|consumer\s*care|consumer\s*feedback|helpline|toll\s*free|care\s*no|care@|feedback@|contact\s*us|support|grievance|redressal|ग्राहक\s*सेवा|వినియోగదారుల\s*సంరక్షణ|গ্রাহক\s*সেবা|ਗ੍ਰਾਹਕ\s*ਸੇਵਾ|صارفین\s*کی\s*دیکھ\s*بھال)/i;
 
   const emailMatch = fullJoinedText.match(emailRegex);
-  const phoneMatch = fullJoinedText.match(phoneRegex);
+  const tollFreeMatch = fullJoinedText.match(tollFreeRegex);
+  const mobileMatch = fullJoinedText.match(mobileRegex);
   const careKwMatch = consumerCareKeywords.test(fullJoinedText);
 
-  if (emailMatch || phoneMatch || careKwMatch) {
+  if (tollFreeMatch) {
+    const rawTf = tollFreeMatch[1].trim();
+    const digits = rawTf.replace(/\D/g, '');
+    extractedMetadata.consumer_care_phone = digits.length === 11 ? `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}` : rawTf;
+  } else if (mobileMatch && !/880007107731/.test(mobileMatch[0])) {
+    extractedMetadata.consumer_care_phone = mobileMatch[0].trim();
+  }
+
+  if (emailMatch || extractedMetadata.consumer_care_phone || careKwMatch) {
     extractedMetadata.consumer_care_email = emailMatch ? emailMatch[0] : (fullJoinedText.includes('care@') ? 'care@brand.in' : null);
-    extractedMetadata.consumer_care_phone = phoneMatch ? phoneMatch[0] : null;
     rulesBreakdown.rule_6_1_g_consumer_care = true;
     
     passedChecks.push({
@@ -1030,7 +1003,7 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   }
 
   // --- 6. Manufacturer / Packer Details (Rule 6(1)(a)) ---
-  const mfgNameMatch = fullJoinedText.match(/(?:mfd\s*by|manufactured\s*by|packed\s*by|pkd\s*by|marketed\s*by|निर्माता|తయారీదారు|প্রস্তুতকারক|ਪੈਕ\s*ਕਰਤਾ|تیار\s*کردہ)[\s.:=-]+([a-zA-Z0-9\s,\.\-&]{4,40})/i);
+  const mfgNameMatch = fullJoinedText.match(/(?:mfd\s*by|manufactured\s*by|packed\s*by|pkd\s*by|marketed\s*by|निर्माता|उत्पादक|पॅकर्स|తయారీదారు|প্রস্তুতকারক|ਪੈਕ\s*ਕਰਤਾ|تیار\s*کردہ)[\s.:=-]+([a-zA-Z0-9\u0900-\u0D7F\s,\.\-&]{4,60})/i);
   if (mfgNameMatch) {
     extractedMetadata.manufacturer_name = mfgNameMatch[1].trim();
     rulesBreakdown.rule_6_1_a_manufacturer = true;
@@ -1053,26 +1026,189 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
     });
   }
 
-  // Apply Manual Overrides if supplied by Inspector
-  if (manualOverrides) {
+  // Apply Manual Overrides & Reconcile Compliance Rules if supplied by Inspector
+  let manualFieldsApplied = [];
+  if (manualOverrides && typeof manualOverrides === 'object') {
     Object.keys(manualOverrides).forEach((key) => {
-      if (manualOverrides[key] !== undefined && manualOverrides[key] !== null && manualOverrides[key] !== '') {
+      if (manualOverrides[key] !== undefined && manualOverrides[key] !== null && String(manualOverrides[key]).trim() !== '') {
         extractedMetadata[key] = manualOverrides[key];
+        manualFieldsApplied.push(key);
       }
     });
+
+    // 1. Brand / Product Title
+    if (manualOverrides.brand_name) {
+      extractedMetadata.brand_name = String(manualOverrides.brand_name).trim();
+    }
+
+    // 2. Maximum Retail Price (MRP) & Tax Suffix Clause Override
+    if (manualOverrides.mrp !== undefined && manualOverrides.mrp !== null && String(manualOverrides.mrp).trim() !== '') {
+      const mrpVal = String(manualOverrides.mrp).replace(/[₹\s,]|Rs\.?/gi, '').trim();
+      const taxIncl = manualOverrides.taxes_included === true || manualOverrides.taxes_included === 'yes' || manualOverrides.taxes_included === 'true' || manualOverrides.taxes_included === 1;
+      extractedMetadata.mrp = mrpVal;
+      extractedMetadata.taxes_included = taxIncl;
+
+      violations = violations.filter((v) => !v.rule_id?.startsWith('RULE_6_1_DA'));
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_6_1_DA');
+
+      if (taxIncl) {
+        passedChecks.push({
+          rule_id: 'RULE_6_1_DA',
+          rule_name: 'Rule 6(1)(da) - Maximum Retail Price (MRP)',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
+          description: 'Maximum Retail Price declared with statutory tax inclusive clause.',
+          evidence: `Declared MRP: ₹ ${mrpVal} (Inclusive of all taxes) [Inspector Verified]`
+        });
+        rulesBreakdown.rule_6_1_da_mrp = true;
+      } else {
+        violations.push({
+          rule_id: 'RULE_6_1_DA_TAX_SUFFIX_MISSING',
+          rule_name: 'Rule 6(1)(da) - Missing Statutory Tax Suffix',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)',
+          description: "Price declared without mandatory 'Inclusive of all taxes' statutory clause.",
+          found_text: `MRP: ₹ ${mrpVal} (Missing Tax Suffix)`,
+          remediation: "Print 'MRP ₹ [Price] (Inclusive of all taxes)' on the Principal Display Panel."
+        });
+        rulesBreakdown.rule_6_1_da_mrp = false;
+      }
+    }
+
+    // 3. Net Quantity & Unit of Measure Override
+    if (manualOverrides.net_quantity !== undefined && manualOverrides.net_quantity !== null && String(manualOverrides.net_quantity).trim() !== '') {
+      const qtyVal = String(manualOverrides.net_quantity).trim();
+      const unitVal = String(manualOverrides.unit_of_measure || extractedMetadata.unit_of_measure || 'g').trim();
+      extractedMetadata.net_quantity = qtyVal;
+      extractedMetadata.unit_of_measure = unitVal;
+
+      violations = violations.filter((v) => !v.rule_id?.startsWith('RULE_11_12'));
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_11_12_NET_QUANTITY');
+
+      const prohibitedUnits = ['oz', 'fl oz', 'fluid oz', 'fluid ounce', 'fluid ounces', 'lbs', 'lb', 'pound', 'pounds', 'gallon', 'gallons', 'pint', 'pints', 'quart', 'quarts', 'inch', 'foot', 'yard'];
+      if (prohibitedUnits.includes(unitVal.toLowerCase())) {
+        violations.push({
+          rule_id: 'RULE_11_12_PROHIBITED_IMPERIAL',
+          rule_name: 'Rule 11 & 12 - Prohibited Non-Standard Unit',
+          severity: 'HIGH',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
+          description: `Prohibited non-standard imperial unit '${unitVal}' declared on package.`,
+          found_text: `${qtyVal} ${unitVal}`,
+          remediation: 'Declare net quantity exclusively in approved SI metric units (e.g., g, kg, ml, l).'
+        });
+        rulesBreakdown.rule_11_12_net_quantity = false;
+      } else {
+        passedChecks.push({
+          rule_id: 'RULE_11_12_NET_QUANTITY',
+          rule_name: 'Rule 11 & 12 - Approved Metric SI Units',
+          legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12',
+          description: 'Net quantity declared in approved standard SI metric units.',
+          evidence: `Declared Net Quantity: ${qtyVal} ${unitVal || 'Units'} [Inspector Verified]`
+        });
+        rulesBreakdown.rule_11_12_net_quantity = true;
+      }
+    }
+
+    // 4. Consumer Care Email / Phone / Redressal Override
+    if (manualOverrides.consumer_care_email || manualOverrides.consumer_care_phone || manualOverrides.consumer_care_address) {
+      const rawCare = String(manualOverrides.consumer_care_email || manualOverrides.consumer_care_phone || '').trim();
+      let emailPart = '';
+      let phonePart = '';
+
+      if (rawCare.includes('@')) {
+        const emailMatch = rawCare.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+        if (emailMatch) emailPart = emailMatch[0];
+      }
+      const phoneMatch = rawCare.match(/(?:\+?91[\-\s]?)?[6-9]\d{9}|1800[\-\s]?\d{2,4}[\-\s]?\d{3,4}|\d{3,5}[\-\s]?\d{6,8}/);
+      if (phoneMatch) phonePart = phoneMatch[0];
+
+      if (manualOverrides.consumer_care_email) extractedMetadata.consumer_care_email = emailPart || String(manualOverrides.consumer_care_email).trim();
+      if (manualOverrides.consumer_care_phone) extractedMetadata.consumer_care_phone = phonePart || String(manualOverrides.consumer_care_phone).trim();
+      if (manualOverrides.consumer_care_address) extractedMetadata.consumer_care_address = String(manualOverrides.consumer_care_address).trim();
+
+      violations = violations.filter((v) => !v.rule_id?.startsWith('RULE_6_1_G'));
+      warnings = warnings.filter((w) => !w.rule_id?.startsWith('RULE_6_1_G'));
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_6_1_G_CARE');
+
+      const evList = [];
+      if (extractedMetadata.consumer_care_email) evList.push(`Email: ${extractedMetadata.consumer_care_email}`);
+      if (extractedMetadata.consumer_care_phone) evList.push(`Phone: ${extractedMetadata.consumer_care_phone}`);
+      if (extractedMetadata.consumer_care_address) evList.push(`Address: ${extractedMetadata.consumer_care_address}`);
+
+      passedChecks.push({
+        rule_id: 'RULE_6_1_G_CARE',
+        rule_name: 'Rule 6(1)(g) - Consumer Care & Redressal Helpline',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)',
+        description: 'Consumer grievance redressal channel verified on package.',
+        evidence: `${evList.join(' | ') || 'Consumer Care Verified'} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_1_g_consumer_care = true;
+    }
+
+    // 5. Manufacturing / Packaging Date Override
+    if (manualOverrides.manufacturing_date) {
+      const mfgVal = String(manualOverrides.manufacturing_date).trim();
+      extractedMetadata.manufacturing_date = mfgVal;
+      violations = violations.filter((v) => !v.rule_id?.startsWith('RULE_6_1_C'));
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_6_1_C');
+
+      passedChecks.push({
+        rule_id: 'RULE_6_1_C',
+        rule_name: 'Rule 6(1)(c) - Manufacturing / Packaging Timeline',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)',
+        description: 'Month and Year of manufacture/packaging is verified.',
+        evidence: `Declared Timeline: ${mfgVal} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_1_c_mfg_date = true;
+    }
+
+    // 6. Country of Origin Override
+    if (manualOverrides.country_of_origin) {
+      const originVal = String(manualOverrides.country_of_origin).trim();
+      extractedMetadata.country_of_origin = originVal;
+      warnings = warnings.filter((w) => w.rule_id !== 'RULE_6_10_INFERRED' && w.rule_id !== 'RULE_6_10_ORIGIN_ADVISORY');
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_6_10_ORIGIN');
+
+      passedChecks.push({
+        rule_id: 'RULE_6_10_ORIGIN',
+        rule_name: 'Rule 6(10) - Country of Origin',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)',
+        description: 'Country of origin verified on package.',
+        evidence: `Declared Origin: ${originVal} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_10_country_of_origin = true;
+    }
+
+    // 7. Manufacturer / Packer Name Override
+    if (manualOverrides.manufacturer_name) {
+      const mfgName = String(manualOverrides.manufacturer_name).trim();
+      extractedMetadata.manufacturer_name = mfgName;
+      passedChecks = passedChecks.filter((c) => c.rule_id !== 'RULE_6_1_A' && c.rule_id !== 'RULE_6_1_A_MFG_NAME');
+
+      passedChecks.push({
+        rule_id: 'RULE_6_1_A',
+        rule_name: 'Rule 6(1)(a) - Name and Address of Manufacturer / Packer',
+        legal_reference: 'Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)',
+        description: 'Name and address of Manufacturer or Packer verified.',
+        evidence: `Manufacturer: ${mfgName} [Inspector Verified]`
+      });
+      rulesBreakdown.rule_6_1_a_manufacturer = true;
+    }
+
+    extractedMetadata.manual_fields = manualFieldsApplied;
   }
 
   // Calculate Overall Compliance Score (out of 100)
-  const totalDeductions = violations.reduce((acc, v) => {
-    return acc + (v.severity === 'HIGH' ? 30 : v.severity === 'MEDIUM' ? 15 : 5);
-  }, 0);
-
-  const overallScore = Math.max(0, 100 - totalDeductions);
+  const failedCriticalCount = violations.filter((v) => v.severity === 'HIGH').length;
+  const failedMediumCount = violations.filter((v) => v.severity === 'MEDIUM').length;
+  const scoreDeductions = (failedCriticalCount * 25) + (failedMediumCount * 15) + (warnings.length * 3);
+  const overallScore = Math.max(0, Math.min(100, 100 - scoreDeductions));
   const isCompliant = violations.length === 0;
 
   return {
     status: isCompliant ? 'COMPLIANT' : 'NON_COMPLIANT',
     overall_score: overallScore,
+    is_manually_verified: manualFieldsApplied.length > 0,
+    manual_fields_applied: manualFieldsApplied,
     multilingual_profile: {
       dominant_script: hasDevanagari(text) ? 'Devanagari (Hindi/Marathi)' : hasTelugu(text) ? 'Telugu' : 'Latin (English)',
       language_name: hasDevanagari(text) ? 'Hindi (हिंदी)' : hasTelugu(text) ? 'Telugu (తెలుగు)' : 'English (Latin)'

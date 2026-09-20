@@ -546,8 +546,92 @@ def run_tests():
 
     print(f"  --> PASS: All Post-OCR Self-Healing intelligence rules passed flawlessly!")
 
+    # Test 17: Multilingual Indic Extraction (Hindi, Telugu, Tamil, Bengali, Odia, Gujarati)
+    print("\n[TEST 17] Evaluating Multilingual Indic Language & Indic Numeral Extraction...")
+    from multilingual_field_extractor import MultilingualFieldExtractor, detect_multilingual_profile
+
+    # Hindi Devanagari with Indic numerals: "अधिकतम खुदरा मूल्य ₹ ५०.०० (सभी कर सहित)"
+    hi_text = "प्रीमियम बादाम\nकुल मात्रा : ५०० ग्राम\nअधिकतम खुदरा मूल्य ₹ ५०.०० (सभी कर सहित)\nनिर्माण तिथि: ०२/२०२६\nग्राहक सेवा: १८००-१११-२२३३"
+    hi_mrp = MultilingualFieldExtractor.extract_mrp_and_tax_clause([], hi_text)
+    assert hi_mrp["mrp"] == "50.00", f"Expected Hindi MRP 50.00, got {hi_mrp['mrp']}"
+    assert hi_mrp["taxes_included"] is True, "Expected Hindi taxes_included True"
+    print("  --> Subtest 17.1 Passed: Hindi Devanagari Numerals & Tax Suffix (₹ ५०.०० -> 50.00, सभी कर सहित) extracted.")
+
+    # Telugu with GST suffix: "గరిష్ట చిల్లర ధర ₹ 99.00 (జీఎస్టీ సహా)"
+    te_text = "ప్రీమియం నూనె\nనికర పరిమాణం: 1 లీటర్\nగరిష్ట చిల్లర ధర ₹ 99.00 (జీఎస్టీ సహా)\nతయారీ తేదీ: 01/2026\nవినియోగదారుల సంరక్షణ: 1800 222 3333"
+    te_mrp = MultilingualFieldExtractor.extract_mrp_and_tax_clause([], te_text)
+    assert te_mrp["mrp"] == "99.00", f"Expected Telugu MRP 99.00, got {te_mrp['mrp']}"
+    assert te_mrp["taxes_included"] is True, "Expected Telugu taxes_included True"
+    print("  --> Subtest 17.2 Passed: Telugu Regional Script & GST Clause (₹ 99.00, జీఎస్టీ సహా) extracted.")
+
+    # Tamil with GST suffix: "அதிகபட்ச சில்லறை விலை ₹ 75.00 (ஜிஎஸ்டி உட்பட)"
+    ta_text = "சுத்தமான தேங்காய் எண்ணெய்\nநிகர அளவு: 500 மி.லி\nஅதிகபட்ச சில்லறை விலை ₹ 75.00 (ஜிஎஸ்டி உட்பட)\nஉற்பத்தி தேதி: 03/2026\nவாடிக்கையாளர் சேவை: 1800 444 5555"
+    ta_mrp = MultilingualFieldExtractor.extract_mrp_and_tax_clause([], ta_text)
+    assert ta_mrp["mrp"] == "75.00", f"Expected Tamil MRP 75.00, got {ta_mrp['mrp']}"
+    assert ta_mrp["taxes_included"] is True, "Expected Tamil taxes_included True"
+    print("  --> Subtest 17.3 Passed: Tamil Regional Script & GST Clause (₹ 75.00, ஜிஎஸ்டி உட்பட) extracted.")
+
+    # Bengali with tax suffix: "সর্বোচ্চ খুচরা মূল্য ₹ ১২০.০০ (সমস্ত কর সহ)"
+    bn_text = "খাঁটি সর্ষের তেল\nমোট পরিমাণ: ১ লিটার\nসর্বোচ্চ খুচরা মূল্য ₹ ১২০.০০ (সমস্ত কর সহ)\nউত্পাদন তারিখ: ০২/২০২৬\nগ্রাহক সহায়তা: ১৮০০ ১১১ ৪৪৪৪"
+    bn_mrp = MultilingualFieldExtractor.extract_mrp_and_tax_clause([], bn_text)
+    assert bn_mrp["mrp"] == "120.00", f"Expected Bengali MRP 120.00, got {bn_mrp['mrp']}"
+    assert bn_mrp["taxes_included"] is True, "Expected Bengali taxes_included True"
+    print("  --> Subtest 17.4 Passed: Bengali Regional Numerals & Tax Suffix (₹ ১২০.০০ -> 120.00, সমস্ত কর সহ) extracted.")
+    print("  --> PASS: All Multilingual Indic extraction pipelines verified successfully!")
+
+    # Test 18: Exact Specimen Verification for Linchpin Nihar Notebook
+    print("\n[TEST 18] Evaluating Exact Specimen Verification for Linchpin Nihar Classic Series Notebook...")
+    specimen_segs = [
+        {"text": "Nihar CLASSIC SERIES", "box": [[50, 480], [250, 480], [250, 520], [50, 520]], "confidence": 0.98},
+        {"text": "A quality product manufactured & marketed by:", "box": [[50, 530], [350, 530], [350, 550], [50, 550]], "confidence": 0.95},
+        {"text": "Linchpin Industries Pvt. Ltd.", "box": [[50, 560], [320, 560], [320, 580], [50, 580]], "confidence": 0.99},
+        {"text": "Customer care no.: 1800 889 0270", "box": [[50, 665], [300, 665], [300, 685], [50, 685]], "confidence": 0.98},
+        {"text": "wow@writeonwhite.in", "box": [[650, 520], [780, 520], [780, 540], [650, 540]], "confidence": 0.97},
+        {"text": "Pages : 80", "box": [[800, 520], [870, 520], [870, 540], [800, 540]], "confidence": 0.99},
+        {"text": "Size: 23.5 X 17.5 cm", "box": [[800, 570], [920, 570], [920, 590], [800, 590]], "confidence": 0.98},
+        {"text": "MRP: ₹ 25.00", "box": [[800, 600], [890, 600], [890, 620], [800, 620]], "confidence": 0.99},
+        {"text": "(Inclusive of GST)", "box": [[800, 625], [890, 625], [890, 640], [800, 640]], "confidence": 0.97},
+        {"text": "MADE IN INDIA", "box": [[650, 675], [750, 675], [750, 695], [650, 695]], "confidence": 0.99},
+        {"text": "Notebook", "box": [[780, 360], [900, 360], [900, 390], [780, 390]], "confidence": 0.99}
+    ]
+    spec_res = engine.evaluate_compliance(specimen_segs, (1000, 1000))
+    assert spec_res["status"] == "COMPLIANT", f"Expected COMPLIANT, got {spec_res['status']}"
+    assert spec_res["extracted_metadata"]["brand_name"] == "Nihar CLASSIC SERIES", f"Expected Nihar CLASSIC SERIES, got {spec_res['extracted_metadata']['brand_name']}"
+    assert spec_res["extracted_metadata"]["mrp"] == "25.00", f"Expected MRP 25.00, got {spec_res['extracted_metadata']['mrp']}"
+    assert spec_res["extracted_metadata"]["taxes_included"] is True, "Expected taxes_included True"
+    assert spec_res["extracted_metadata"]["net_quantity"] == "80", f"Expected 80, got {spec_res['extracted_metadata']['net_quantity']}"
+    assert "".join(c for c in str(spec_res["extracted_metadata"]["consumer_care_phone"]) if c.isdigit()) == "18008890270", f"Expected 1800 889 0270 digits, got {spec_res['extracted_metadata']['consumer_care_phone']}"
+    assert spec_res["extracted_metadata"]["consumer_care_email"] == "wow@writeonwhite.in", f"Expected wow@writeonwhite.in, got {spec_res['extracted_metadata']['consumer_care_email']}"
+    assert spec_res["extracted_metadata"]["manufacturer_name"] == "Linchpin Industries Pvt. Ltd.", f"Expected Linchpin Industries Pvt. Ltd., got {spec_res['extracted_metadata']['manufacturer_name']}"
+    print(f"  --> PASS: Linchpin Nihar specimen verified 100% with exact statutory compliance metadata!")
+
+    # Test 19: Amrutva Pure Cow Ghee Indic Numerals & Bilingual Specimen
+    print("\n[TEST 19] Evaluating Amrutva Pure Cow Ghee Devanagari Math & Bilingual Label...")
+    ghee_segs = [
+        {"text": "अमृतवा AMRUTVA", "box": [[100, 50], [500, 50], [500, 90], [100, 90]], "confidence": 0.99},
+        {"text": "PURE COW GHEE", "box": [[100, 100], [450, 100], [450, 130], [100, 130]], "confidence": 0.98},
+        {"text": "शुद्ध गाईचे तूप", "box": [[100, 140], [400, 140], [400, 170], [100, 170]], "confidence": 0.97},
+        {"text": "Net Weight: ५०० ग्रॅम / 500g ) / 17.63 oz", "box": [[550, 100], [900, 100], [900, 130], [550, 130]], "confidence": 0.98},
+        {"text": "Batch No : AGT-2304", "box": [[550, 140], [800, 140], [800, 160], [550, 160]], "confidence": 0.97},
+        {"text": "Mfg Date : Oct 2023", "box": [[550, 170], [800, 170], [800, 190], [550, 190]], "confidence": 0.97},
+        {"text": "Best Before : 12 months from packaging", "box": [[550, 200], [900, 200], [900, 220], [550, 220]], "confidence": 0.96},
+        {"text": "निर्माता: अमृतवा फुड्स, पुणे", "box": [[100, 300], [600, 300], [600, 330], [100, 330]], "confidence": 0.98},
+        {"text": "FSSAI Lic. No. XXXXXXXXXXXXXX", "box": [[100, 340], [500, 340], [500, 360], [100, 360]], "confidence": 0.95},
+        {"text": "MRP: ₹ ६५०.०० (inclusive of all taxes)", "box": [[100, 370], [650, 370], [650, 400], [100, 400]], "confidence": 0.99}
+    ]
+    ghee_res = engine.evaluate_compliance(ghee_segs, (1000, 1000))
+    assert ghee_res["extracted_metadata"]["mrp"] == "650.00", f"Expected MRP 650.00, got {ghee_res['extracted_metadata']['mrp']}"
+    assert ghee_res["extracted_metadata"]["taxes_included"] is True, "Expected taxes_included True"
+    assert ghee_res["extracted_metadata"]["net_quantity"] == "500", f"Expected Net Quantity 500, got {ghee_res['extracted_metadata']['net_quantity']}"
+    assert ghee_res["extracted_metadata"]["unit_of_measure"] == "g", f"Expected unit 'g', got {ghee_res['extracted_metadata']['unit_of_measure']}"
+    assert ghee_res["extracted_metadata"]["manufacturing_date"] == "Oct 2023", f"Expected Mfg Date Oct 2023, got {ghee_res['extracted_metadata']['manufacturing_date']}"
+    assert ghee_res["extracted_metadata"]["batch_number"] == "AGT-2304", f"Expected Batch AGT-2304, got {ghee_res['extracted_metadata']['batch_number']}"
+    assert "निर्माता" in str(ghee_res["extracted_metadata"]["manufacturer_name"]), f"Expected Manufacturer with निर्माता, got {ghee_res['extracted_metadata']['manufacturer_name']}"
+    assert "India" in str(ghee_res["extracted_metadata"]["country_of_origin"]), f"Expected Origin India, got {ghee_res['extracted_metadata']['country_of_origin']}"
+    print("  --> PASS: Amrutva Pure Cow Ghee Devanagari numerals (₹ ६५०.०० -> 650.00, ५०० ग्रॅम -> 500 g), Marathi text and Pune origin verified 100%!")
+
     print("\n" + "=" * 70)
-    print("ALL 16 COMPLIANCE & INTELLIGENCE PIPELINES PASSED VERIFICATION! [SUCCESS]")
+    print("ALL 19 COMPLIANCE & MULTILINGUAL PIPELINES PASSED VERIFICATION! [SUCCESS]")
     print("=" * 70)
 
 

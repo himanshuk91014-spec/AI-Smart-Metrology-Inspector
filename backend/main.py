@@ -17,8 +17,10 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from PIL import Image, ImageOps
-import numpy as np
-import cv2
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 from compliance_engine import LegalMetrologyComplianceEngine
 from fmcg_metrology_pipeline import FMCGMetrologyAuditor

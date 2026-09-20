@@ -540,12 +540,12 @@ export default function App() {
 
   // Interactive Principal Display Panel (PDP) & Font Calculator State (Rule 9 & Schedule II)
   const [pdpForm, setPdpForm] = useState({
-    packageType: 'rectangular', // 'rectangular', 'cylindrical', 'other'
-    heightMm: 150,
-    widthMm: 100,
-    depthMm: 40,
-    diameterMm: 60,
-    netWeightGrams: 500
+    shape: 'rectangular', // 'rectangular', 'cylindrical', 'spherical'
+    heightCm: '',
+    widthCm: '',
+    diameterCm: '',
+    netWeightGrams: '',
+    measuredFontHeightMm: ''
   });
 
   // Interactive Verification Form State
@@ -1268,8 +1268,10 @@ export default function App() {
       fetchDbStatusAndHistory();
     } catch (err) {
       console.error('Re-audit fallback notice:', err);
-      const simulatedText = Object.values(sourceForm).filter(Boolean).join('\n');
-      const clientEval = evaluateClientSideCompliance(simulatedText, auditResult.raw_segments || [], manualOverridesPayload);
+      const textToEvaluate = (auditResult?.raw_text_dump && auditResult.raw_text_dump.length > 0)
+        ? auditResult.raw_text_dump.join('\n')
+        : Object.values(sourceForm).filter(Boolean).join('\n');
+      const clientEval = evaluateClientSideCompliance(textToEvaluate, auditResult?.raw_segments || [], manualOverridesPayload);
       const updatedLocalResult = {
         ...auditResult,
         audit_id: auditResult?.audit_id || `AUD-VERIFIED-${Date.now()}`,
@@ -1287,7 +1289,7 @@ export default function App() {
         violations: clientEval.violations,
         passed_checks: clientEval.passed_checks,
         warnings: clientEval.warnings,
-        extracted_metadata: { ...auditResult?.extracted_metadata, ...sourceForm },
+        extracted_metadata: { ...auditResult?.extracted_metadata, ...clientEval.extracted_metadata, ...sourceForm },
         rules_breakdown: clientEval.rules_breakdown
       };
       setAuditResult(updatedLocalResult);
@@ -1497,37 +1499,74 @@ export default function App() {
 
   // Principal Display Panel (PDP) & Font Height Calculations (Rule 9 & Schedule II)
   const calculatePdpAreaAndFont = () => {
+    const h = parseFloat(pdpForm.heightCm) || 0;
+    const w = parseFloat(pdpForm.widthCm) || 0;
+    const d = parseFloat(pdpForm.diameterCm) || 0;
+    const netWt = parseFloat(pdpForm.netWeightGrams) || 0;
+    const measuredFont = parseFloat(pdpForm.measuredFontHeightMm) || 0;
+
     let pdpAreaSqCm = 0;
-    if (pdpForm.packageType === 'rectangular') {
-      pdpAreaSqCm = (pdpForm.heightMm * pdpForm.widthMm) / 100;
-    } else if (pdpForm.packageType === 'cylindrical') {
-      pdpAreaSqCm = (0.4 * Math.PI * pdpForm.diameterMm * pdpForm.heightMm) / 100;
+    let isValidDimensions = false;
+
+    if (pdpForm.shape === 'rectangular') {
+      if (h > 0 && w > 0) {
+        pdpAreaSqCm = h * w;
+        isValidDimensions = true;
+      }
+    } else if (pdpForm.shape === 'cylindrical') {
+      if (h > 0 && d > 0) {
+        pdpAreaSqCm = 0.4 * Math.PI * d * h;
+        isValidDimensions = true;
+      }
     } else {
-      pdpAreaSqCm = (pdpForm.heightMm * pdpForm.widthMm * 0.4) / 100;
+      if (h > 0 && w > 0) {
+        pdpAreaSqCm = h * w * 0.4;
+        isValidDimensions = true;
+      } else if (d > 0) {
+        pdpAreaSqCm = 0.4 * Math.PI * Math.pow(d / 2, 2);
+        isValidDimensions = true;
+      }
+    }
+
+    if (!isValidDimensions || pdpAreaSqCm <= 0) {
+      return {
+        areaSqCm: 0,
+        minFontMm: 0,
+        scheduleTable: 'Awaiting Dimensions',
+        isValid: false,
+        isCompliant: null
+      };
     }
 
     // Minimum Font Height under Schedule II Table
-    // Area <= 50 sq.cm -> 1.0mm (or 1.5mm for net wt > 200g)
+    // Area <= 50 sq.cm -> 1.0mm (or 2.0mm for net wt > 200g)
     // Area 50 to 200 sq.cm -> 2.0mm
     // Area 200 to 1000 sq.cm -> 4.0mm
     // Area > 1000 sq.cm -> 6.0mm
     let minFontMm = 1.0;
+    let scheduleTable = '';
     if (pdpAreaSqCm > 1000) {
       minFontMm = 6.0;
+      scheduleTable = 'Table II(C) - Large Display Pack (> 1000 cm²)';
     } else if (pdpAreaSqCm > 200) {
       minFontMm = 4.0;
+      scheduleTable = 'Table II(B) - Medium-Large Pack (200 - 1000 cm²)';
     } else if (pdpAreaSqCm > 50) {
       minFontMm = 2.0;
-    } else if (pdpForm.netWeightGrams > 200) {
-      minFontMm = 2.0;
+      scheduleTable = 'Table II(B) - Standard Medium Pack (50 - 200 cm²)';
     } else {
-      minFontMm = 1.0;
+      minFontMm = netWt > 200 ? 2.0 : 1.0;
+      scheduleTable = 'Table II(A) - Small Pack (≤ 50 cm²)';
     }
+
+    const isCompliant = measuredFont > 0 ? (measuredFont >= minFontMm) : null;
 
     return {
       areaSqCm: Number(pdpAreaSqCm.toFixed(1)),
       minFontMm: minFontMm,
-      scheduleTable: pdpAreaSqCm <= 50 ? 'Table II(A) - Small Pack' : pdpAreaSqCm <= 200 ? 'Table II(B) - Medium Pack' : 'Table II(C) - Large Display Pack'
+      scheduleTable: scheduleTable,
+      isValid: true,
+      isCompliant: isCompliant
     };
   };
 
@@ -2481,68 +2520,102 @@ export default function App() {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-bold block mb-1">Height (cm):</label>
+                        <label className="text-xs font-bold block mb-1">
+                          Height (cm) <span className="text-rose-500 font-bold">*</span>:
+                        </label>
                         <input
                           type="number"
                           step="0.1"
+                          min="0"
+                          placeholder="e.g. 15.0"
                           value={pdpForm.heightCm}
-                          onChange={(e) => setPdpForm({ ...pdpForm, heightCm: parseFloat(e.target.value) || 0 })}
-                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                          onChange={(e) => setPdpForm({ ...pdpForm, heightCm: e.target.value })}
+                          className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                             isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                           }`}
                         />
                       </div>
                       {pdpForm.shape === 'rectangular' ? (
                         <div>
-                          <label className="text-xs font-bold block mb-1">Width (cm):</label>
+                          <label className="text-xs font-bold block mb-1">
+                            Width (cm) <span className="text-rose-500 font-bold">*</span>:
+                          </label>
                           <input
                             type="number"
                             step="0.1"
+                            min="0"
+                            placeholder="e.g. 10.0"
                             value={pdpForm.widthCm}
-                            onChange={(e) => setPdpForm({ ...pdpForm, widthCm: parseFloat(e.target.value) || 0 })}
-                            className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                            onChange={(e) => setPdpForm({ ...pdpForm, widthCm: e.target.value })}
+                            className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                               isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                             }`}
                           />
                         </div>
                       ) : pdpForm.shape === 'cylindrical' ? (
                         <div>
-                          <label className="text-xs font-bold block mb-1">Diameter (cm):</label>
+                          <label className="text-xs font-bold block mb-1">
+                            Diameter (cm) <span className="text-rose-500 font-bold">*</span>:
+                          </label>
                           <input
                             type="number"
                             step="0.1"
+                            min="0"
+                            placeholder="e.g. 6.0"
                             value={pdpForm.diameterCm}
-                            onChange={(e) => setPdpForm({ ...pdpForm, diameterCm: parseFloat(e.target.value) || 0 })}
-                            className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                            onChange={(e) => setPdpForm({ ...pdpForm, diameterCm: e.target.value })}
+                            className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                               isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                             }`}
                           />
                         </div>
-                      ) : null}
+                      ) : (
+                        <div>
+                          <label className="text-xs font-bold block mb-1">
+                            Width / Diameter (cm) <span className="text-rose-500 font-bold">*</span>:
+                          </label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            placeholder="e.g. 10.0"
+                            value={pdpForm.widthCm || pdpForm.diameterCm}
+                            onChange={(e) => setPdpForm({ ...pdpForm, widthCm: e.target.value, diameterCm: e.target.value })}
+                            className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
+                              isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                            }`}
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="text-xs font-bold block mb-1">Net Weight (Grams):</label>
+                        <label className="text-xs font-bold block mb-1">Net Weight / Capacity (Grams/ml):</label>
                         <input
                           type="number"
+                          step="1"
+                          min="0"
+                          placeholder="e.g. 500"
                           value={pdpForm.netWeightGrams}
-                          onChange={(e) => setPdpForm({ ...pdpForm, netWeightGrams: parseFloat(e.target.value) || 0 })}
-                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                          onChange={(e) => setPdpForm({ ...pdpForm, netWeightGrams: e.target.value })}
+                          className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                             isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                           }`}
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-bold block mb-1">Measured Numeral Font (mm):</label>
+                        <label className="text-xs font-bold block mb-1">Measured Numeral Font Height (mm):</label>
                         <input
                           type="number"
                           step="0.1"
+                          min="0"
+                          placeholder="e.g. 3.0"
                           value={pdpForm.measuredFontHeightMm}
-                          onChange={(e) => setPdpForm({ ...pdpForm, measuredFontHeightMm: parseFloat(e.target.value) || 0 })}
-                          className={`w-full p-2 rounded-xl border text-xs font-mono font-bold ${
+                          onChange={(e) => setPdpForm({ ...pdpForm, measuredFontHeightMm: e.target.value })}
+                          className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
                             isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
                           }`}
                         />
@@ -2564,27 +2637,33 @@ export default function App() {
                         <div className={`p-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                           <span className="text-[10px] uppercase font-bold text-slate-500 block">Calculated PDP Area</span>
                           <span className="text-lg font-black font-mono text-blue-600 dark:text-blue-400">
-                            {pdpCalc.areaSqCm} cm²
+                            {pdpCalc.isValid ? `${pdpCalc.areaSqCm} cm²` : '-- cm²'}
                           </span>
                         </div>
                         <div className={`p-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
                           <span className="text-[10px] uppercase font-bold text-slate-500 block">Mandatory Min Font</span>
                           <span className="text-lg font-black font-mono text-amber-600 dark:text-amber-400">
-                            {pdpCalc.minFontMm} mm
+                            {pdpCalc.isValid ? `${pdpCalc.minFontMm} mm` : '-- mm'}
                           </span>
                         </div>
                       </div>
 
-                      <div className="p-3 rounded-xl border bg-black/5 dark:bg-black/30 border-slate-300 dark:border-slate-700 space-y-1">
+                      <div className="p-3 rounded-xl border bg-black/5 dark:bg-black/30 border-slate-300 dark:border-slate-700 space-y-2">
                         <div className="text-xs font-bold flex items-center justify-between">
                           <span>Applicable Standard:</span>
                           <span className="text-blue-600 dark:text-blue-400 font-mono text-[11px]">{pdpCalc.scheduleTable}</span>
                         </div>
-                        <div className="text-xs font-bold flex items-center justify-between">
+                        <div className="text-xs font-bold flex items-center justify-between flex-wrap gap-1">
                           <span>Physical Legibility Test:</span>
-                          <span className={`font-mono text-[11px] ${pdpForm.measuredFontHeightMm >= pdpCalc.minFontMm ? 'text-emerald-600 font-black' : 'text-rose-600 font-black'}`}>
-                            {pdpForm.measuredFontHeightMm >= pdpCalc.minFontMm ? '✓ COMPLIANT FONT' : '✗ NON-COMPLIANT (TOO SMALL)'}
-                          </span>
+                          {pdpCalc.isValid && pdpForm.measuredFontHeightMm !== '' && pdpForm.measuredFontHeightMm !== undefined ? (
+                            <span className={`font-mono text-[11px] px-2 py-0.5 rounded font-black ${pdpCalc.isCompliant ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30'}`}>
+                              {pdpCalc.isCompliant ? `✓ COMPLIANT FONT (≥ ${pdpCalc.minFontMm} mm)` : `✗ NON-COMPLIANT (${pdpForm.measuredFontHeightMm} mm < ${pdpCalc.minFontMm} mm)`}
+                            </span>
+                          ) : (
+                            <span className="font-mono text-[11px] text-slate-500 italic">
+                              {!pdpCalc.isValid ? 'Awaiting Dimensions' : 'Enter Measured Font (mm)'}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
