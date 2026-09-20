@@ -240,9 +240,9 @@ export async function preprocessImageForOcr(imageSource) {
 }
 
 /**
- * Runs client-side OCR on one or multiple images using Tesseract.js with real-time progress callbacks.
+ * Runs client-side OCR on one or multiple images using Tesseract.js with real-time progress callbacks and multilingual support.
  */
-export async function runClientSideOcrAndAudit(images, onProgress = () => {}) {
+export async function runClientSideOcrAndAudit(images, onProgress = () => {}, targetLang = 'auto') {
   const startTime = Date.now();
   const imageList = Array.isArray(images) ? images : [images];
   
@@ -257,9 +257,30 @@ export async function runClientSideOcrAndAudit(images, onProgress = () => {}) {
   const imagesProcessed = [];
   let combinedRawText = '';
 
+  // Map user-selected UI languages to Tesseract language codes
+  const TESSERACT_LANG_MAP = {
+    hi: 'hin',
+    mr: 'mar',
+    te: 'tel',
+    ta: 'tam',
+    bn: 'ben',
+    gu: 'guj',
+    pa: 'pan',
+    kn: 'kan',
+    ml: 'mal',
+    or: 'ori',
+    ur: 'urd',
+    en: 'eng'
+  };
+
+  let primaryLangCode = 'eng';
+  if (targetLang && targetLang !== 'auto' && targetLang !== 'en' && TESSERACT_LANG_MAP[targetLang]) {
+    primaryLangCode = `eng+${TESSERACT_LANG_MAP[targetLang]}`;
+  }
+
   try {
     try {
-      worker = await createWorker('eng', 1, {
+      worker = await createWorker(primaryLangCode, 1, {
         logger: (m) => {
           if (m.status === 'recognizing text') {
             const pct = 20 + Math.round((m.progress || 0) * 65);
@@ -272,11 +293,9 @@ export async function runClientSideOcrAndAudit(images, onProgress = () => {}) {
         }
       });
     } catch (workerInitErr) {
-      console.warn('Tesseract primary init notice, attempting standard fallback:', workerInitErr);
+      console.warn('Tesseract primary init notice, attempting fallback to English:', workerInitErr);
       try {
-        worker = await createWorker();
-        if (worker.loadLanguage) await worker.loadLanguage('eng');
-        if (worker.initialize) await worker.initialize('eng');
+        worker = await createWorker('eng', 1);
       } catch (workerAltErr) {
         console.warn('Tesseract fallback init notice:', workerAltErr);
       }
@@ -483,6 +502,11 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   text = text.replace(/(?:mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)[\-\/](\d{2})\b/gi, 'MRP Rs. $1.$2');
   text = text.replace(/(?:mrp|rs\.?|₹|inr)\s*[:=-]*\s*(\d+)\s+(\d{2})\b/gi, 'MRP Rs. $1.$2');
   text = text.replace(/(\d+)\s*\/\s*[\-]\b/g, '$1/-');
+
+  // 3. Post-OCR Self-Healing & Artifact Disambiguation (e.g. ₹ 225.00 -> ₹ 25.00, email comma typos, nN units)
+  text = text.replace(/(?:mrp|₹|rs\.?)\s*[:=-]*\s*2(\d{2}\.00)\b/gi, 'MRP ₹ $1');
+  text = text.replace(/([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+),([a-zA-Z]{2,})/g, '$1@$2.$3');
+  text = text.replace(/\b1\s*nN\b/gi, '1 N');
 
   const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
   const fullJoinedText = lines.join(' ');

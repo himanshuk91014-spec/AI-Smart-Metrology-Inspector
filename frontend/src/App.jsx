@@ -1061,7 +1061,8 @@ export default function App() {
       try {
         const clientReport = await runClientSideOcrAndAudit(
           uploadedImages,
-          (pct, msg) => setClientOcrProgress({ percent: pct, message: msg })
+          (pct, msg) => setClientOcrProgress({ percent: pct, message: msg }),
+          ocrTargetLanguage
         );
         setAuditResult(clientReport);
         saveAuditToHistory(clientReport);
