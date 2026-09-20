@@ -323,24 +323,26 @@ const DEFAULT_RULES_FALLBACK = [
 
 const DEFAULT_UNITS_FALLBACK = {
   approved_metric_units: [
-    { symbol: 'g', name: 'Gram', type: 'Mass', standard: 'SI Metric' },
-    { symbol: 'kg', name: 'Kilogram', type: 'Mass', standard: 'SI Metric' },
-    { symbol: 'mg', name: 'Milligram', type: 'Mass', standard: 'SI Metric' },
-    { symbol: 'ml', name: 'Millilitre', type: 'Volume', standard: 'SI Metric' },
-    { symbol: 'l', name: 'Litre', type: 'Volume', standard: 'SI Metric' },
-    { symbol: 'm', name: 'Metre', type: 'Length', standard: 'SI Metric' },
-    { symbol: 'cm', name: 'Centimetre', type: 'Length', standard: 'SI Metric' },
-    { symbol: 'mm', name: 'Millimetre', type: 'Length', standard: 'SI Metric' },
-    { symbol: 'Units / pcs / N', name: 'Piece / Item Count', type: 'Count', standard: 'Approved' },
-    { symbol: 'pens / tablets', name: 'Stationery / Pharma Count', type: 'Count', standard: 'Approved' }
+    { unit_symbol: 'g', unit_name: 'Gram', symbol: 'g', name: 'Gram', type: 'Mass', standard: 'SI Metric' },
+    { unit_symbol: 'kg', unit_name: 'Kilogram', symbol: 'kg', name: 'Kilogram', type: 'Mass', standard: 'SI Metric' },
+    { unit_symbol: 'mg', unit_name: 'Milligram', symbol: 'mg', name: 'Milligram', type: 'Mass', standard: 'SI Metric' },
+    { unit_symbol: 'ml', unit_name: 'Millilitre', symbol: 'ml', name: 'Millilitre', type: 'Volume', standard: 'SI Metric' },
+    { unit_symbol: 'l', unit_name: 'Litre', symbol: 'l', name: 'Litre', type: 'Volume', standard: 'SI Metric' },
+    { unit_symbol: 'm', unit_name: 'Metre', symbol: 'm', name: 'Metre', type: 'Length', standard: 'SI Metric' },
+    { unit_symbol: 'cm', unit_name: 'Centimetre', symbol: 'cm', name: 'Centimetre', type: 'Length', standard: 'SI Metric' },
+    { unit_symbol: 'mm', unit_name: 'Millimetre', symbol: 'mm', name: 'Millimetre', type: 'Length', standard: 'SI Metric' },
+    { unit_symbol: 'Units / pcs / N', unit_name: 'Piece / Item Count', symbol: 'Units / pcs / N', name: 'Piece / Item Count', type: 'Count', standard: 'Approved' },
+    { unit_symbol: 'pens / tablets / pages', unit_name: 'Count / Stationary', symbol: 'pens / tablets / pages', name: 'Count / Stationary', type: 'Count', standard: 'Approved' }
   ],
   prohibited_imperial_units: [
-    { symbol: 'fl oz / floz', name: 'Fluid Ounce', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
-    { symbol: 'oz / ounce', name: 'Ounce', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
-    { symbol: 'lbs / pound', name: 'Pound', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
-    { symbol: 'gallon / gal', name: 'Gallon', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
-    { symbol: 'yard / yds', name: 'Yard', type: 'Length', restriction: 'Prohibited under Rule 11/12' },
-    { symbol: 'inch / inches', name: 'Inch', type: 'Length', restriction: 'Prohibited under Rule 11/12' }
+    { unit_symbol: 'fl oz / floz', unit_name: 'Fluid Ounce', symbol: 'fl oz / floz', name: 'Fluid Ounce', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'oz / ounce', unit_name: 'Ounce', symbol: 'oz / ounce', name: 'Ounce', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'lbs / pound', unit_name: 'Pound', symbol: 'lbs / pound', name: 'Pound', type: 'Mass', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'gallon / gal', unit_name: 'Gallon', symbol: 'gallon / gal', name: 'Gallon', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'pint / pt', unit_name: 'Pint', symbol: 'pint / pt', name: 'Pint', type: 'Volume', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'yard / yds', unit_name: 'Yard', symbol: 'yard / yds', name: 'Yard', type: 'Length', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'inch / inches', unit_name: 'Inch', symbol: 'inch / inches', name: 'Inch', type: 'Length', restriction: 'Prohibited under Rule 11/12' },
+    { unit_symbol: 'feet / ft', unit_name: 'Feet / Foot', symbol: 'feet / ft', name: 'Feet / Foot', type: 'Length', restriction: 'Prohibited under Rule 11/12' }
   ]
 };
 
@@ -4046,16 +4048,30 @@ export default function App() {
                 ))}
               </div>
 
+              <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 pt-2">
+                Approved Statutory Metric Units (Rule 11 & 12)
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {(unitsData.approved_metric_units || DEFAULT_UNITS_FALLBACK.approved_metric_units).slice(0, 12).map((u, i) => (
+                  <div
+                    key={i}
+                    className="p-2 rounded bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/60 text-xs text-emerald-800 dark:text-emerald-300 font-mono font-bold"
+                  >
+                    {u.unit_symbol || u.symbol} ({u.unit_name || u.name})
+                  </div>
+                ))}
+              </div>
+
               <h4 className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 pt-2">
                 Prohibited Imperial Units (Rule 11 & 12)
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {unitsData.prohibited_imperial_units?.slice(0, 12).map((u, i) => (
+                {(unitsData.prohibited_imperial_units || DEFAULT_UNITS_FALLBACK.prohibited_imperial_units).slice(0, 12).map((u, i) => (
                   <div
                     key={i}
-                    className="p-2 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-300 font-mono"
+                    className="p-2 rounded bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-800 dark:text-rose-300 font-mono font-bold"
                   >
-                    {u.unit_symbol} ({u.unit_name})
+                    {u.unit_symbol || u.symbol} ({u.unit_name || u.name})
                   </div>
                 ))}
               </div>
