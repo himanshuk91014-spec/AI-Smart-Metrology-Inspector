@@ -1,0 +1,11 @@
+backend/
+.dist/
+.pytest_cache/
+.vscode/
+node_modules/
+frontend/node_modules/
+frontend/dist/
+*.bat
+*.log
+*.txt
+*.md
