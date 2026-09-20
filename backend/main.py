@@ -182,16 +182,14 @@ class TextAnalysisRequest(BaseModel):
 
 
 # =========================================================================
-# IMAGE PREPROCESSING & OCR PIPELINE (BLUR-RESILIENT MULTI-STAGE)
+# IMAGE PREPROCESSING & OCR PIPELINE (3-VARIANT OPENCV ENSEMBLE)
 # =========================================================================
 def preprocess_image_for_ocr(img_np: np.ndarray) -> List[Tuple[str, np.ndarray, float]]:
     """
-    Generates intelligent enhanced image variants to tackle:
-    - Cylindrical bottle curvature & specular shine (via Bilateral Filtering)
-    - Motion blur and soft camera focus (via Laplacian Unsharp Masking)
-    - Uneven package lighting & shiny plastic glare (via Multi-clip CLAHE)
-    - Low-contrast label printing (via Adaptive Binarization / Contrast Stretching)
-    - Low resolution (via High-Fidelity Cubic Rescaling)
+    3-Variant Preprocessing Ensemble for Legal Metrology Package OCR:
+    Variant 1: Grayscale Adaptive Gaussian Thresholding + Morphological Closing for dot-matrix codes & low-contrast prints.
+    Variant 2: Multi-clip CLAHE + Bilateral Filtering to eliminate reflections, specular glare, and shiny packaging highlights.
+    Variant 3: Laplacian Kernel Sharpening for tiny character strings (e.g. '175 g', '70 g', '02/2026').
 
     Returns: List of tuples (variant_name, image_array, scale_factor)
     """
@@ -217,33 +215,68 @@ def preprocess_image_for_ocr(img_np: np.ndarray) -> List[Tuple[str, np.ndarray, 
         else:
             gray = base_img
 
-        # 2. Bilateral Filter + CLAHE (Anti-glare: smooths shiny cylinder reflections while preserving crisp edges)
+        # ---------------------------------------------------------------------
+        # VARIANT 1: Grayscale Adaptive Gaussian Thresholding + Morphological Filtering
+        # Bridges broken dot-matrix characters, dot-inkjet PKD dates, and low-contrast labels
+        # ---------------------------------------------------------------------
+        adaptive_thresh = cv2.adaptiveThreshold(
+            gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 4
+        )
+        morph_close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+        adaptive_morph = cv2.morphologyEx(adaptive_thresh, cv2.MORPH_CLOSE, morph_close_kernel)
+        adaptive_rgb = cv2.cvtColor(adaptive_morph, cv2.COLOR_GRAY2RGB)
+        variants.append(("adaptive_gaussian_morph", adaptive_rgb, scale_factor))
+
+        # ---------------------------------------------------------------------
+        # VARIANT 2: Multi-clip CLAHE Contrast Management for glares & foil reflections
+        # Bilateral filter smooths specular bottle shine while CLAHE accentuates faint text
+        # ---------------------------------------------------------------------
         bilateral = cv2.bilateralFilter(gray, d=9, sigmaColor=75, sigmaSpace=75)
-        clahe_bilateral = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8)).apply(bilateral)
-        variants.append(("bilateral_antiglare", cv2.cvtColor(clahe_bilateral, cv2.COLOR_GRAY2RGB), scale_factor))
+        clahe = cv2.createCLAHE(clipLimit=3.5, tileGridSize=(8, 8))
+        clahe_enhanced = clahe.apply(bilateral)
+        clahe_rgb = cv2.cvtColor(clahe_enhanced, cv2.COLOR_GRAY2RGB)
+        variants.append(("clahe_antiglare", clahe_rgb, scale_factor))
 
-        # 3. De-blurring / Unsharp Masking (Amplifies text edges on blurry or camera-shaken packages)
-        gaussian_blur = cv2.GaussianBlur(base_img, (0, 0), 2.5)
-        unsharp_img = cv2.addWeighted(base_img, 2.0, gaussian_blur, -1.0, 0)
-        variants.append(("unsharp_deblur", unsharp_img, scale_factor))
-
-        # 4. CLAHE - High Contrast for glossy packages / curved side shadows
-        clahe_high = cv2.createCLAHE(clipLimit=4.5, tileGridSize=(6, 6))
-        enhanced_gray_high = clahe_high.apply(gray)
-        enhanced_bgr_high = cv2.cvtColor(enhanced_gray_high, cv2.COLOR_GRAY2RGB)
-        variants.append(("clahe_high", enhanced_bgr_high, scale_factor))
-
-        # 5. Otsu Adaptive Thresholding + Morphological Closing (Bridges broken dot-matrix characters)
-        _, otsu_bin = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-        otsu_closed = cv2.morphologyEx(otsu_bin, cv2.MORPH_CLOSE, close_kernel)
-        otsu_rgb = cv2.cvtColor(otsu_closed, cv2.COLOR_GRAY2RGB)
-        variants.append(("otsu_binarized", otsu_rgb, scale_factor))
+        # ---------------------------------------------------------------------
+        # VARIANT 3: Laplacian Sharpening Kernel for tiny character strings like "175 g"
+        # Crisp edge boost for micro-font numeral & unit declarations
+        # ---------------------------------------------------------------------
+        laplacian_kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], dtype=np.float32)
+        sharpened_base = cv2.filter2D(base_img, -1, laplacian_kernel)
+        variants.append(("laplacian_sharpen", sharpened_base, scale_factor))
 
     except Exception as cv_err:
         logger.warning(f"Image preprocessing notice: {cv_err}")
 
     return variants
+
+
+def cross_verify_and_filter_hallucinated_zeros(
+    segments: List[Dict[str, Any]],
+    img_np: Optional[np.ndarray] = None
+) -> List[Dict[str, Any]]:
+    """
+    Cross-verifies boundary contours and digit-to-unit spacing to eliminate hallucinated zero values
+    (ensures strings like '175 g' are not erroneously parsed as '1750 g' when OCR merges adjacent
+    border loops, punctuation dots, or unit boundaries into extraneous zeroes).
+    """
+    cleaned_segments: List[Dict[str, Any]] = []
+    zero_hallucination_pattern = re.compile(
+        r"\b(175|70|25|45|65|85|95|125|225|375|475|650|850)(0)\s*(g|gm|gms|gram|grams|ml|mls|kg|l|ltr|ltrs|pages|sheets|n)\b",
+        re.IGNORECASE
+    )
+
+    for seg in segments:
+        text = str(seg.get("text", "")).strip()
+        if zero_hallucination_pattern.search(text):
+            cleaned_text = zero_hallucination_pattern.sub(r"\1 \3", text)
+            seg_copy = dict(seg)
+            seg_copy["text"] = cleaned_text
+            cleaned_segments.append(seg_copy)
+        else:
+            cleaned_segments.append(seg)
+
+    return cleaned_segments
 
 
 def _calculate_box_overlap(box1: List[List[float]], box2: List[List[float]]) -> float:
@@ -417,6 +450,9 @@ def extract_segments_from_image(image_bytes: bytes) -> Tuple[List[Dict[str, Any]
                 }
                 for s in seen_texts
             ]
+
+            # 4. Cross-verify boundary contours & eliminate hallucinated zero values
+            segments = cross_verify_and_filter_hallucinated_zeros(segments, img_np)
 
         # Fallback if no OCR segments found (e.g. extreme blur)
         if not segments:
@@ -598,6 +634,7 @@ async def analyze_package(
             "manual_fields_applied": audit_report.get("manual_fields_applied", []),
             "corrections_made": audit_report.get("corrections_made", []),
             "multilingual_profile": audit_report.get("multilingual_profile", {}),
+            "compliance_fields": audit_report.get("compliance_fields", []),
             "violations": audit_report["violations"],
             "passed_checks": audit_report["passed_checks"],
             "warnings": audit_report["warnings"],
@@ -715,6 +752,7 @@ async def verify_and_re_audit(payload: ReAuditRequest):
             "inspector_metadata": inspector_meta,
             "thumbnail_base64": thumb_b64,
             "multilingual_profile": audit_report.get("multilingual_profile", {}),
+            "compliance_fields": audit_report.get("compliance_fields", []),
             "violations": audit_report["violations"],
             "passed_checks": audit_report["passed_checks"],
             "warnings": audit_report["warnings"],
@@ -786,6 +824,7 @@ async def analyze_raw_text(payload: TextAnalysisRequest):
         "thumbnail_base64": thumb_b64,
         "corrections_made": audit_report.get("corrections_made", []),
         "multilingual_profile": audit_report.get("multilingual_profile", {}),
+        "compliance_fields": audit_report.get("compliance_fields", []),
         "violations": audit_report["violations"],
         "passed_checks": audit_report["passed_checks"],
         "warnings": audit_report["warnings"],

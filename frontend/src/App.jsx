@@ -2728,134 +2728,508 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Form Inputs Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Brand / Product Title:</label>
-                    <input
-                      type="text"
-                      value={verificationForm.brand_name}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, brand_name: e.target.value })}
-                      placeholder="e.g. Parle-G, Amul Butter, Surf Excel"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                {/* Side-by-Side OCR Evidence & Inspector Reconciliation Cards */}
+                <div className="space-y-4">
+                  {/* Field 1: Brand / Product Title */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'brand_name') || {
+                      raw_text: auditResult?.extracted_metadata?.brand_name || 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.brand_name ? 0.96 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.brand_name ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            Rule 6(1)(a) — Brand / Product Identity
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="text"
+                              value={verificationForm.brand_name}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, brand_name: e.target.value })}
+                              placeholder="e.g. Parle-G, Amul Butter, Surf Excel"
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Maximum Retail Price (₹):</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={verificationForm.mrp}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, mrp: e.target.value })}
-                      placeholder="e.g. 50.00"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                  {/* Field 2: Maximum Retail Price (MRP) */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'mrp') || {
+                      raw_text: auditResult?.extracted_metadata?.mrp ? `MRP: ₹ ${auditResult.extracted_metadata.mrp}` : 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.mrp ? 0.98 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.mrp ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <IndianRupee className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            Rule 6(1)(da) — Maximum Retail Price (MRP)
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={verificationForm.mrp}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, mrp: e.target.value })}
+                              placeholder="e.g. 50.00"
+                              className={`w-full p-2.5 rounded-lg border text-xs font-mono font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">'Inclusive of all taxes' Present?</label>
-                    <select
-                      value={verificationForm.taxes_included ? 'yes' : 'no'}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, taxes_included: e.target.value === 'yes' })}
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    >
-                      <option value="yes">Yes - Suffix Declared on Pack</option>
-                      <option value="no">No - Tax Clause Missing (Violation)</option>
-                    </select>
-                  </div>
+                  {/* Field 3: Tax Inclusive Suffix */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'taxes_included') || {
+                      raw_text: auditResult?.extracted_metadata?.taxes_included ? 'Inclusive of all taxes' : 'Taxes not declared',
+                      confidence: 0.95,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.taxes_included ? 'valid' : 'warning'
+                    };
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <ShieldCheck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                            Rule 6(1)(da) — Mandatory Tax Suffix ('Inclusive of all taxes')
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {cf.raw_text || 'No raw text detected'}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Verification Selection:</span>
+                            <select
+                              value={verificationForm.taxes_included ? 'yes' : 'no'}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, taxes_included: e.target.value === 'yes' })}
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            >
+                              <option value="yes">Yes — Suffix Declared on Pack (Inclusive of all taxes)</option>
+                              <option value="no">No — Tax Clause Missing (Statutory Violation)</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Net Quantity:</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={verificationForm.net_quantity}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, net_quantity: e.target.value })}
-                      placeholder="e.g. 500"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-mono font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                  {/* Field 4: Net Quantity & Standard Metric Unit */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'net_quantity') || {
+                      raw_text: auditResult?.extracted_metadata?.net_quantity ? `Net Qty: ${auditResult.extracted_metadata.net_quantity} ${auditResult.extracted_metadata.unit_of_measure || ''}` : 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.net_quantity ? 0.97 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.net_quantity ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Scale className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            Rule 6(1)(b) & Rule 11/12 — Net Quantity & SI Metric Unit
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Net Quantity:</span>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={verificationForm.net_quantity}
+                                onChange={(e) => setVerificationForm({ ...verificationForm, net_quantity: e.target.value })}
+                                placeholder="e.g. 500"
+                                className={`w-full p-2.5 rounded-lg border text-xs font-mono font-bold ${
+                                  isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                                }`}
+                              />
+                            </div>
+                            <div>
+                              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">SI Metric Unit:</span>
+                              <select
+                                value={verificationForm.unit_of_measure}
+                                onChange={(e) => setVerificationForm({ ...verificationForm, unit_of_measure: e.target.value })}
+                                className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                  isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                                }`}
+                              >
+                                <option value="g">g (Grams)</option>
+                                <option value="kg">kg (Kilograms)</option>
+                                <option value="ml">ml (Millilitres)</option>
+                                <option value="L">L (Litres)</option>
+                                <option value="m">m (Metres)</option>
+                                <option value="cm">cm (Centimetres)</option>
+                                <option value="units">units (Count)</option>
+                                <option value="N">N (Number)</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Unit of Measure (SI Metric):</label>
-                    <select
-                      value={verificationForm.unit_of_measure}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, unit_of_measure: e.target.value })}
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    >
-                      <option value="g">g (Grams)</option>
-                      <option value="kg">kg (Kilograms)</option>
-                      <option value="ml">ml (Millilitres)</option>
-                      <option value="L">L (Litres)</option>
-                      <option value="m">m (Metres)</option>
-                      <option value="cm">cm (Centimetres)</option>
-                      <option value="units">units (Count)</option>
-                      <option value="N">N (Number)</option>
-                    </select>
-                  </div>
+                  {/* Field 5: Manufacturing / Packaging Date */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'manufacturing_date') || {
+                      raw_text: auditResult?.extracted_metadata?.manufacturing_date ? `Mfg Date: ${auditResult.extracted_metadata.manufacturing_date}` : 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.manufacturing_date ? 0.95 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.manufacturing_date ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            Rule 6(1)(c) — Month & Year of Manufacture / Packaging
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="text"
+                              value={verificationForm.manufacturing_date}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, manufacturing_date: e.target.value })}
+                              placeholder="e.g. 05/2026 or MAY 2026"
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Mfg / Pkg Date:</label>
-                    <input
-                      type="text"
-                      value={verificationForm.manufacturing_date}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, manufacturing_date: e.target.value })}
-                      placeholder="e.g. 05/2026 or MAY 2026"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                  {/* Field 6: Customer Care Helpline & Email */}
+                  {(() => {
+                    const cfEmail = (auditResult?.compliance_fields || []).find(f => f.field === 'consumer_care_email');
+                    const cfPhone = (auditResult?.compliance_fields || []).find(f => f.field === 'consumer_care_phone');
+                    const cf = cfEmail || cfPhone || {
+                      raw_text: auditResult?.extracted_metadata?.consumer_care_email || auditResult?.extracted_metadata?.consumer_care_phone || 'No raw text detected',
+                      confidence: 0.94,
+                      source: 'OCR_Ensemble',
+                      validation_status: (auditResult?.extracted_metadata?.consumer_care_email || auditResult?.extracted_metadata?.consumer_care_phone) ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Info className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                            Rule 6(1)(g) — Consumer Care Cell (Email & Toll-Free Helpline)
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="text"
+                              value={verificationForm.consumer_care_email}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, consumer_care_email: e.target.value })}
+                              placeholder="e.g. care@brand.com or 1800-889-0270"
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Customer Care Email / Phone:</label>
-                    <input
-                      type="text"
-                      value={verificationForm.consumer_care_email}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, consumer_care_email: e.target.value })}
-                      placeholder="e.g. care@brand.com or 1800-XXX-XXXX"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                  {/* Field 7: Manufacturer / Packer Name */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'manufacturer_name') || {
+                      raw_text: auditResult?.extracted_metadata?.manufacturer_name || 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.manufacturer_name ? 0.96 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.manufacturer_name ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Building2 className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                            Rule 6(1)(a) — Name & Address of Manufacturer / Packer
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="text"
+                              value={verificationForm.manufacturer_name}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, manufacturer_name: e.target.value })}
+                              placeholder="e.g. ABC Industries Pvt. Ltd."
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Manufacturer / Packer Name:</label>
-                    <input
-                      type="text"
-                      value={verificationForm.manufacturer_name}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, manufacturer_name: e.target.value })}
-                      placeholder="e.g. ABC Foods Ltd., Industrial Area"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold block mb-1">Country of Origin:</label>
-                    <input
-                      type="text"
-                      value={verificationForm.country_of_origin}
-                      onChange={(e) => setVerificationForm({ ...verificationForm, country_of_origin: e.target.value })}
-                      placeholder="e.g. India"
-                      className={`w-full p-2.5 rounded-xl border text-xs font-bold ${
-                        isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300'
-                      }`}
-                    />
-                  </div>
+                  {/* Field 8: Country of Origin */}
+                  {(() => {
+                    const cf = (auditResult?.compliance_fields || []).find(f => f.field === 'country_of_origin') || {
+                      raw_text: auditResult?.extracted_metadata?.country_of_origin || 'No raw text detected',
+                      confidence: auditResult?.extracted_metadata?.country_of_origin ? 0.98 : 0.0,
+                      source: 'OCR_Ensemble',
+                      validation_status: auditResult?.extracted_metadata?.country_of_origin ? 'valid' : 'uncertain'
+                    };
+                    const isUncertain = cf.confidence < 0.65 || cf.validation_status === 'uncertain';
+                    return (
+                      <div className={`p-4 rounded-xl border ${isDark ? 'bg-slate-900/90 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center justify-between flex-wrap gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
+                          <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                            <Globe className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            Rule 6(10) — Country of Origin
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                              {cf.source || 'OCR_Ensemble'}
+                            </span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                              cf.confidence >= 0.8 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+                              cf.confidence >= 0.65 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+                              'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'
+                            }`}>
+                              {(cf.confidence * 100).toFixed(1)}% Conf
+                            </span>
+                            <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-black ${
+                              cf.validation_status === 'valid' ? 'bg-emerald-500 text-white' :
+                              cf.validation_status === 'warning' ? 'bg-amber-500 text-white' :
+                              'bg-rose-500 text-white'
+                            }`}>
+                              {cf.validation_status ? cf.validation_status.toUpperCase() : 'VALID'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className={`p-3 rounded-lg border ${isDark ? 'bg-slate-950/70 border-slate-800' : 'bg-white border-slate-200'}`}>
+                            <span className="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Original Immutable OCR Reading:</span>
+                            <div className="font-mono text-xs text-slate-800 dark:text-slate-200 break-words font-semibold">
+                              {isUncertain ? <span className="text-amber-600 dark:text-amber-400 font-bold">⚠️ Needs Manual Verification</span> : (cf.raw_text || 'No raw text detected')}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 block mb-1 uppercase tracking-wider">Inspector Editable Field:</span>
+                            <input
+                              type="text"
+                              value={verificationForm.country_of_origin}
+                              onChange={(e) => setVerificationForm({ ...verificationForm, country_of_origin: e.target.value })}
+                              placeholder="e.g. India"
+                              className={`w-full p-2.5 rounded-lg border text-xs font-bold ${
+                                isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-slate-300'
+                              }`}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Inspector Signature Credentials Section */}

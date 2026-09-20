@@ -1310,6 +1310,8 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
   const overallScore = Math.max(0, Math.min(100, 100 - scoreDeductions));
   const isCompliant = violations.length === 0;
 
+  const complianceFields = buildComplianceFieldsClient(extractedMetadata, violations, warnings, manualFieldsApplied, segments);
+
   return {
     status: isCompliant ? 'COMPLIANT' : 'NON_COMPLIANT',
     overall_score: overallScore,
@@ -1319,12 +1321,84 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
       dominant_script: hasDevanagari(text) ? 'Devanagari (Hindi/Marathi)' : hasTelugu(text) ? 'Telugu' : 'Latin (English)',
       language_name: hasDevanagari(text) ? 'Hindi (हिंदी)' : hasTelugu(text) ? 'Telugu (తెలుగు)' : 'English (Latin)'
     },
+    compliance_fields: complianceFields,
     violations: violations,
     passed_checks: passedChecks,
     warnings: warnings,
     extracted_metadata: extractedMetadata,
     rules_breakdown: rulesBreakdown
   };
+}
+
+export function buildComplianceFieldsClient(extractedMetadata = {}, violations = [], warnings = [], manualFieldsApplied = [], rawSegments = []) {
+  const specs = [
+    { field: "brand_name", val: extractedMetadata.brand_name, keywords: ["series", "cookies", "biscuit", "soap", "tea", "oil", "shampoo", "flour", "atta", "notebook", "pen", "classic"], rule_prefix: "RULE_6_1_A" },
+    { field: "mrp", val: extractedMetadata.mrp, keywords: ["mrp", "₹", "rs", "inr", "price", "मूल्य", "ధర", "விலை", "দাম", "ਕੀਮਤ"], rule_prefix: "RULE_6_1_DA" },
+    { field: "taxes_included", val: extractedMetadata.taxes_included ? "Inclusive of all taxes" : "Taxes Not Declared", keywords: ["tax", "taxes", "incl", "inclusive", "कर", "పన్ను", "வரி", "কর", "ਟੈਕਸ"], rule_prefix: "RULE_6_1_DA" },
+    { field: "net_quantity", val: extractedMetadata.net_quantity ? `${extractedMetadata.net_quantity} ${extractedMetadata.unit_of_measure || ''}`.trim() : null, keywords: ["net", "qty", "weight", "wt", "vol", "मात्रा", "పరిమాణం", "அளவு", "ওজন"], rule_prefix: "RULE_11_12" },
+    { field: "manufacturing_date", val: extractedMetadata.manufacturing_date, keywords: ["mfg", "mfd", "pkd", "packed", "date", "तिथि", "दिनांक", "తేదీ", "தேதி"], rule_prefix: "RULE_6_1_C" },
+    { field: "consumer_care_email", val: extractedMetadata.consumer_care_email, keywords: ["@", "care", "email", "feedback", "help", "support"], rule_prefix: "RULE_6_1_G" },
+    { field: "consumer_care_phone", val: extractedMetadata.consumer_care_phone, keywords: ["1800", "1860", "helpline", "phone", "toll", "care no"], rule_prefix: "RULE_6_1_G" },
+    { field: "country_of_origin", val: extractedMetadata.country_of_origin, keywords: ["origin", "made in", "india", "bharat", "भारत", "భారత్", "ভারত"], rule_prefix: "RULE_6_10" },
+    { field: "manufacturer_name", val: extractedMetadata.manufacturer_name, keywords: ["mfg by", "manufactured by", "packed by", "marketed by", "industries", "pvt", "ltd", "निर्माता", "उत्पादक"], rule_prefix: "RULE_6_1_A" }
+  ];
+
+  const complianceFields = [];
+  
+  const findSegmentForKeywords = (keywords, valStr) => {
+    let bestText = "";
+    let bestConf = 0.85;
+    for (const seg of (rawSegments || [])) {
+      const segText = String(seg.text || "").toLowerCase();
+      const conf = typeof seg.confidence === 'number' ? (seg.confidence > 1.0 ? seg.confidence / 100 : seg.confidence) : 0.85;
+      for (const kw of keywords) {
+        if (segText.includes(kw.toLowerCase())) {
+          return [seg.text, conf];
+        }
+      }
+      if (valStr && segText.includes(valStr.toLowerCase())) {
+        bestText = seg.text;
+        bestConf = conf;
+      }
+    }
+    return [bestText || valStr || "Live image extraction", bestConf];
+  };
+
+  for (const sp of specs) {
+    const fName = sp.field;
+    let val = sp.val;
+    const [rawText, conf] = findSegmentForKeywords(sp.keywords, val ? String(val) : "");
+    let source = "OCR_Ensemble";
+    let status = "valid";
+
+    if (manualFieldsApplied && manualFieldsApplied.includes(fName)) {
+      source = "Inspector_Override";
+      status = "valid";
+    } else {
+      const hasViol = violations.some(v => (v.rule_id || "").startsWith(sp.rule_prefix));
+      const hasWarn = warnings.some(w => (w.rule_id || "").startsWith(sp.rule_prefix));
+
+      if (conf < 0.65 || val === null || val === undefined || String(val).trim() === "" || String(val) === "Packaged Commodity Specimen" || String(val) === "Not Declared") {
+        status = "uncertain";
+        val = "Needs Manual Verification";
+      } else if (hasViol || hasWarn) {
+        status = "warning";
+      } else {
+        status = "valid";
+      }
+    }
+
+    complianceFields.push({
+      field: fName,
+      value: val !== null && val !== undefined ? String(val) : "Needs Manual Verification",
+      raw_text: rawText ? String(rawText) : "No raw text detected",
+      confidence: Number(conf.toFixed(4)),
+      source: source,
+      validation_status: status
+    });
+  }
+
+  return complianceFields;
 }
 
 function anyMatch(str, list) {

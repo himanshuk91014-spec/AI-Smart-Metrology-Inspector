@@ -99,60 +99,36 @@ class PostOCRErrorCorrectionEngine:
                             "reason": "Marketing slogan '2-Minute' disambiguated from actual product retail price"
                         })
 
-                # Case D: Real Notebook specimen (Linchpin / Nihar / Arvind Prakashan)
-                if any(k in full_lower for k in ["nihar", "linchpin", "arvind prakashan", "writeonwhite"]) and (not meta.get("mrp") or meta.get("mrp") in ["225", "225.00", "725", "725.00", "2500"]):
-                    meta["mrp"] = "25.00"
-                    corrections.append({
-                        "field": "declared_mrp",
-                        "original_ocr": original_mrp_str,
-                        "corrected_value": meta["mrp"],
-                        "reason": "Linchpin Nihar notebook specimen price verified and corrected to ₹25.00"
-                    })
-
-                # Heal Consumer Care Phone if corrupted by barcode/pincode concatenation
-                raw_phone = meta.get("consumer_care_phone")
-                if not raw_phone or "50002" in str(raw_phone) or len(re.sub(r"\D", "", str(raw_phone))) > 11:
-                    tf_m = re.search(r"\b(1800[\s\-]*(?:\d{3}[\s\-]*\d{3,4}|\d{6,7}))\b", raw_text)
-                    if tf_m:
-                        tf_clean = tf_m.group(1).strip()
-                        digits = re.sub(r"\D", "", tf_clean)
-                        meta["consumer_care_phone"] = f"{digits[:4]} {digits[4:7]} {digits[7:]}" if len(digits) == 11 else tf_clean
-                        corrections.append({
-                            "field": "consumer_care_phone",
-                            "original_ocr": str(raw_phone or ""),
-                            "corrected_value": meta["consumer_care_phone"],
-                            "reason": "Toll-free customer care helpline isolated from barcode/pincode strings"
-                        })
-
-                # Heal Manufacturer Name if captured with trailing page counts / URLs
-                raw_mfg = meta.get("manufacturer_name")
-                if not raw_mfg or any(sw in str(raw_mfg).lower() for sw in ["http", "@", "pages :", "pages:"]):
-                    mfg_m = re.search(r"(?:manufactured\s*(?:&|and)?\s*marketed\s*by|manufactured\s*by|marketed\s*by)[\s.:=-]*([A-Za-z0-9\s\.,&]+(?:Pvt\.?\s*Ltd\.?|Limited|LLC|Inc\.?|Industries))", raw_text, re.I)
-                    if mfg_m:
-                        meta["manufacturer_name"] = mfg_m.group(1).strip()
-                    elif "linchpin" in full_lower:
-                        meta["manufacturer_name"] = "Linchpin Industries Pvt. Ltd."
-                    if meta.get("manufacturer_name"):
-                        corrections.append({
-                            "field": "manufacturer_name",
-                            "original_ocr": str(raw_mfg or ""),
-                            "corrected_value": meta["manufacturer_name"],
-                            "reason": "Manufacturer corporate name cleanly extracted without trailing label noise"
-                        })
-
-                # Heal Brand Name if generic
-                raw_brand = meta.get("brand_name")
-                if (not raw_brand or raw_brand in ["Notebook", "Packaged Commodity Specimen"]) and "nihar" in full_lower:
-                    meta["brand_name"] = "Nihar CLASSIC SERIES"
-                    corrections.append({
-                        "field": "brand_name",
-                        "original_ocr": str(raw_brand or ""),
-                        "corrected_value": meta["brand_name"],
-                        "reason": "Brand title identified from top headline"
-                    })
-
             except (ValueError, TypeError):
                 pass
+
+        # Heal Consumer Care Phone if corrupted by barcode/pincode concatenation
+        raw_phone = meta.get("consumer_care_phone")
+        if not raw_phone or "50002" in str(raw_phone) or len(re.sub(r"\D", "", str(raw_phone))) > 11:
+            tf_m = re.search(r"\b(1800[\s\-]*(?:\d{3}[\s\-]*\d{3,4}|\d{6,7}))\b", raw_text)
+            if tf_m:
+                tf_clean = tf_m.group(1).strip()
+                digits = re.sub(r"\D", "", tf_clean)
+                meta["consumer_care_phone"] = f"{digits[:4]} {digits[4:7]} {digits[7:]}" if len(digits) == 11 else tf_clean
+                corrections.append({
+                    "field": "consumer_care_phone",
+                    "original_ocr": str(raw_phone or ""),
+                    "corrected_value": meta["consumer_care_phone"],
+                    "reason": "Toll-free customer care helpline isolated from barcode/pincode strings"
+                })
+
+        # Heal Manufacturer Name if captured with trailing page counts / URLs
+        raw_mfg = meta.get("manufacturer_name")
+        if not raw_mfg or any(sw in str(raw_mfg).lower() for sw in ["http", "@", "pages :", "pages:"]):
+            mfg_m = re.search(r"(?:manufactured\s*(?:&|and)?\s*marketed\s*by|manufactured\s*by|marketed\s*by|mfd\s*by|packed\s*by|निर्माता|उत्पादक)[\s.:=-]*\s*([A-Za-z0-9\s\.,&]+?(?:Pvt\.?\s*Ltd\.?|Limited|LLC|\bInc\.?|\bCorp\.?|(?:Industries|Enterprises|Foods|Products|Agro|Gramodyog|Estates)(?:\s+Pvt\.?\s*Ltd\.?|\s+Limited)?))(?=[\s\n\r]|$)", raw_text, re.I)
+            if mfg_m:
+                meta["manufacturer_name"] = mfg_m.group(1).strip()
+                corrections.append({
+                    "field": "manufacturer_name",
+                    "original_ocr": str(raw_mfg or ""),
+                    "corrected_value": meta["manufacturer_name"],
+                    "reason": "Manufacturer corporate name cleanly extracted without trailing label noise"
+                })
 
         # --- RULE 2: Net Quantity & Product Classification Disambiguation ---
         raw_qty = meta.get("net_quantity")
@@ -826,7 +802,8 @@ class LegalMetrologyComplianceEngine:
                 return None
             return cleaned
 
-        # 1. Check segments by vertical position and size (top prominent text)
+        # 1. Check segments by vertical position, size, and distinctive brand characteristics
+        generic_category_nouns = {"notebook", "register", "book", "diary", "pad", "commodity", "specimen", "item", "product", "goods", "pack", "packet"}
         candidates = []
         for seg in segments:
             text = seg.get("text", "").strip()
@@ -838,24 +815,39 @@ class LegalMetrologyComplianceEngine:
 
             # Calculate box area / position if available
             box = seg.get("box", [])
-            height = 0
-            y_min = 10000
+            height = 20.0
+            y_min = 1000.0
             if len(box) >= 4:
                 y_coords = [pt[1] for pt in box]
                 y_min = min(y_coords)
                 height = max(y_coords) - y_min
             
             confidence = seg.get("confidence", 0.8)
+
+            # Distinctive brand scoring:
+            # - Large font height (+height * 2.5)
+            # - Multi-word title / Series name (+40)
+            # - Uppercase / Titlecase branding (+20)
+            # - Penalize generic single-word category nouns (-60)
+            score = (height * 2.5) - (y_min * 0.3) + (confidence * 20.0)
+            if len(text.split()) > 1:
+                score += 40.0
+            if any(c.isupper() for c in text):
+                score += 20.0
+            if text_lower in generic_category_nouns or len(text.split()) == 1 and text_lower in generic_category_nouns:
+                score -= 75.0
+
             candidates.append({
                 "text": text,
                 "height": height,
                 "y_min": y_min,
-                "confidence": confidence
+                "confidence": confidence,
+                "score": score
             })
 
         if candidates:
-            # Sort by top-most position and font height
-            candidates.sort(key=lambda c: (c["y_min"] * 0.7 - c["height"] * 1.5))
+            # Sort by highest brand prominence score
+            candidates.sort(key=lambda c: c["score"], reverse=True)
             for cand in candidates:
                 validated = _clean_and_validate_brand(cand["text"])
                 if validated:
@@ -1219,6 +1211,16 @@ class LegalMetrologyComplianceEngine:
 
         status = "COMPLIANT" if len(violations) == 0 else "NON_COMPLIANT"
 
+        # Build Rigid Output Compliance Fields Schema
+        compliance_fields = self.build_compliance_fields(
+            extracted_metadata=extracted_metadata,
+            segments=segments,
+            violations=violations,
+            warnings=warnings,
+            corrections_made=corrections_made,
+            manual_fields_applied=manual_fields_applied
+        )
+
         return {
             "status": status,
             "overall_score": overall_score,
@@ -1228,12 +1230,138 @@ class LegalMetrologyComplianceEngine:
             "corrections_made": corrections_made,
             "total_segments_analyzed": len(segments),
             "multilingual_profile": multilingual_profile,
+            "compliance_fields": compliance_fields,
             "violations": violations,
             "passed_checks": passed_checks,
             "warnings": warnings,
             "extracted_metadata": extracted_metadata,
             "rules_breakdown": rules_breakdown
         }
+
+    def build_compliance_fields(
+        self,
+        extracted_metadata: Dict[str, Any],
+        segments: List[Dict[str, Any]],
+        violations: List[Dict[str, Any]],
+        warnings: List[Dict[str, Any]],
+        corrections_made: List[Dict[str, Any]],
+        manual_fields_applied: List[str]
+    ) -> List[Dict[str, Any]]:
+        """
+        Enforces rigid compliance payload schema matching the exact format:
+        {"field": "...", "value": "...", "raw_text": "...", "confidence": 0.0, "source": "OCR_Ensemble", "validation_status": "valid/warning/uncertain"}
+        If confidence < 0.65, marks status as "uncertain" and value as "Needs Manual Verification".
+        """
+        compliance_fields: List[Dict[str, Any]] = []
+
+        def find_segment_for_keywords(keywords: List[str], fallback_text: str = "") -> Tuple[str, float]:
+            for seg in segments:
+                s_text = seg.get("text", "")
+                s_lower = s_text.lower()
+                if any(kw and kw.lower() in s_lower for kw in keywords):
+                    return s_text, float(seg.get("confidence", 0.95))
+            if fallback_text:
+                for seg in segments:
+                    if fallback_text.lower() in seg.get("text", "").lower():
+                        return seg.get("text", ""), float(seg.get("confidence", 0.90))
+            return (fallback_text or "No direct OCR segment"), (0.85 if fallback_text else 0.0)
+
+        specs = [
+            {
+                "field": "brand_name",
+                "val": extracted_metadata.get("brand_name"),
+                "keywords": [extracted_metadata.get("brand_name") or "", "brand"],
+                "rule_prefix": "RULE_6_1_A"
+            },
+            {
+                "field": "declared_mrp",
+                "val": f"₹ {extracted_metadata.get('mrp')}" if extracted_metadata.get("mrp") else None,
+                "keywords": ["mrp", "₹", "rs.", "price", "मूल्य", "किंमत", "ధర", "விலை"],
+                "rule_prefix": "RULE_6_1_DA"
+            },
+            {
+                "field": "taxes_included",
+                "val": "Inclusive of all taxes" if extracted_metadata.get("taxes_included") else None,
+                "keywords": ["tax", "taxes", "gst", "कर", "करांसह", "పన్నులు", "வரி"],
+                "rule_prefix": "RULE_6_1_DA_TAX"
+            },
+            {
+                "field": "net_quantity",
+                "val": f"{extracted_metadata.get('net_quantity')} {extracted_metadata.get('unit_of_measure') or ''}".strip() if extracted_metadata.get("net_quantity") else None,
+                "keywords": ["net", "qty", "weight", "vol", "मात्रा", "वजन", "పరిమాణం", "எடை", "g", "ml", "kg", "pages", "n"],
+                "rule_prefix": "RULE_11_12"
+            },
+            {
+                "field": "unit_of_measure",
+                "val": extracted_metadata.get("unit_of_measure"),
+                "keywords": ["g", "gm", "kg", "ml", "l", "ltr", "pages", "units", "n"],
+                "rule_prefix": "RULE_11_12_PROHIBITED"
+            },
+            {
+                "field": "manufacturing_date",
+                "val": extracted_metadata.get("manufacturing_date"),
+                "keywords": ["mfg", "mfd", "pkd", "packed", "date", "तिथि", "दिनांक", "తేదీ"],
+                "rule_prefix": "RULE_6_1_C"
+            },
+            {
+                "field": "consumer_care_email",
+                "val": extracted_metadata.get("consumer_care_email"),
+                "keywords": ["@", "care", "email", "feedback", "help", "support"],
+                "rule_prefix": "RULE_6_1_G"
+            },
+            {
+                "field": "consumer_care_phone",
+                "val": extracted_metadata.get("consumer_care_phone"),
+                "keywords": ["1800", "1860", "helpline", "phone", "toll", "care no"],
+                "rule_prefix": "RULE_6_1_G"
+            },
+            {
+                "field": "country_of_origin",
+                "val": extracted_metadata.get("country_of_origin"),
+                "keywords": ["origin", "made in", "india", "bharat", "भारत", "భారత్"],
+                "rule_prefix": "RULE_6_10"
+            },
+            {
+                "field": "manufacturer_name",
+                "val": extracted_metadata.get("manufacturer_name"),
+                "keywords": ["mfg by", "manufactured by", "packed by", "marketed by", "industries", "pvt", "ltd", "निर्माता", "उत्पादक"],
+                "rule_prefix": "RULE_6_1_A_MFG"
+            }
+        ]
+
+        for sp in specs:
+            f_name = sp["field"]
+            val = sp["val"]
+            raw_text, conf = find_segment_for_keywords(sp["keywords"], str(val) if val else "")
+
+            # If inspector manually verified / overridden
+            if f_name in manual_fields_applied or f_name.replace("declared_", "") in manual_fields_applied:
+                source = "Inspector_Override"
+                conf = 1.0
+                status = "valid"
+            else:
+                source = "OCR_Ensemble"
+                has_viol = any(v.get("rule_id", "").startswith(sp["rule_prefix"]) for v in violations)
+                has_warn = any(w.get("rule_id", "").startswith(sp["rule_prefix"]) for w in warnings)
+
+                if conf < 0.65 or val is None or str(val).strip() in ("", "None", "Packaged Commodity Specimen", "Not Declared"):
+                    status = "uncertain"
+                    val = "Needs Manual Verification"
+                elif has_viol or has_warn:
+                    status = "warning"
+                else:
+                    status = "valid"
+
+            compliance_fields.append({
+                "field": f_name,
+                "value": str(val) if val is not None else "Needs Manual Verification",
+                "raw_text": str(raw_text) if raw_text else "No raw text detected",
+                "confidence": round(float(conf), 4),
+                "source": source,
+                "validation_status": status
+            })
+
+        return compliance_fields
 
     # =========================================================================
     # PIPELINE 1: Rule 6(1)(da) - MRP & Statutory Tax Suffix (Curvature Resilient)
@@ -2041,19 +2169,21 @@ class LegalMetrologyComplianceEngine:
 
         # Manufacturer / Packer (English & Indian Languages: निर्माता, उत्पादक, पॅकर्स, इत्यादी)
         mfg_name_match = re.search(
-            r"(?:mfd\s+by|manufactured\s+by|packed\s+by|marketed\s+by|pkg\s+by|industries|निर्माता|उत्पादक|पॅकर्स|पॅकर|तयारीदारु|தயாரிப்பாளர்)[\s.:=-]+([^\n\r]+)",
+            r"(?:manufactured\s*(?:&|and)?\s*marketed\s*by|mfd\s*(?:&|and)?\s*marketed\s*by|mfd\s*by|manufactured\s*by|packed\s*by|marketed\s*by|pkg\s*by|निर्माता|उत्पादक|पॅकर्स|पॅकर|तयारीदारु|தயாரிப்பாளர்)[\s.:=-]*\n?[\s.:=-]*([^\n\r]+)",
             full_text,
             re.IGNORECASE
         )
         if mfg_name_match:
-            cand_mfg = mfg_name_match.group(0).strip()
-            # Clean trailing FSSAI / Lic / MRP noise if concatenated
-            cand_mfg = re.split(r"(?i)\b(?:fssai|lic|mrp|rs|₹|batch)\b", cand_mfg)[0].strip()
-            extracted_metadata["manufacturer_name"] = cand_mfg
-            passed_checks.append({
-                "rule_id": "RULE_6_1_A_MFG_NAME",
-                "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
-                "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
-                "description": "Name of Manufacturer/Packer identified on package.",
-                "evidence": f"Manufacturer/Packer: {extracted_metadata['manufacturer_name']}"
-            })
+            cand_mfg = mfg_name_match.group(1).strip()
+            # Clean trailing FSSAI / Lic / MRP / Customer care noise if concatenated
+            cand_mfg = re.split(r"(?i)\b(?:fssai|licence|lic\s*no|license|mrp|rs\.|₹|batch\s*no|customer\s*care|helpline)\b", cand_mfg)[0].strip()
+            cand_mfg = re.sub(r"^[:=-]+\s*", "", cand_mfg).strip()
+            if cand_mfg:
+                extracted_metadata["manufacturer_name"] = cand_mfg
+                passed_checks.append({
+                    "rule_id": "RULE_6_1_A_MFG_NAME",
+                    "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+                    "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+                    "description": "Name of Manufacturer/Packer identified on package.",
+                    "evidence": f"Manufacturer/Packer: {extracted_metadata['manufacturer_name']}"
+                })

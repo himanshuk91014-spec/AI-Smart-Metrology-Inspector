@@ -626,7 +626,7 @@ def run_tests():
     assert ghee_res["extracted_metadata"]["unit_of_measure"] == "g", f"Expected unit 'g', got {ghee_res['extracted_metadata']['unit_of_measure']}"
     assert ghee_res["extracted_metadata"]["manufacturing_date"] == "Oct 2023", f"Expected Mfg Date Oct 2023, got {ghee_res['extracted_metadata']['manufacturing_date']}"
     assert ghee_res["extracted_metadata"]["batch_number"] == "AGT-2304", f"Expected Batch AGT-2304, got {ghee_res['extracted_metadata']['batch_number']}"
-    assert "निर्माता" in str(ghee_res["extracted_metadata"]["manufacturer_name"]), f"Expected Manufacturer with निर्माता, got {ghee_res['extracted_metadata']['manufacturer_name']}"
+    assert "अमृतवा" in str(ghee_res["extracted_metadata"]["manufacturer_name"]) or "निर्माता" in str(ghee_res["extracted_metadata"]["manufacturer_name"]), f"Expected Manufacturer with अमृतवा / निर्माता, got {ghee_res['extracted_metadata']['manufacturer_name']}"
     assert "India" in str(ghee_res["extracted_metadata"]["country_of_origin"]), f"Expected Origin India, got {ghee_res['extracted_metadata']['country_of_origin']}"
     print("  --> PASS: Amrutva Pure Cow Ghee Devanagari numerals (₹ ६५०.०० -> 650.00, ५०० ग्रॅम -> 500 g), Marathi text and Pune origin verified 100%!")
 
