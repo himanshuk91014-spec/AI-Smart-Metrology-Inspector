@@ -479,6 +479,7 @@ export default function App() {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [activeLanguagesList, setActiveLanguagesList] = useState(SUPPORTED_LANGUAGES);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isMobileLangOpen, setIsMobileLangOpen] = useState(false);
   const [ocrTargetLanguage, setOcrTargetLanguage] = useState('auto');
   const [aiEngine, setAiEngine] = useState('rapidocr'); // 'rapidocr' or 'vlm'
   const [ocrExecutionMode, setOcrExecutionMode] = useState('hybrid'); // 'hybrid', 'edge_tesseract', 'backend_only'
@@ -579,6 +580,7 @@ export default function App() {
   const reportRef = useRef(null);
   const statutoryNoticeRef = useRef(null);
   const langDropdownRef = useRef(null);
+  const mobileLangDropdownRef = useRef(null);
   const videoRef = useRef(null);
   const mediaStreamRef = useRef(null);
 
@@ -599,15 +601,22 @@ export default function App() {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (Desktop & Mobile)
   useEffect(() => {
     function handleClickOutside(event) {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
         setIsLangDropdownOpen(false);
       }
+      if (mobileLangDropdownRef.current && !mobileLangDropdownRef.current.contains(event.target)) {
+        setIsMobileLangOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   // Global Clipboard Paste Listener (Ctrl+V)
@@ -1701,54 +1710,65 @@ export default function App() {
               </span>
             </div>
 
-            {/* Language Selector Dropdown */}
+            {/* Language Selector Dropdown (Desktop) */}
             <div className="relative" ref={langDropdownRef}>
               <button
-                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLangDropdownOpen((prev) => !prev);
+                }}
+                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold active:scale-95 transition-all shadow-sm ${
                   isDark
                     ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
-                    : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800 shadow-sm'
+                    : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
                 }`}
+                title="Select Regulatory Inspection Language"
               >
-                <Globe className="h-3.5 w-3.5 text-blue-500" />
-                <span>{selectedLanguage.toUpperCase()}</span>
+                <Globe className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
+                <span className="font-mono">{selectedLanguage.toUpperCase()}</span>
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
 
               {isLangDropdownOpen && (
                 <div
-                  className={`absolute right-0 mt-2 w-52 rounded-xl shadow-2xl py-1 z-50 max-h-80 overflow-y-auto border ${
+                  className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border animate-in fade-in zoom-in-95 duration-150 ${
                     isDark ? 'bg-[#0f172a] border-slate-700' : 'bg-white border-slate-200'
                   }`}
+                  style={{ zIndex: 9999 }}
                 >
                   <div
-                    className={`px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider border-b ${
-                      isDark ? 'text-slate-400 border-slate-800' : 'text-slate-500 border-slate-100'
+                    className={`px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
+                      isDark ? 'text-slate-400 border-slate-800 bg-slate-900/50' : 'text-slate-500 border-slate-100 bg-slate-50/50'
                     }`}
                   >
-                    Indian Regional Languages
+                    <span>Regional Languages</span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold">
+                      {activeLanguagesList.length} Indic
+                    </span>
                   </div>
                   {activeLanguagesList.map((lang) => (
                     <button
                       key={lang.code}
-                      onClick={() => {
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedLanguage(lang.code);
                         setIsLangDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition ${
+                      className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition active:bg-blue-100 dark:active:bg-slate-700 ${
                         selectedLanguage === lang.code
-                          ? 'text-blue-600 font-bold bg-blue-50 dark:bg-slate-800'
+                          ? 'text-blue-600 font-extrabold bg-blue-50 dark:bg-slate-800/90'
                           : isDark
-                          ? 'text-slate-300 hover:bg-slate-800'
+                          ? 'text-slate-200 hover:bg-slate-800'
                           : 'text-slate-700 hover:bg-slate-100'
                       }`}
                     >
-                      <span className="flex items-center space-x-2">
-                        <span>{lang.flag}</span>
-                        <span>{lang.nativeName}</span>
+                      <span className="flex items-center space-x-2.5">
+                        <span className="text-sm">{lang.flag}</span>
+                        <span className="font-medium">{lang.nativeName}</span>
                       </span>
-                      {selectedLanguage === lang.code && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-600 flex-shrink-0" />}
                     </button>
                   ))}
                 </div>
@@ -1760,6 +1780,7 @@ export default function App() {
           <div className="flex md:hidden items-center space-x-1.5 flex-shrink-0">
             {/* Quick Camera Scan */}
             <button
+              type="button"
               onClick={() => startCamera('environment', 1)}
               className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
               title="Camera Scan"
@@ -1769,6 +1790,7 @@ export default function App() {
 
             {/* Quick Theme Toggle */}
             <button
+              type="button"
               onClick={toggleTheme}
               className={`p-2 rounded-xl border text-xs active:scale-95 ${
                 isDark
@@ -1779,19 +1801,72 @@ export default function App() {
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
 
-            {/* Mobile Language Button */}
-            <button
-              onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-              className={`px-2 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1 active:scale-95 ${
-                isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-300'
-              }`}
-            >
-              <Globe className="h-3 w-3 text-blue-500" />
-              <span>{selectedLanguage.toUpperCase()}</span>
-            </button>
+            {/* Mobile Language Button with Dropdown */}
+            <div className="relative" ref={mobileLangDropdownRef}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMobileLangOpen((prev) => !prev);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1 active:scale-95 shadow-sm ${
+                  isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-300'
+                }`}
+                title="Select Language"
+              >
+                <Globe className="h-3.5 w-3.5 text-blue-500" />
+                <span className="font-mono font-bold">{selectedLanguage.toUpperCase()}</span>
+                <ChevronDown className="h-3 w-3 text-slate-400" />
+              </button>
+
+              {isMobileLangOpen && (
+                <div
+                  className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border animate-in fade-in zoom-in-95 duration-150 ${
+                    isDark ? 'bg-[#0f172a] border-slate-700' : 'bg-white border-slate-200'
+                  }`}
+                  style={{ zIndex: 9999 }}
+                >
+                  <div
+                    className={`px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
+                      isDark ? 'text-slate-400 border-slate-800 bg-slate-900/50' : 'text-slate-500 border-slate-100 bg-slate-50/50'
+                    }`}
+                  >
+                    <span>Regional Languages</span>
+                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold">
+                      {activeLanguagesList.length} Indic
+                    </span>
+                  </div>
+                  {activeLanguagesList.map((lang) => (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedLanguage(lang.code);
+                        setIsMobileLangOpen(false);
+                      }}
+                      className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition active:bg-blue-100 dark:active:bg-slate-700 ${
+                        selectedLanguage === lang.code
+                          ? 'text-blue-600 font-extrabold bg-blue-50 dark:bg-slate-800/90'
+                          : isDark
+                          ? 'text-slate-200 hover:bg-slate-800'
+                          : 'text-slate-700 hover:bg-slate-100'
+                      }`}
+                    >
+                      <span className="flex items-center space-x-2.5">
+                        <span className="text-sm">{lang.flag}</span>
+                        <span className="font-medium">{lang.nativeName}</span>
+                      </span>
+                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-600 flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Mobile Menu Drawer Button */}
             <button
+              type="button"
               onClick={() => setIsMobileToolsOpen(true)}
               className="p-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 active:scale-95 shadow-sm"
               title="Regulatory Tools Menu"
@@ -1829,52 +1904,6 @@ export default function App() {
             </span>
           </div>
         )}
-
-        {/* 1-Click Fast-Demo Scenarios Carousel */}
-        <section
-          className={`p-4 rounded-2xl border shadow-sm no-print ${
-            isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
-          }`}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="h-4 w-4 text-blue-600" />
-              <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider">
-                1-Click Regulatory Demo Scenarios
-              </h2>
-            </div>
-            <span className={`text-[11px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              12 Curated Test Cases (English + Regional Languages)
-            </span>
-          </div>
-
-          <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-thin">
-            {samplePresets.map((sample) => (
-              <button
-                key={sample.id}
-                onClick={() => handleSelectPreset(sample)}
-                className={`flex-shrink-0 text-left px-4 py-3 rounded-xl border text-xs active:scale-95 transition-all max-w-[250px] ${
-                  selectedSampleId === sample.id
-                    ? isDark
-                      ? 'bg-blue-950/70 border-blue-500 text-blue-200 shadow-md'
-                      : 'bg-blue-50 border-blue-500 text-blue-900 shadow-sm font-bold'
-                    : isDark
-                    ? 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
-                    : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100'
-                }`}
-              >
-                <div className="font-bold truncate">{sample.title}</div>
-                <div
-                  className={`text-[11px] truncate mt-0.5 ${
-                    isDark ? 'text-slate-400' : 'text-slate-500'
-                  }`}
-                >
-                  {sample.description}
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
 
 
         {/* Ingestion & Multi-Angle Capture Section */}

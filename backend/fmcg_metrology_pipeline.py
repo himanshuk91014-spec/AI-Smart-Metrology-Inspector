@@ -491,7 +491,7 @@ class FMCGDeclarationExtractor:
 
         # 2. Check for explicit Net Wt / Net Qty / Net Vol statements
         explicit_qty_pattern = re.compile(
-            r"(?i)\b(?:net\s*(?:wt|weight|qty|quantity|vol|volume|contents?)|शुद्ध\s*मात्रा|పరిమాణం|নিট\s*পরিমাণ)\s*[:=-]*\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|मिली|लीटर)\b"
+            r"(?i)(?:net\s*(?:wt|weight|qty|quantity|vol|volume|contents?|content)\.?|शुद्ध\s*मात्रा|निव्वळ\s*वजन|పరిమాణం|పరిమాణము|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[\.:=-]*\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|मिली|लीटर)\b"
         )
         match_exp = explicit_qty_pattern.search(decontaminated_text)
         if match_exp:

@@ -1,5 +1,336 @@
 [
   {
+    "status": "COMPLIANT",
+    "overall_score": 100,
+    "timestamp": "2026-09-20T14:26:18.101396",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_phone",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 26,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 652
+    },
+    "violations": [],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 1 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Helpline: 1001202102010"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 53.8px across 26 segments."
+      },
+      {
+        "rule_id": "RULE_6_1_DA",
+        "rule_name": "Rule 6(1)(da) - Maximum Retail Price (MRP)",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Maximum Retail Price declared with statutory tax inclusive clause.",
+        "evidence": "Declared MRP: ₹ 14.00 (Inclusive of all taxes) [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 100.05 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Phone: 0012021020100 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 11/26 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "Mago Nater coo 1g gold COOtNG",
+      "mrp": "14.00",
+      "taxes_included": true,
+      "net_quantity": "100.05",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "11/26",
+      "consumer_care_email": null,
+      "consumer_care_phone": "0012021020100",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": true,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified.",
+      "verified_at": "2026-09-20T19:56:18.101256",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789914378101",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiMwNTk2NjkiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjMDU5NjY5IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzA1OTY2OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuKckzwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE0NiIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOGZhZmMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIj5NYWdvIE5hdGVyIGNvbyAxZyBnby4uPC90ZXh0PgogIDx0ZXh0IHg9IjEwMCIgeT0iMTY4IiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjOTRhM2I4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ibW9ub3NwYWNlIj5QQ1IgMjAxMTwvdGV4dD4KPC9zdmc+",
+    "product_name": "Mago Nater coo 1g gold COOtNG",
+    "brand_name": "Mago Nater coo 1g gold COOtNG",
+    "mrp": "₹ 14.00",
+    "net_quantity": "100.05 g",
+    "violations_count": 0,
+    "violations_summary": [],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
+    "status": "NON_COMPLIANT",
+    "overall_score": 75,
+    "timestamp": "2026-09-20T14:26:01.291952",
+    "is_manually_verified": true,
+    "manual_fields_applied": [
+      "brand_name",
+      "mrp",
+      "taxes_included",
+      "net_quantity",
+      "unit_of_measure",
+      "manufacturing_date",
+      "consumer_care_phone",
+      "country_of_origin",
+      "manufacturer_name",
+      "inspector_id",
+      "inspector_name",
+      "inspection_location",
+      "inspection_remarks"
+    ],
+    "corrections_made": [],
+    "total_segments_analyzed": 26,
+    "multilingual_profile": {
+      "dominant_language": "en",
+      "language_name": "English",
+      "dominant_script": "Latin",
+      "is_multilingual": false,
+      "scripts_present": [
+        "Latin"
+      ],
+      "regional_char_count": 0,
+      "latin_char_count": 652
+    },
+    "violations": [
+      {
+        "rule_id": "RULE_6_1_DA_TAX_SUFFIX_MISSING",
+        "rule_name": "Rule 6(1)(da) - Missing Statutory Tax Suffix",
+        "severity": "HIGH",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(da)",
+        "description": "Price declared without mandatory 'Inclusive of all taxes' statutory clause.",
+        "found_text": "MRP: ₹ 14.00 (Missing Tax Suffix)",
+        "remediation": "Print 'MRP ₹ [Price] (Inclusive of all taxes)' on the Principal Display Panel."
+      }
+    ],
+    "passed_checks": [
+      {
+        "rule_id": "RULE_11_12",
+        "rule_name": "Rule 11 & 12 - Net Quantity & Metric Standards",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & Rule 12",
+        "description": "Net quantity and dimensions declared in standard statutory metric units.",
+        "evidence": "Declared Quantity: 1 g"
+      },
+      {
+        "rule_id": "RULE_6_1_G",
+        "rule_name": "Rule 6(1)(g) - Consumer Grievance Redressal",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified on package.",
+        "evidence": "Helpline: 1001202102010"
+      },
+      {
+        "rule_id": "RULE_9_LAYOUT",
+        "rule_name": "Rule 9 & Schedule II - Display Area & Font Legibility",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 9",
+        "description": "Principal Display Panel layout and font height aspect ratio estimated.",
+        "evidence": "Estimated Average Font Box Height: 53.8px across 26 segments."
+      },
+      {
+        "rule_id": "RULE_11_12_NET_QUANTITY",
+        "rule_name": "Rule 11 & 12 - Approved Metric SI Units",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 11 & 12",
+        "description": "Net quantity is declared in approved standard SI units.",
+        "evidence": "Declared Net Quantity: 100.05 g [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_G_CARE",
+        "rule_name": "Rule 6(1)(g) - Consumer Care & Redressal Helpline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(g)",
+        "description": "Consumer grievance redressal channel verified.",
+        "evidence": "Phone: 0012021020100 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_C",
+        "rule_name": "Rule 6(1)(c) - Manufacturing / Packaging Timeline",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(c)",
+        "description": "Month and Year of manufacture/packaging is verified.",
+        "evidence": "Declared Timeline: 11/26 [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_10_ORIGIN",
+        "rule_name": "Rule 6(10) - Country of Origin",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(10)",
+        "description": "Country of origin verified.",
+        "evidence": "Declared Origin: India [Inspector Verified]"
+      },
+      {
+        "rule_id": "RULE_6_1_A_MFG_NAME",
+        "rule_name": "Rule 6(1)(a) - Name & Address of Manufacturer / Packer",
+        "legal_reference": "Legal Metrology (Packaged Commodities) Rules, 2011 - Rule 6(1)(a)",
+        "description": "Name of Manufacturer/Packer identified and verified.",
+        "evidence": "Manufacturer/Packer: Packaged Commodity Enterprise [Inspector Verified]"
+      }
+    ],
+    "warnings": [],
+    "extracted_metadata": {
+      "brand_name": "Mago Nater coo 1g gold COOtNG",
+      "mrp": "14.00",
+      "taxes_included": false,
+      "net_quantity": "100.05",
+      "unit_of_measure": "g",
+      "dimensions": null,
+      "manufacturing_date": "11/26",
+      "consumer_care_email": null,
+      "consumer_care_phone": "0012021020100",
+      "consumer_care_address": null,
+      "country_of_origin": "India",
+      "manufacturer_name": "Packaged Commodity Enterprise",
+      "article_number": null,
+      "item_code": null,
+      "model_number": null,
+      "batch_number": null,
+      "barcode": null,
+      "detected_language": "en",
+      "language_name": "English",
+      "detected_script": "Latin",
+      "manual_fields": [
+        "brand_name",
+        "mrp",
+        "taxes_included",
+        "net_quantity",
+        "unit_of_measure",
+        "manufacturing_date",
+        "consumer_care_phone",
+        "country_of_origin",
+        "manufacturer_name",
+        "inspector_id",
+        "inspector_name",
+        "inspection_location",
+        "inspection_remarks"
+      ]
+    },
+    "rules_breakdown": {
+      "rule_6_1_da_mrp": false,
+      "rule_11_12_net_quantity": true,
+      "rule_6_1_g_consumer_care": true,
+      "rule_6_1_c_mfg_date": true,
+      "rule_9_font_aspect": true
+    },
+    "inspector_metadata": {
+      "inspector_id": "INSP-2026-DELHI-883",
+      "inspector_name": "Authorized Legal Metrology Officer",
+      "inspection_location": "Zonal Retail Market Inspection (New Delhi)",
+      "inspection_remarks": "Specimen physical packaging inspected under PCR 2011. OCR discrepancies manually corrected & verified.",
+      "verified_at": "2026-09-20T19:56:01.291562",
+      "attestation_status": "OFFICIALLY_VERIFIED_AND_OVERWRITTEN"
+    },
+    "audit_id": "AUD-MANUAL-1789914361291",
+    "thumbnail_base64": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIiB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMWUyOTNiIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBmMTcyYSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHJ4PSIyNCIgZmlsbD0idXJsKCNnKSIgc3Ryb2tlPSIjMzM0MTU1IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8Y2lyY2xlIGN4PSIxMDAiIGN5PSI4MCIgcj0iNDIiIGZpbGw9IiNlMTFkNDgiIGZpbGwtb3BhY2l0eT0iMC4xOCIgc3Ryb2tlPSIjZTExZDQ4IiBzdHJva2Utd2lkdGg9IjMiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjkyIiBmb250LXNpemU9IjM0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UxMWQ0OCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPiE8L3RleHQ+CiAgPHRleHQgeD0iMTAwIiB5PSIxNDYiIGZvbnQtc2l6ZT0iMTIiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZjhmYWZjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiI+TWFnbyBOYXRlciBjb28gMWcgZ28uLjwvdGV4dD4KICA8dGV4dCB4PSIxMDAiIHk9IjE2OCIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iIzk0YTNiOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSI+UENSIDIwMTE8L3RleHQ+Cjwvc3ZnPg==",
+    "product_name": "Mago Nater coo 1g gold COOtNG",
+    "brand_name": "Mago Nater coo 1g gold COOtNG",
+    "mrp": "₹ 14.00",
+    "net_quantity": "100.05 g",
+    "violations_count": 1,
+    "violations_summary": [
+      "Rule 6(1)(da) - Missing Statutory Tax Suffix"
+    ],
+    "source": "inspector_manual_verification",
+    "thumbnail_url": null
+  },
+  {
     "status": "NON_COMPLIANT",
     "overall_score": 72,
     "timestamp": "2026-09-20T13:41:43.414991",

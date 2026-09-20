@@ -829,43 +829,125 @@ export function evaluateClientSideCompliance(rawText, segments = [], manualOverr
     }
   }
 
-  // Clean catalog numbers (e.g. ART NO. 3458, ITEM CODE 901) before quantity extraction
-  const sanitizedQtyText = fullJoinedText.replace(/(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?)\s*[:=-]*\s*\w+/gi, ' [CATALOG_CODE_STRIPPED] ');
+  // Intelligent Net Quantity Candidate Extraction with Prioritized Multi-Level Scoring
+  const qtyCandidates = [];
+  
+  const explicitQtyRegex = /(?:net\s*(?:wt|qty|quantity|weight|vol|volume|contents?|content)\.?|शुद्ध\s*मात्रा|निव्वळ\s*वजन|పరిమాణం|పరిమాణము|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[:=-]*\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|कि\.ग्रा\.|मिली|मि\.ली\.|लीटर|ली\.|గ్రాములు|గ్రా|మి\.లీ|లీటర్|కేజీ|গ্রাম|কেজি|মিলি|লিটার|ਗ੍ਰਾਮ|ਕਿਲੋ|ਮਿਲੀ|ਲਿਟਰ|گرام|کلو|pages?|sheets?|leaves|pens?|pencils?|units?|u|pcs?|pieces?|n)\b/i;
+  const prefixStationeryRegex = /(?:total\s*(?:pages?|sheets?|leaves)|no\.?\s*of\s*(?:pages?|sheets?|leaves)|pages?|sheets?|leaves)\s*[:=-]*\s*(\d+)/i;
+  const unitCountRegex = /(?:(?:net\s*(?:qty|quantity|content|wt|weight)\.?\s*[:=-]*\s*)(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b/i;
+  const standaloneMetricRegex = /\b(\d+(?:\.\d+)?)\s*(g|gm|gms|gram|grams|kg|kgs|kilogram|ml|mls|millilitre|l|ltr|ltrs|litre|litres|m|cm|mm|sq\.m|sq\.cm|units?|pcs?|pieces?|pens?|pencils?|tablets?|pages?|sheets?|leaves|n)\b/i;
 
-  // Check approved metric units & quantity (including prefix formats: Pages: 428, Total Pages: 80, Sheets: 100)
-  const netQtyRegexList = [
-    // 1. Explicit net qty / regional phrase
-    /(?:net\s*(?:qty|quantity|wt|weight|vol|volume|contents?)|शुद्ध\s*मात्रा|निव्वळ\s*वजन|परिमाणं|పరిమాణం|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[:=-]?\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|मिली|लीटर|గ్రాములు|మి\.లీ|లీటర్|কেজি|গ্রাম|ਕਿਲੋ|ਗ੍ਰਾਮ|لیٹر|کلو|pages?|sheets?|leaves|pens?|pencils?|units?|u|pcs?|pieces?)/i,
-    // 2. Quantity with unit count / Writing Instruments / Apparel count (e.g. 1 N, 1 Pen, 5 Pens)
-    /(?:(?:net\s*(?:qty|quantity|content|wt|weight)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b/i,
-    // 3. Prefix stationery / publication / count (e.g. Pages: 428, Total Pages: 80, Sheets: 100, Leaves: 50)
-    /(?:total\s*(?:pages?|sheets?|leaves)|no\.?\s*of\s*(?:pages?|sheets?|leaves)|pages?|sheets?|leaves)\s*[:=-]*\s*(\d+)/i,
-    // 4. Postfix standard SI unit
-    /\b(\d+(?:\.\d+)?)\s*(g|gm|gms|kg|kgs|ml|mls|l|ltr|ltrs|m|cm|mm|sq\.m|sq\.cm|units?|pcs?|pieces?|pens?|pencils?|tablets?|pages?|sheets?|leaves|n)\b/i
-  ];
+  for (let idx = 0; idx < lines.length; idx++) {
+    const rawLine = lines[idx];
+    const sanitizedLine = rawLine.replace(/(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?|b\.no|exp|lic|fssai)\s*[:=-]*\s*[\w\/-]+/gi, ' ');
+    
+    const isExplicitLine = /(?:net\s*(?:wt|qty|quantity|weight|vol|volume|contents?|content)\.?|शुद्ध\s*मात्रा|निव्वळ\s*वजन|పరిమాణం|నిట్\s*పరిమాణం|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ)/i.test(sanitizedLine);
+    const isDateOrStampLine = /(?:mfg|pkd|packed|expiry|exp|use\s*by|best\s*before|\b\d{1,2}[\/\.-]\d{2,4}\b)/i.test(sanitizedLine);
+    const isPriceLine = /(?:mrp|rs|₹|price)/i.test(sanitizedLine);
 
-  let qtyMatch = null;
-  let detectedUnit = 'Units';
-
-  for (const r of netQtyRegexList) {
-    const match = sanitizedQtyText.match(r);
-    if (match) {
-      qtyMatch = match;
-      if (r === netQtyRegexList[2]) {
-        detectedUnit = 'Pages / Units';
-      } else if (r === netQtyRegexList[1]) {
-        const u = (match[2] || '').toLowerCase();
-        detectedUnit = (u === 'n' || u === 'nn') ? 'N' : (match[2] || 'Units');
-      } else {
-        detectedUnit = match[2] || 'Units';
+    // 1. Explicit inline Match (e.g. Net Wt.: 70 g, Net Qty: 500 ml)
+    const m1 = sanitizedLine.match(explicitQtyRegex);
+    if (m1) {
+      const val = parseFloat(m1[1]);
+      let u = m1[2].replace(/\.$/, '');
+      if (/^n{1,2}$/i.test(u)) u = 'N';
+      if (!isNaN(val) && val > 0) {
+        qtyCandidates.push({
+          valStr: m1[1],
+          valFloat: val,
+          unit: u,
+          score: 100,
+          line: rawLine
+        });
       }
-      break;
+    }
+
+    // 2. Check two-line split: line[idx] has "Net Wt.:" and line[idx+1] has "70 g"
+    if (isExplicitLine && !m1 && idx + 1 < lines.length) {
+      const nextLine = lines[idx + 1].replace(/(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?)\s*[:=-]*\s*[\w\/-]+/gi, ' ');
+      const mNext = nextLine.match(standaloneMetricRegex);
+      if (mNext) {
+        const val = parseFloat(mNext[1]);
+        let u = mNext[2].replace(/\.$/, '');
+        if (/^n{1,2}$/i.test(u)) u = 'N';
+        if (!isNaN(val) && val > 0) {
+          qtyCandidates.push({
+            valStr: mNext[1],
+            valFloat: val,
+            unit: u,
+            score: 95,
+            line: `${rawLine} ${lines[idx + 1]}`
+          });
+        }
+      }
+    }
+
+    // 3. Prefix stationery match (e.g. Total Pages: 80, Sheets: 100)
+    const m2 = sanitizedLine.match(prefixStationeryRegex);
+    if (m2 && !m1) {
+      const val = parseFloat(m2[1]);
+      if (!isNaN(val) && val > 0 && val < 5000) {
+        qtyCandidates.push({
+          valStr: m2[1],
+          valFloat: val,
+          unit: 'Pages / Units',
+          score: 85,
+          line: rawLine
+        });
+      }
+    }
+
+    // 4. Unit count with label (e.g. Net Qty: 1 N, 5 Pens)
+    const m3 = sanitizedLine.match(unitCountRegex);
+    if (m3 && !m1 && !m2) {
+      const val = parseFloat(m3[1]);
+      const rawUnit = (m3[2] || '').toLowerCase();
+      const u = (rawUnit === 'n' || rawUnit === 'nn') ? 'N' : (m3[2] || 'Units');
+      if (!isNaN(val) && val > 0) {
+        qtyCandidates.push({
+          valStr: m3[1],
+          valFloat: val,
+          unit: u,
+          score: 80,
+          line: rawLine
+        });
+      }
+    }
+
+    // 5. Standalone Metric Unit (e.g. 70 g, 500 ml, 200 ml, 1 kg)
+    const m4 = sanitizedLine.match(standaloneMetricRegex);
+    if (m4 && !m1 && !m2 && !m3) {
+      const val = parseFloat(m4[1]);
+      let u = m4[2].replace(/\.$/, '');
+      if (/^n{1,2}$/i.test(u)) u = 'N';
+      if (!isNaN(val) && val > 0) {
+        let score = 40;
+        if (isExplicitLine) score += 55;
+        if (isDateOrStampLine) score -= 40;
+        if (isPriceLine) score -= 25;
+        if (val >= 10 && val <= 5000) score += 25;
+        else if (val === 1 && (u === 'g' || u === 'gm')) score -= 20;
+
+        qtyCandidates.push({
+          valStr: m4[1],
+          valFloat: val,
+          unit: u,
+          score: score,
+          line: rawLine
+        });
+      }
     }
   }
 
-  if (qtyMatch) {
-    extractedMetadata.net_quantity = qtyMatch[1];
-    extractedMetadata.unit_of_measure = detectedUnit;
+  let selectedQty = null;
+  if (qtyCandidates.length > 0) {
+    qtyCandidates.sort((a, b) => b.score - a.score);
+    selectedQty = qtyCandidates[0];
+  }
+
+  if (selectedQty) {
+    extractedMetadata.net_quantity = selectedQty.valStr;
+    extractedMetadata.unit_of_measure = selectedQty.unit;
     
     if (!hasProhibitedUnits) {
       rulesBreakdown.rule_11_12_net_quantity = true;

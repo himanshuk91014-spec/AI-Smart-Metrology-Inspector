@@ -1617,15 +1617,15 @@ class LegalMetrologyComplianceEngine:
         # Clean catalog numbers (e.g. ART NO. 3458, ITEM CODE 901) before quantity extraction
         qty_scan_text = re.sub(r"(?i)\b(?:art(?:\.|icle)?\s*no\.?|item\s*code|model\s*no\.?|batch\s*no\.?)\s*[:=-]*\s*\w+", " [CATALOG_CODE_STRIPPED] ", date_decontaminated_lower)
 
-        # 1. Check for Explicit Count / Writing Instruments / Net Qty (e.g. Net Qty: 1 N, 1 Pen, 5 Pens, 1 Pc)
-        pen_qty_match = re.search(
-            r"(?:(?:net\s*(?:qty|quantity|content|wt|weight)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b",
-            qty_scan_text
+        # 1. Check for Explicit Net Wt / Net Quantity / Net Volume (e.g. Net Wt.: 70 g, Net Qty: 500 ml, Net Weight: 70g)
+        explicit_qty_pattern = re.compile(
+            r"(?i)(?:net\s*(?:wt|weight|qty|quantity|vol|volume|contents?|content)\.?|शुद्ध\s*मात्रा|निव्वळ\s*वजन|పరిమాణం|పరిమాణము|నిట్\s*పరిమాణం|নিট\s*পরিমাণ|ਸ਼ੁੱਧ\s*ਮਾਤਰਾ|خالص\s*مقدار)\s*[\.:=-]*\s*(\d+(?:\.\d+)?)\s*([a-zA-Z.]{1,10}|ग्राम|किग्रा|कि\.ग्रा\.|मिली|मि\.ली\.|लीटर|ली\.|గ్రాములు|గ్రా|మి\.లీ|లీటర్|కేజీ|গ্রাম|কেজি|মিলি|লিটার|ਗ੍ਰਾਮ|ਕਿਲੋ|ਮਿਲੀ|ਲਿਟਰ|گرام|کلو|pages?|sheets?|leaves|pens?|pencils?|units?|u|pcs?|pieces?|n)\b"
         )
-        if pen_qty_match:
-            detected_qty_val = pen_qty_match.group(1).strip()
-            unit_raw = pen_qty_match.group(2).strip().lower()
-            detected_metric_unit = "N" if unit_raw in ["n", "nn"] else unit_raw.upper()
+        match_exp = explicit_qty_pattern.search(date_decontaminated_text)
+        if match_exp:
+            detected_qty_val = match_exp.group(1).strip()
+            unit_raw = match_exp.group(2).strip().rstrip(".").lower()
+            detected_metric_unit = "N" if unit_raw in ["n", "nn", "u", "unit", "units"] else match_exp.group(2).strip().rstrip(".")
 
         # 2. Check for Stationery / Paper Pages & Sheets (e.g. Pages: 428, 80 Pages, Total Pages: 80, 160 Sheets)
         if not detected_qty_val:
@@ -1637,10 +1637,21 @@ class LegalMetrologyComplianceEngine:
                 detected_qty_val = pages_match.group(1).strip()
                 detected_metric_unit = "Pages / Units"
 
-        # 3. Check for Liquid Volume / Weight with Curvature Partial Tolerance (e.g. '200 ml', '500ml', '100g', '250 gm')
+        # 3. Check for Writing Instruments / Count with label (e.g. Net Qty: 1 N, 1 Pen, 5 Pens, 1 Pc)
+        if not detected_qty_val:
+            pen_qty_match = re.search(
+                r"(?:(?:net\s*(?:qty|quantity|content|wt|weight)\.?\s*[\.:=-]*\s*)(\d+(?:\.\d+)?)\s*(nn?|pens?|refills?|pencils?|markers?|units?|u|pcs?|pieces?|sets?))\b",
+                qty_scan_text
+            )
+            if pen_qty_match:
+                detected_qty_val = pen_qty_match.group(1).strip()
+                unit_raw = pen_qty_match.group(2).strip().lower()
+                detected_metric_unit = "N" if unit_raw in ["n", "nn"] else unit_raw.upper()
+
+        # 4. Check for Liquid Volume / Weight with Curvature Partial Tolerance (e.g. '200 ml', '500ml', '70 g', '100g', '250 gm')
         if not detected_qty_val:
             cylinder_metric_pattern = re.compile(
-                r"(?:(?:net\s*(?:qty|quantity|content|wt|weight|vol|volume|cont|w|v)?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(ml|mls|millilitre|millilitres|l|ltr|ltrs|litre|litres|g|gm|gms|gram|grams|kg|kgs|kilogram|nn?|units?|pcs?|pieces?|tab|tablet|tablets|cap|capsule|capsules))\b",
+                r"(?:(?:net\s*(?:qty|quantity|content|wt|weight|vol|volume|cont|w|v)?\.?\s*[\.:=-]*\s*)?(\d+(?:\.\d+)?)\s*(ml|mls|millilitre|millilitres|l|ltr|ltrs|litre|litres|g|gm|gms|gram|grams|kg|kgs|kilogram|nn?|units?|pcs?|pieces?|tab|tablet|tablets|cap|capsule|capsules))\b",
                 re.IGNORECASE
             )
             for match in cylinder_metric_pattern.finditer(date_decontaminated_text):
