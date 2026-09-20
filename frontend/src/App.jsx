@@ -1551,10 +1551,6 @@ export default function App() {
     }
 
     // Minimum Font Height under Schedule II Table
-    // Area <= 50 sq.cm -> 1.0mm (or 2.0mm for net wt > 200g)
-    // Area 50 to 200 sq.cm -> 2.0mm
-    // Area 200 to 1000 sq.cm -> 4.0mm
-    // Area > 1000 sq.cm -> 6.0mm
     let minFontMm = 1.0;
     let scheduleTable = '';
     if (pdpAreaSqCm > 1000) {
@@ -1595,34 +1591,24 @@ export default function App() {
     >
       {/* Top Executive Header */}
       <header
-        className={`sticky top-0 z-40 px-3 py-2.5 sm:px-6 sm:py-3 border-b transition-colors w-full max-w-full no-print ${
-          isDark
-            ? 'bg-[#0f172a]/95 border-slate-800 backdrop-blur-md'
-            : 'bg-white/95 border-slate-200 shadow-sm backdrop-blur-md'
-        }`}
+        className="sticky top-0 z-40 px-3.5 py-2.5 sm:px-6 sm:py-3 border-b transition-colors w-full max-w-full no-print bg-[#0F172A] border-slate-800 text-white shadow-sm"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 w-full">
           {/* Logo & Identity */}
-          <div className="flex items-center space-x-2.5 min-w-0 flex-shrink">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-md shadow-blue-500/20 text-white flex-shrink-0">
+          <div className="flex items-center space-x-3 min-w-0 flex-shrink">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-[6px] bg-[#1E3A8A] flex items-center justify-center border border-blue-600/40 text-white shadow-sm flex-shrink-0">
               <Scale className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div className="min-w-0 truncate">
-              <div className="flex items-center space-x-1.5 flex-wrap">
-                <h1 className="font-extrabold text-xs sm:text-base md:text-lg tracking-tight truncate flex items-center gap-1.5">
-                  <span className="truncate">Legal Metrology Auditor</span>
-                  <span
-                    className={`text-[9px] sm:text-[10px] font-mono font-bold uppercase px-1.5 py-0.2 rounded border flex-shrink-0 ${
-                      isDark
-                        ? 'bg-blue-950 text-blue-400 border-blue-800'
-                        : 'bg-blue-50 text-blue-700 border-blue-200'
-                    }`}
-                  >
+              <div className="flex items-center space-x-2 flex-wrap">
+                <h1 className="font-extrabold text-xs sm:text-base md:text-lg tracking-tight truncate flex items-center gap-2 text-white">
+                  <span className="truncate">Legal Metrology Compliance Auditing System</span>
+                  <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-[4px] border border-blue-700/80 bg-blue-950/80 text-blue-300 flex-shrink-0">
                     PCR 2011
                   </span>
                 </h1>
               </div>
-              <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'} hidden md:block truncate`}>
+              <p className="text-[11px] text-slate-400 hidden md:block truncate mt-0.5 font-normal">
                 Department of Consumer Affairs · Packaged Commodities Regulatory Directorate (SIH 2026)
               </p>
             </div>
@@ -1634,7 +1620,7 @@ export default function App() {
             {/* Live Camera Quick Scan */}
             <button
               onClick={() => startCamera('environment', 1)}
-              className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+              className="px-3.5 py-2 rounded-[6px] bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm active:scale-95 transition-colors"
               title="Open Mobile Rear Camera Viewfinder"
             >
               <Camera className="h-3.5 w-3.5" />
@@ -1644,17 +1630,13 @@ export default function App() {
             {/* Recent Audits Modal Button */}
             <button
               onClick={() => setIsAuditsModalOpen(true)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all relative ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
-              }`}
+              className="px-3.5 py-2 rounded-[6px] text-xs font-semibold flex items-center gap-1.5 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-95 transition-colors relative shadow-sm"
               title="View Live Audits & Database Sync"
             >
-              <History className="h-3.5 w-3.5 text-blue-500" />
+              <History className="h-3.5 w-3.5 text-blue-400" />
               <span>Recent Audits</span>
               {recentAuditsList && recentAuditsList.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold bg-blue-600 text-white shadow-sm flex items-center gap-1">
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-mono font-extrabold bg-[#1E3A8A] text-white shadow-sm flex items-center gap-1 border border-blue-500/40">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   {recentAuditsList.length}
                 </span>
@@ -1664,25 +1646,17 @@ export default function App() {
             {/* Rules Reference Button */}
             <button
               onClick={() => setIsRulesModalOpen(true)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border active:scale-95 transition-all ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300 shadow-sm'
-              }`}
+              className="px-3.5 py-2 rounded-[6px] text-xs font-semibold flex items-center gap-1.5 border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 active:scale-95 transition-colors shadow-sm"
               title="View PCR 2011 Rules & Approved SI Units Reference"
             >
-              <BookOpen className="h-3.5 w-3.5 text-amber-500" />
+              <BookOpen className="h-3.5 w-3.5 text-amber-400" />
               <span>Rules & Units</span>
             </button>
 
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className={`p-2 rounded-xl border text-xs font-bold flex items-center active:scale-95 transition-all ${
-                isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300 shadow-sm'
-              }`}
+              className="p-2 rounded-[6px] border border-slate-700 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-semibold flex items-center active:scale-95 transition-colors shadow-sm"
               title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -1692,17 +1666,13 @@ export default function App() {
             <div
               className={`flex items-center space-x-1.5 text-xs px-2.5 py-1.5 rounded-full border font-bold ${
                 apiHealth.online
-                  ? isDark
-                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  : isDark
-                  ? 'bg-amber-950/80 text-amber-300 border-amber-800'
-                  : 'bg-amber-50 text-amber-800 border-amber-300'
+                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800/80'
+                  : 'bg-blue-950/80 text-blue-300 border-blue-800/80'
               }`}
             >
               <span
                 className={`h-2 w-2 rounded-full ${
-                  apiHealth.online ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                  apiHealth.online ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'
                 }`}
               />
               <span className="font-mono text-[10px]">
@@ -1718,32 +1688,22 @@ export default function App() {
                   e.stopPropagation();
                   setIsLangDropdownOpen((prev) => !prev);
                 }}
-                className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold active:scale-95 transition-all shadow-sm ${
-                  isDark
-                    ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200'
-                    : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-800'
-                }`}
+                className="flex items-center space-x-1.5 px-3 py-2 rounded-[6px] border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold active:scale-95 transition-colors shadow-sm"
                 title="Select Regulatory Inspection Language"
               >
-                <Globe className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />
+                <Globe className="h-3.5 w-3.5 text-blue-400 flex-shrink-0" />
                 <span className="font-mono">{selectedLanguage.toUpperCase()}</span>
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
 
               {isLangDropdownOpen && (
                 <div
-                  className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border animate-in fade-in zoom-in-95 duration-150 ${
-                    isDark ? 'bg-[#0f172a] border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  className="absolute right-0 mt-2 w-56 rounded-[8px] shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border bg-[#0F172A] border-slate-700 animate-in fade-in zoom-in-95 duration-150"
                   style={{ zIndex: 9999 }}
                 >
-                  <div
-                    className={`px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
-                      isDark ? 'text-slate-400 border-slate-800 bg-slate-900/50' : 'text-slate-500 border-slate-100 bg-slate-50/50'
-                    }`}
-                  >
+                  <div className="px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between text-slate-400 border-slate-800 bg-slate-900/50">
                     <span>Regional Languages</span>
-                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold">
+                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 border border-blue-800 font-bold">
                       {activeLanguagesList.length} Indic
                     </span>
                   </div>
@@ -1756,19 +1716,17 @@ export default function App() {
                         setSelectedLanguage(lang.code);
                         setIsLangDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition active:bg-blue-100 dark:active:bg-slate-700 ${
+                      className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition ${
                         selectedLanguage === lang.code
-                          ? 'text-blue-600 font-extrabold bg-blue-50 dark:bg-slate-800/90'
-                          : isDark
-                          ? 'text-slate-200 hover:bg-slate-800'
-                          : 'text-slate-700 hover:bg-slate-100'
+                          ? 'text-blue-400 font-bold bg-slate-800'
+                          : 'text-slate-200 hover:bg-slate-800/70'
                       }`}
                     >
                       <span className="flex items-center space-x-2.5">
                         <span className="text-sm">{lang.flag}</span>
                         <span className="font-medium">{lang.nativeName}</span>
                       </span>
-                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-600 flex-shrink-0" />}
+                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-400 flex-shrink-0" />}
                     </button>
                   ))}
                 </div>
@@ -1782,7 +1740,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => startCamera('environment', 1)}
-              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-sm"
+              className="p-2 rounded-[6px] bg-[#0284C7] hover:bg-[#0369A1] text-white active:scale-95 shadow-sm"
               title="Camera Scan"
             >
               <Camera className="h-4 w-4" />
@@ -1792,11 +1750,7 @@ export default function App() {
             <button
               type="button"
               onClick={toggleTheme}
-              className={`p-2 rounded-xl border text-xs active:scale-95 ${
-                isDark
-                  ? 'bg-slate-800 text-amber-300 border-slate-700'
-                  : 'bg-slate-100 text-slate-800 border-slate-300'
-              }`}
+              className="p-2 rounded-[6px] border border-slate-700 bg-slate-800 text-amber-300 text-xs active:scale-95 shadow-sm"
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
@@ -1809,30 +1763,22 @@ export default function App() {
                   e.stopPropagation();
                   setIsMobileLangOpen((prev) => !prev);
                 }}
-                className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-bold flex items-center gap-1 active:scale-95 shadow-sm ${
-                  isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-100 text-slate-800 border-slate-300'
-                }`}
+                className="px-2.5 py-1.5 rounded-[6px] border border-slate-700 bg-slate-800 text-slate-200 text-[11px] font-bold flex items-center gap-1 active:scale-95 shadow-sm"
                 title="Select Language"
               >
-                <Globe className="h-3.5 w-3.5 text-blue-500" />
+                <Globe className="h-3.5 w-3.5 text-blue-400" />
                 <span className="font-mono font-bold">{selectedLanguage.toUpperCase()}</span>
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
 
               {isMobileLangOpen && (
                 <div
-                  className={`absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border animate-in fade-in zoom-in-95 duration-150 ${
-                    isDark ? 'bg-[#0f172a] border-slate-700' : 'bg-white border-slate-200'
-                  }`}
+                  className="absolute right-0 mt-2 w-56 rounded-[8px] shadow-2xl py-1.5 z-50 max-h-80 overflow-y-auto border bg-[#0F172A] border-slate-700 animate-in fade-in zoom-in-95 duration-150"
                   style={{ zIndex: 9999 }}
                 >
-                  <div
-                    className={`px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between ${
-                      isDark ? 'text-slate-400 border-slate-800 bg-slate-900/50' : 'text-slate-500 border-slate-100 bg-slate-50/50'
-                    }`}
-                  >
+                  <div className="px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider border-b flex items-center justify-between text-slate-400 border-slate-800 bg-slate-900/50">
                     <span>Regional Languages</span>
-                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold">
+                    <span className="font-mono text-[9px] px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 border border-blue-800 font-bold">
                       {activeLanguagesList.length} Indic
                     </span>
                   </div>
@@ -1845,19 +1791,17 @@ export default function App() {
                         setSelectedLanguage(lang.code);
                         setIsMobileLangOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2.5 text-xs flex items-center justify-between transition active:bg-blue-100 dark:active:bg-slate-700 ${
+                      className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition ${
                         selectedLanguage === lang.code
-                          ? 'text-blue-600 font-extrabold bg-blue-50 dark:bg-slate-800/90'
-                          : isDark
-                          ? 'text-slate-200 hover:bg-slate-800'
-                          : 'text-slate-700 hover:bg-slate-100'
+                          ? 'text-blue-400 font-bold bg-slate-800'
+                          : 'text-slate-200 hover:bg-slate-800/70'
                       }`}
                     >
                       <span className="flex items-center space-x-2.5">
                         <span className="text-sm">{lang.flag}</span>
                         <span className="font-medium">{lang.nativeName}</span>
                       </span>
-                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-600 flex-shrink-0" />}
+                      {selectedLanguage === lang.code && <Check className="h-4 w-4 text-blue-400 flex-shrink-0" />}
                     </button>
                   ))}
                 </div>
@@ -1868,7 +1812,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsMobileToolsOpen(true)}
-              className="p-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-700 active:scale-95 shadow-sm"
+              className="p-2 rounded-[6px] bg-slate-800 text-white hover:bg-slate-700 border border-slate-700 active:scale-95 shadow-sm"
               title="Regulatory Tools Menu"
             >
               <Menu className="h-4 w-4" />
@@ -1879,25 +1823,28 @@ export default function App() {
 
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 space-y-6">
-        {/* Offline Banner notice */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+        {/* Subtle Information Alert for In-Browser Edge OCR */}
         {!apiHealth.online && (
           <div
-            className={`p-3.5 rounded-xl border flex items-center justify-between flex-wrap gap-2 text-xs no-print ${
+            style={{ borderRadius: '8px', overflow: 'hidden' }}
+            className={`p-4 rounded-[8px] border flex items-center justify-between flex-wrap gap-3 text-xs no-print shadow-sm overflow-hidden ${
               isDark
-                ? 'bg-amber-950/60 border-amber-800/80 text-amber-200'
-                : 'bg-amber-50 border-amber-200 text-amber-900'
+                ? 'bg-blue-950/40 border-blue-900/60 text-blue-200'
+                : 'bg-[#EFF6FF] border-[#BFDBFE] text-[#1E40AF]'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-amber-500 flex-shrink-0 animate-pulse" />
-              <span>
-                <strong>In-Browser Edge OCR Active:</strong> Tesseract.js is ready to run directly in your browser without requiring a backend connection.
+            <div className="flex items-center gap-2.5">
+              <Info className="h-4 w-4 text-[#1E40AF] dark:text-blue-400 flex-shrink-0" />
+              <span className="leading-relaxed">
+                <strong>In-Browser Edge OCR Active:</strong> Tesseract.js client engine is operational and ready to inspect package compliance directly in your browser.
               </span>
             </div>
             <span
-              className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold ${
-                isDark ? 'bg-amber-900/80 text-amber-300' : 'bg-amber-200 text-amber-900'
+              className={`px-2.5 py-1 rounded-[6px] font-mono text-[11px] font-semibold border ${
+                isDark
+                  ? 'bg-blue-900/60 text-blue-300 border-blue-800'
+                  : 'bg-blue-100 text-[#1E40AF] border-[#BFDBFE]'
               }`}
             >
               Tesseract.js Client Edge
@@ -1905,36 +1852,86 @@ export default function App() {
           </div>
         )}
 
+        {/* 1-Click Regulatory Demo Scenarios Section */}
+        <section
+          style={{ borderRadius: '8px', overflow: 'hidden' }}
+          className={`p-5 sm:p-6 rounded-[8px] border shadow-sm space-y-3.5 no-print overflow-hidden ${
+            isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-[#E2E8F0]'
+          }`}
+        >
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#1E3A8A] dark:text-blue-400" />
+              <h2 className="text-xs sm:text-sm font-bold tracking-wide uppercase text-slate-900 dark:text-slate-100">
+                1-Click Regulatory Demo Scenarios
+              </h2>
+            </div>
+            <span className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              12 Curated Test Cases (English + Regional Languages)
+            </span>
+          </div>
+
+          <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-thin">
+            {samplePresets.map((sample) => (
+              <button
+                key={sample.id}
+                onClick={() => handleSelectPreset(sample)}
+                style={{ borderRadius: '8px' }}
+                className={`flex-shrink-0 text-left p-3.5 rounded-[8px] border text-xs active:scale-[0.98] transition-all duration-200 max-w-[260px] min-w-[220px] overflow-hidden ${
+                  selectedSampleId === sample.id
+                    ? isDark
+                      ? 'bg-blue-950/70 border-blue-500 text-blue-100 shadow-md ring-1 ring-blue-500'
+                      : 'bg-blue-50/80 border-[#1E3A8A] text-[#0F172A] shadow-sm font-bold ring-1 ring-[#1E3A8A]/30'
+                    : isDark
+                    ? 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800/80 hover:shadow-sm'
+                    : 'bg-white border-[#E2E8F0] text-slate-700 hover:border-slate-300 hover:shadow-md hover:bg-slate-50/50'
+                }`}
+              >
+                <div className="font-bold truncate text-[12px]">{sample.title}</div>
+                <div
+                  className={`text-[11px] truncate mt-1 ${
+                    isDark ? 'text-slate-400' : 'text-slate-500'
+                  }`}
+                >
+                  {sample.description}
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
 
         {/* Ingestion & Multi-Angle Capture Section */}
         <section
-          className={`p-4 sm:p-6 rounded-2xl border shadow-md space-y-4 no-print ${
-            isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-slate-200'
+          style={{ borderRadius: '8px', overflow: 'hidden' }}
+          className={`p-5 sm:p-6 rounded-[8px] border shadow-sm space-y-5 no-print overflow-hidden ${
+            isDark ? 'bg-[#0f172a] border-slate-800' : 'bg-white border-[#E2E8F0]'
           }`}
         >
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h2 className="text-base sm:text-lg font-extrabold flex items-center gap-2">
-                <Package className="h-5 w-5 text-blue-600" />
+              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <Package className="h-5 w-5 text-[#1E3A8A] dark:text-blue-400" />
                 Package Image Ingestion & Multi-Angle Capture
               </h2>
-              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-0.5`}>
+              <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'} mt-0.5 font-normal`}>
                 Click any slot, use your mobile camera, or paste from clipboard (Ctrl+V).
               </p>
             </div>
 
             {/* OCR Mode Selector */}
             <div className="flex items-center gap-2">
-              <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'} font-bold hidden sm:inline`}>
+              <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'} font-semibold hidden sm:inline`}>
                 OCR Mode:
               </span>
               <select
                 value={ocrExecutionMode}
                 onChange={(e) => setOcrExecutionMode(e.target.value)}
-                className={`border rounded-xl px-3 py-2 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                style={{ borderRadius: '6px' }}
+                className={`border rounded-[6px] px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-[#1E3A8A] ${
                   isDark
                     ? 'bg-slate-900 border-slate-700 text-slate-200'
-                    : 'bg-slate-50 border-slate-300 text-slate-800 shadow-sm'
+                    : 'bg-white border-[#CBD5E1] text-slate-800 shadow-sm'
                 }`}
               >
                 <option value="hybrid">⚡ Hybrid AI (Auto Fallback)</option>
@@ -1955,32 +1952,33 @@ export default function App() {
                   key={angle.index}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDropOnSlot(e, angle.index)}
-                  className={`relative rounded-2xl border p-4 flex flex-col justify-between transition-all min-h-[190px] ${
+                  style={{ borderRadius: '8px', overflow: 'hidden' }}
+                  className={`relative rounded-[8px] border-2 border-dashed p-4 flex flex-col justify-between transition-all min-h-[195px] overflow-hidden ${
                     uploadedItem
                       ? isDark
-                        ? 'bg-slate-900 border-blue-600/80 shadow-md'
-                        : 'bg-blue-50/40 border-blue-300 shadow-sm'
+                        ? 'bg-slate-900 border-[#1E3A8A] shadow-md'
+                        : 'bg-blue-50/40 border-[#1E3A8A] shadow-sm'
                       : isDark
-                      ? 'bg-slate-900/40 border-slate-800 border-dashed hover:border-slate-700'
-                      : 'bg-slate-50/70 border-slate-300 border-dashed hover:border-blue-400 hover:bg-blue-50/20'
+                      ? 'bg-slate-900/50 border-slate-700 hover:border-blue-500'
+                      : 'bg-[#F8FAFC] border-[#CBD5E1] hover:border-[#1E3A8A] hover:bg-blue-50/20'
                   }`}
                 >
                   {/* Slot Header */}
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold flex items-center gap-1.5">
                       <span
-                        className={`h-5 w-5 rounded-md flex items-center justify-center text-[11px] font-mono font-bold ${
-                          isDark ? 'bg-slate-800 text-blue-400' : 'bg-blue-100 text-blue-700'
+                        className={`h-5 w-5 rounded-[4px] flex items-center justify-center text-[11px] font-mono font-bold ${
+                          isDark ? 'bg-blue-950 text-blue-400 border border-blue-800' : 'bg-[#1E3A8A] text-white'
                         }`}
                       >
                         {angle.index}
                       </span>
-                      {angle.defaultLabel}
+                      <span className="text-slate-800 dark:text-slate-200">{angle.defaultLabel}</span>
                     </span>
                     {uploadedItem && (
                       <button
                         onClick={(e) => handleRemoveImage(angle.index, e)}
-                        className="p-1 rounded-md bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-950 dark:text-rose-300 transition"
+                        className="p-1 rounded-[4px] bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-950 dark:text-rose-300 transition"
                         title="Remove photo"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -1999,7 +1997,7 @@ export default function App() {
 
                   {/* Slot Content */}
                   {uploadedItem ? (
-                    <div className="relative group rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-black/10 dark:bg-black/40 flex-1 flex items-center justify-center max-h-[120px]">
+                    <div className="relative group rounded-[6px] overflow-hidden border border-slate-200 dark:border-slate-700 bg-black/10 dark:bg-black/40 flex-1 flex items-center justify-center max-h-[120px]">
                       {uploadedItem.previewUrl ? (
                         <img
                           src={uploadedItem.previewUrl}
@@ -2015,7 +2013,7 @@ export default function App() {
                           <button
                             type="button"
                             onClick={() => setPreviewModalImage(uploadedItem.previewUrl)}
-                            className="p-2 rounded-xl bg-white/90 text-slate-900 hover:bg-white text-xs font-bold shadow"
+                            className="p-2 rounded-[6px] bg-white/90 text-slate-900 hover:bg-white text-xs font-bold shadow"
                             title="View Full Preview"
                           >
                             <Eye className="h-4 w-4" />
@@ -2023,7 +2021,7 @@ export default function App() {
                         )}
                         <label
                           htmlFor={slotInputId}
-                          className="p-2 rounded-xl bg-blue-600 text-white hover:bg-blue-500 cursor-pointer text-xs font-bold shadow"
+                          className="p-2 rounded-[6px] bg-[#1E3A8A] text-white hover:bg-[#1E40AF] cursor-pointer text-xs font-bold shadow"
                           title="Replace Image"
                         >
                           <Pencil className="h-4 w-4" />
@@ -2035,25 +2033,23 @@ export default function App() {
                       <p className={`text-[11px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'} mb-3`}>
                         {angle.subtitle}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="grid grid-cols-2 gap-2 w-full mt-1">
                         <button
                           type="button"
                           onClick={() => startCamera('environment', angle.index)}
-                          className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                          style={{ borderRadius: '6px' }}
+                          className="px-3.5 py-2 rounded-[6px] bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-colors cursor-pointer w-full"
                         >
                           <Camera className="h-3.5 w-3.5" />
-                          Camera
+                          <span>Camera</span>
                         </button>
                         <label
                           htmlFor={slotInputId}
-                          className={`px-3.5 py-2 rounded-xl text-xs font-bold border cursor-pointer flex items-center gap-1.5 active:scale-95 transition-all ${
-                            isDark
-                              ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                              : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300 shadow-sm'
-                          }`}
+                          style={{ borderRadius: '6px' }}
+                          className="px-3.5 py-2 rounded-[6px] bg-[#1E3A8A] hover:bg-[#1E40AF] text-white text-xs font-semibold border border-transparent cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-colors shadow-sm w-full"
                         >
                           <Upload className="h-3.5 w-3.5" />
-                          Upload
+                          <span>Upload</span>
                         </label>
                       </div>
                     </div>
@@ -2074,26 +2070,28 @@ export default function App() {
           />
 
           {/* Action Bar & Audit Trigger */}
-          <div className="flex items-center justify-between flex-wrap gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-between flex-wrap gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   if (multiFileInputRef.current) multiFileInputRef.current.click();
                 }}
-                className={`px-4 py-2.5 rounded-xl text-xs font-bold border flex items-center gap-1.5 active:scale-95 transition-all ${
+                style={{ borderRadius: '6px' }}
+                className={`px-4 py-2.5 rounded-[6px] text-xs font-semibold border flex items-center gap-2 active:scale-95 transition-colors shadow-sm ${
                   isDark
                     ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
-                    : 'bg-white hover:bg-slate-100 text-slate-800 border-slate-300 shadow-sm'
+                    : 'bg-white hover:bg-slate-50 text-slate-800 border-[#CBD5E1]'
                 }`}
               >
-                <Upload className="h-4 w-4 text-blue-600" />
+                <Upload className="h-4 w-4 text-[#1E3A8A] dark:text-blue-400" />
                 <span>Upload Batch Photos (1 to 4)</span>
               </button>
 
               {uploadedImages.length > 0 && (
                 <button
                   onClick={handleClearAllImages}
-                  className="px-3.5 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 text-xs font-bold border border-rose-200 dark:border-rose-900 active:scale-95 transition-all"
+                  style={{ borderRadius: '6px' }}
+                  className="px-3.5 py-2.5 rounded-[6px] bg-rose-50 hover:bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 text-xs font-semibold border border-rose-200 dark:border-rose-900 active:scale-95 transition-colors"
                 >
                   Clear All
                 </button>
@@ -2103,11 +2101,12 @@ export default function App() {
             {/* Execute Compliance Audit Button */}
             <button
               onClick={handleExecuteAudit}
-          className={`px-7 py-3.5 rounded-xl font-extrabold text-sm flex items-center gap-2 shadow-lg active:scale-95 transition-all ${
+              style={{ borderRadius: '6px' }}
+              className={`px-7 py-3 rounded-[6px] font-bold text-sm flex items-center gap-2.5 shadow-md active:scale-[0.99] transition-all ${
                 loading
-                  ? 'bg-blue-800 text-blue-200 cursor-wait'
+                  ? 'bg-[#1E3A8A] text-blue-200 cursor-wait'
                   : uploadedImages.length > 0 || manualText.trim()
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-blue-500/25'
+                  ? 'bg-[#1E3A8A] hover:bg-[#1E40AF] text-white shadow-blue-900/20'
                   : isDark
                   ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
@@ -2131,7 +2130,7 @@ export default function App() {
           {loading && clientOcrProgress.percent > 0 && (
             <div className="w-full bg-slate-200 dark:bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-300 dark:border-slate-700">
               <div
-                className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                className="bg-[#1E3A8A] h-2.5 rounded-full transition-all duration-300"
                 style={{ width: `${clientOcrProgress.percent}%` }}
               />
             </div>
